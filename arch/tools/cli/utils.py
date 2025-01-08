@@ -2,6 +2,7 @@ import os
 import yaml
 import logging
 import docker
+from docker.errors import DockerException
 
 from cli.consts import ARCHGW_DOCKER_IMAGE, ARCHGW_DOCKER_NAME
 
@@ -39,9 +40,13 @@ def update_docker_host_env():
 
 def validate_schema(arch_config_file: str) -> None:
     try:
-        update_docker_host_env()
-        client = docker.from_env()
-        # Run the container with detach=True to avoid blocking main process
+        try:
+            client = docker.from_env()
+        except DockerException as e:
+            # try setting up the docker host environment variable and retry
+            update_docker_host_env()
+            client = docker.from_env()
+
         container = client.containers.run(
             image=ARCHGW_DOCKER_IMAGE,
             volumes={
