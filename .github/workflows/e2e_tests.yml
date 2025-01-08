@@ -8,21 +8,26 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        python-version: [3.10] # , 3.11, 3.12, 3.13]
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      # Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install Poetry
         run: |
           export POETRY_VERSION=1.8.5
-          curl -sSL https://install.python-poetry.org | python3 -
+          curl -sSL https://install.python-poetry.org | python -
           export PATH="$HOME/.local/bin:$PATH"
 
       - name: Run e2e tests
