@@ -4,7 +4,8 @@ import time
 import sys
 import glob
 import docker
-from cli.utils import getLogger
+from docker.errors import DockerException
+from cli.utils import getLogger, update_docker_host_env
 from cli.consts import (
     ARCHGW_DOCKER_IMAGE,
     ARCHGW_DOCKER_NAME,
@@ -44,6 +45,7 @@ def start_archgw_docker(client, arch_config_file, env):
         },
         environment={
             "OTEL_TRACING_HTTP_ENDPOINT": "http://host.docker.internal:4318/v1/traces",
+            "MODEL_SERVER_PORT": os.getenv("MODEL_SERVER_PORT", "51000"),
             **env,
         },
         extra_hosts={"host.docker.internal": "host-gateway"},
@@ -78,25 +80,6 @@ def stream_gateway_logs(follow):
         log.info(f"Failed to stream logs: {str(e)}")
 
 
-def stream_model_server_logs(follow):
-    """
-    Get the model server logs, check if the user wants to follow/tail them.
-    """
-    log_file_expanded = os.path.expanduser(MODEL_SERVER_LOG_FILE)
-
-    stream_command = ["tail"]
-    if follow:
-        stream_command.append("-f")
-
-    stream_command.append(log_file_expanded)
-    subprocess.run(
-        stream_command,
-        check=True,
-        stdout=sys.stdout,
-        stderr=sys.stderr,
-    )
-
-
 def stream_access_logs(follow):
     """
     Get the archgw access logs
@@ -117,7 +100,7 @@ def stream_access_logs(follow):
     )
 
 
-def start_arch(arch_config_file, env, log_timeout=120):
+def start_arch(arch_config_file, env, log_timeout=120, foreground=False):
     """
     Start Docker Compose in detached mode and stream logs until services are healthy.
 
@@ -128,7 +111,22 @@ def start_arch(arch_config_file, env, log_timeout=120):
     log.info("Starting arch gateway")
 
     try:
-        client = docker.from_env()
+        try:
+            client = docker.from_env()
+        except DockerException as e:
+            # try setting up the docker host environment variable and retry
+            update_docker_host_env()
+            client = docker.from_env()
+
+        try:
+            container = client.containers.get("archgw")
+            log.info("archgw container found in docker, stopping and removing it")
+            # ensure that previous docker container is stopped and removed
+            container.stop()
+            container.remove()
+            log.info("Stopped and removed archgw container")
+        except docker.errors.NotFound as e:
+            pass
 
         container = start_archgw_docker(client, arch_config_file, env)
 
@@ -153,6 +151,13 @@ def start_arch(arch_config_file, env, log_timeout=120):
                 log.info(f"Container health status: {container_status}")
                 time.sleep(1)
 
+        if foreground:
+            for line in container.logs(stream=True):
+                print(line.decode("utf-8").strip("\n"))
+
+    except KeyboardInterrupt:
+        log.info("Keyboard interrupt received, stopping arch gateway service.")
+        stop_arch()
     except docker.errors.APIError as e:
         log.info(f"Failed to start Arch: {str(e)}")
 
@@ -186,17 +191,23 @@ def download_models_from_hf():
         snapshot_download(repo_id=model)
 
 
-def start_arch_modelserver():
+def start_arch_modelserver(foreground):
     """
     Start the model server. This assumes that the archgw_modelserver package is installed locally
 
     """
     try:
         log.info("archgw_modelserver restart")
-        subprocess.run(
-            ["archgw_modelserver", "restart"], check=True, start_new_session=True
-        )
-        log.info("Successfully ran model_server")
+        if foreground:
+            subprocess.run(
+                ["archgw_modelserver", "start", "--foreground"],
+                check=True,
+            )
+        else:
+            subprocess.run(
+                ["archgw_modelserver", "start"],
+                check=True,
+            )
     except subprocess.CalledProcessError as e:
         log.info(f"Failed to start model_server. Please check archgw_modelserver logs")
         sys.exit(1)
@@ -212,7 +223,6 @@ def stop_arch_modelserver():
             ["archgw_modelserver", "stop"],
             check=True,
         )
-        log.info("Successfully stopped the archgw model_server")
     except subprocess.CalledProcessError as e:
         log.info(f"Failed to start model_server. Please check archgw_modelserver logs")
         sys.exit(1)
