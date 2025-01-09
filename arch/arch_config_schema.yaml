@@ -122,11 +122,6 @@ properties:
           required:
             - name
             - path
-        http_method:
-          type: string
-          enum:
-            - GET
-            - POST
         system_prompt:
           type: string
       additionalProperties: false
