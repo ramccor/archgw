@@ -312,9 +312,11 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        debug!(
+        trace!(
             "on_http_response_body [S={}] bytes={} end_stream={}",
-            self.context_id, body_size, end_of_stream
+            self.context_id,
+            body_size,
+            end_of_stream
         );
 
         if !self.is_chat_completions_request {
@@ -334,16 +336,18 @@ impl HttpContext for StreamContext {
                     // Record the latency to the latency histogram
                     self.metrics.request_latency.record(duration_ms as u64);
 
-                    // Compute the time per output token
-                    let tpot = duration_ms as u64 / self.response_tokens as u64;
+                    if self.response_tokens > 0 {
+                        // Compute the time per output token
+                        let tpot = duration_ms as u64 / self.response_tokens as u64;
 
-                    debug!("Time per output token: {} milliseconds", tpot);
-                    // Record the time per output token
-                    self.metrics.time_per_output_token.record(tpot);
+                        debug!("Time per output token: {} milliseconds", tpot);
+                        // Record the time per output token
+                        self.metrics.time_per_output_token.record(tpot);
 
-                    debug!("Tokens per second: {}", 1000 / tpot);
-                    // Record the tokens per second
-                    self.metrics.tokens_per_second.record(1000 / tpot);
+                        debug!("Tokens per second: {}", 1000 / tpot);
+                        // Record the tokens per second
+                        self.metrics.tokens_per_second.record(1000 / tpot);
+                    }
                 }
                 Err(e) => {
                     warn!("SystemTime error: {:?}", e);
@@ -398,9 +402,10 @@ impl HttpContext for StreamContext {
         let body = if self.streaming_response {
             let chunk_start = 0;
             let chunk_size = body_size;
-            debug!(
+            trace!(
                 "streaming response reading, {}..{}",
-                chunk_start, chunk_size
+                chunk_start,
+                chunk_size
             );
             let streaming_chunk = match self.get_http_response_body(0, chunk_size) {
                 Some(chunk) => chunk,
@@ -520,9 +525,11 @@ impl HttpContext for StreamContext {
             }
         }
 
-        debug!(
+        trace!(
             "recv [S={}] total_tokens={} end_stream={}",
-            self.context_id, self.response_tokens, end_of_stream
+            self.context_id,
+            self.response_tokens,
+            end_of_stream
         );
 
         Action::Continue

@@ -44,15 +44,17 @@ prompt_guards:
 prompt_targets:
   - name: listAllClusterDetails
     description: Query your clusters for more details.
-    http_method: GET
     endpoint:
+      http_method: GET
       name: acm_service
       path: /cluster.open-cluster-management.io/v1/managedclusters
+    system_prompt: |
+      You are a helpful assistant. You are given response in json. Only show name of the cluster and its status.
 
   - name: getClusterDetails
     description: Query a single cluster for more details
-    http_method: GET
     endpoint:
+      http_method: GET
       name: acm_service
       path: /cluster.open-cluster-management.io/v1/managedclusters/{cluster_name}
     parameters:
@@ -70,15 +72,15 @@ prompt_targets:
 
       - name: listAllClusterDetails
         description: Query your clusters for more details.
-        http_method: GET
         endpoint:
+          http_method: GET
           name: acm_service
           path: /cluster.open-cluster-management.io/v1/managedclusters
 
       - name: getClusterDetails
         description: Query a single cluster for more details
-        http_method: GET
         endpoint:
+          http_method: GET
           name: acm_service
           path: /cluster.open-cluster-management.io/v1/managedclusters/{cluster_name}
         parameters:

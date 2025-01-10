@@ -14,7 +14,7 @@ use common::http::{CallArgs, Client};
 use common::stats::Gauge;
 use derivative::Derivative;
 use http::StatusCode;
-use log::{info, debug, warn};
+use log::{debug, info, warn};
 use proxy_wasm::traits::*;
 use serde_yaml::Value;
 use std::cell::RefCell;
@@ -465,6 +465,7 @@ impl StreamContext {
     fn construct_llm_messages(&mut self, callout_context: &StreamCallContext) -> Vec<Message> {
         let mut messages: Vec<Message> = Vec::new();
 
+        info!("prompt target: {:?}", callout_context.prompt_target_name);
         // add system prompt
         let system_prompt = match callout_context.prompt_target_name.as_ref() {
             None => self.system_prompt.as_ref().clone(),
@@ -473,7 +474,7 @@ impl StreamContext {
             }
         };
 
-        info!("messages 1: {:?}", callout_context.request_body.messages);
+        info!("system_prompt: {:?}", system_prompt);
 
         if system_prompt.is_some() {
             let system_prompt_message = Message {
@@ -486,12 +487,9 @@ impl StreamContext {
             messages.push(system_prompt_message);
         }
 
-        info!("messages 2: {:?}", messages);
-
         messages.append(
             &mut self.filter_out_arch_messages(callout_context.request_body.messages.as_ref()),
         );
-        info!("messages 3: {:?}", messages);
         messages
     }
 
