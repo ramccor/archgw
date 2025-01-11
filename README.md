@@ -24,7 +24,7 @@ Engineered with purpose-built LLMs, Arch handles the critical but undifferentiat
   - Routing & Traffic Management: Arch centralizes calls to LLMs used by your applications, offering smart retries, automatic cutover, and resilient upstream connections for continuous availability.
   - Observability: Arch uses the W3C Trace Context standard to enable complete request tracing across applications, ensuring compatibility with observability tools, and provides metrics to monitor latency, token usage, and error rates, helping optimize AI application performance.
 
-**High-Level Network Flow Diagram**:
+**High-Level Network Flow**:
 ![alt text](docs/source/_static/img/arch_network_diagram_high_level.png)
 
 **Jump to our [docs](https://docs.archgw.com)** to learn how you can use Arch to improve the speed, security and personalization of your GenAI apps.
