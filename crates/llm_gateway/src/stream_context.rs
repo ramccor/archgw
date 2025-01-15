@@ -177,7 +177,10 @@ impl HttpContext for StreamContext {
         self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
 
         if let Err(error) = self.modify_auth_headers() {
-            self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+            // ensure that the provider has an endpoint if the access key is missing else return a bad request
+            if self.llm_provider.as_ref().unwrap().endpoint.is_none() {
+                self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+            }
         }
         self.delete_content_length_header();
         self.save_ratelimit_header();

@@ -171,6 +171,8 @@ pub struct LlmProvider {
     pub model: String,
     pub default: Option<bool>,
     pub stream: Option<bool>,
+    pub endpoint: Option<String>,
+    pub port: Option<u16>,
     pub rate_limits: Option<LlmRatelimit>,
 }
 

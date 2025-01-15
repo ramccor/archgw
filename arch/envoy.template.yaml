@@ -538,6 +538,24 @@ static_resources:
               tls_maximum_protocol_version: TLSv1_3
       {% endif %}
 {% endfor %}
+
+{% for local_llm_provider in local_llms %}
+    - name: {{ local_llm_provider.name }}
+      connect_timeout: 5s
+      type: LOGICAL_DNS
+      dns_lookup_family: V4_ONLY
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: {{ local_llm_provider.name }}
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: {{ local_llm_provider.endpoint }}
+                      port_value: {{ local_llm_provider.port }}
+                  hostname: {{ local_llm_provider.endpoint }}
+{% endfor %}
     - name: arch_internal
       connect_timeout: 5s
       type: LOGICAL_DNS

@@ -51,11 +51,12 @@ properties:
           type: string
         default:
           type: boolean
+        endpoint:
+          type: string
       additionalProperties: false
       required:
         - name
         - provider
-        - access_key
         - model
   overrides:
     type: object
