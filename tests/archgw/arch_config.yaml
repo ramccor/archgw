@@ -12,12 +12,21 @@ endpoints:
     connect_timeout: 0.005s
 
 llm_providers:
-
-  - name: local-llm
-    provider: local-llm
-    endpoint: host.docker.internal:51002
-    model: test-local-model
+  - name: gpt-4o-mini
+    access_key: $OPENAI_API_KEY
+    provider: openai
+    model: gpt-4o-mini
     default: true
+
+  - name: gpt-3.5-turbo-0125
+    access_key: $OPENAI_API_KEY
+    provider: openai
+    model: gpt-3.5-turbo-0125
+
+  - name: gpt-4o
+    access_key: $OPENAI_API_KEY
+    provider: openai
+    model: gpt-4o
 
 system_prompt: |
   You are a helpful assistant.
