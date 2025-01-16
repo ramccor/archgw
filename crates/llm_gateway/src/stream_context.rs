@@ -315,11 +315,9 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        trace!(
+        debug!(
             "on_http_response_body [S={}] bytes={} end_stream={}",
-            self.context_id,
-            body_size,
-            end_of_stream
+            self.context_id, body_size, end_of_stream
         );
 
         if !self.is_chat_completions_request {
@@ -403,10 +401,9 @@ impl HttpContext for StreamContext {
         let body = if self.streaming_response {
             let chunk_start = 0;
             let chunk_size = body_size;
-            trace!(
+            debug!(
                 "streaming response reading, {}..{}",
-                chunk_start,
-                chunk_size
+                chunk_start, chunk_size
             );
             let streaming_chunk = match self.get_http_response_body(0, chunk_size) {
                 Some(chunk) => chunk,
@@ -526,11 +523,9 @@ impl HttpContext for StreamContext {
             }
         }
 
-        trace!(
+        debug!(
             "recv [S={}] total_tokens={} end_stream={}",
-            self.context_id,
-            self.response_tokens,
-            end_of_stream
+            self.context_id, self.response_tokens, end_of_stream
         );
 
         Action::Continue
