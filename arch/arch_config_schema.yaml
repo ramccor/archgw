@@ -45,6 +45,8 @@ properties:
           type: string
         provider:
           type: string
+          enum:
+            - openai
         access_key:
           type: string
         model:
