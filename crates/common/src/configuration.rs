@@ -165,7 +165,18 @@ pub struct EmbeddingProviver {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LlmProviderType {
     #[serde(rename = "openai")]
-    OpenAI
+    OpenAI,
+    #[serde(rename = "mistral")]
+    Mistral,
+}
+
+impl Display for LlmProviderType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LlmProviderType::OpenAI => write!(f, "openai"),
+            LlmProviderType::Mistral => write!(f, "mistral"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

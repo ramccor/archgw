@@ -47,6 +47,7 @@ properties:
           type: string
           enum:
             - openai
+            - mistral
         access_key:
           type: string
         model:

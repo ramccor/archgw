@@ -174,7 +174,16 @@ impl HttpContext for StreamContext {
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         self.select_llm_provider();
-        self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
+
+        // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
+        if self.llm_provider().endpoint.is_none() {
+            self.add_http_request_header(
+                ARCH_ROUTING_HEADER,
+                &self.llm_provider().provider.to_string(),
+            );
+        } else {
+            self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
+        }
 
         if let Err(error) = self.modify_auth_headers() {
             // ensure that the provider has an endpoint if the access key is missing else return a bad request

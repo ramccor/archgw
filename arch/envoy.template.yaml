@@ -130,10 +130,10 @@ static_resources:
                             headers:
                               - name: "x-arch-llm-provider"
                                 string_match:
-                                  exact: {{ provider.name }}
+                                  exact: {{ provider.provider }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.name }}
+                            cluster: {{ provider.provider }}
                             timeout: 60s
                       {% endfor %}
                 http_filters:
@@ -375,10 +375,10 @@ static_resources:
                             headers:
                               - name: "x-arch-llm-provider"
                                 string_match:
-                                  exact: {{ provider.name }}
+                                  exact: {{ provider.provider }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.name }}
+                            cluster: {{ provider.provider }}
                             timeout: 60s
                       {% endfor %}
                         - match:
