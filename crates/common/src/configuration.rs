@@ -163,10 +163,16 @@ pub struct EmbeddingProviver {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LlmProviderType {
+    #[serde(rename = "openai")]
+    OpenAI
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 //TODO: use enum for model, but if there is a new model, we need to update the code
 pub struct LlmProvider {
     pub name: String,
-    pub provider: String,
+    pub provider: LlmProviderType,
     pub access_key: Option<String>,
     pub model: String,
     pub default: Option<bool>,

@@ -46,12 +46,12 @@ llm_providers:
         unit: minute
 
   - name: Mistral8x7b
-    provider: mistral
+    provider: openai
     access_key: $MISTRAL_API_KEY
     model: mistral-8x7b
 
   - name: MistralLocal7b
-    provider: local
+    provider: openai
     model: mistral-7b-instruct
     endpoint: mistral_local
 

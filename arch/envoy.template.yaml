@@ -133,7 +133,7 @@ static_resources:
                                   exact: {{ provider.name }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.provider }}
+                            cluster: {{ provider.name }}
                             timeout: 60s
                       {% endfor %}
                 http_filters:
@@ -378,7 +378,7 @@ static_resources:
                                   exact: {{ provider.name }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.provider }}
+                            cluster: {{ provider.name }}
                             timeout: 60s
                       {% endfor %}
                         - match:

@@ -8,7 +8,7 @@ listener:
 
 llm_providers:
   - name: local-llama
-    provider: local-llama
+    provider: openai
     model: llama3.2
     endpoint: host.docker.internal:11434
 

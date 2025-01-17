@@ -80,7 +80,7 @@ impl StreamContext {
     fn select_llm_provider(&mut self) {
         let provider_hint = self
             .get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
-            .map(|provider_name| provider_name.into());
+            .map(|llm_name| llm_name.into());
 
         debug!("llm provider hint: {:?}", provider_hint);
         self.llm_provider = Some(routing::get_llm_provider(
