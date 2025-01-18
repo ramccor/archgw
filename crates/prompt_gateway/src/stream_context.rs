@@ -338,7 +338,8 @@ impl StreamContext {
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
             headers,
-            Some(tool_params_json_str.as_bytes()),
+            // Some(tool_params_json_str.as_bytes()),
+            None,
             vec![],
             Duration::from_secs(5),
         );
