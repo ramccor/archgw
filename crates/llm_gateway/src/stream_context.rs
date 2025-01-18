@@ -80,7 +80,7 @@ impl StreamContext {
     fn select_llm_provider(&mut self) {
         let provider_hint = self
             .get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
-            .map(|provider_name| provider_name.into());
+            .map(|llm_name| llm_name.into());
 
         debug!("llm provider hint: {:?}", provider_hint);
         self.llm_provider = Some(routing::get_llm_provider(
@@ -174,10 +174,22 @@ impl HttpContext for StreamContext {
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         self.select_llm_provider();
-        self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
+
+        // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
+        if self.llm_provider().endpoint.is_none() {
+            self.add_http_request_header(
+                ARCH_ROUTING_HEADER,
+                &self.llm_provider().provider_interface.to_string(),
+            );
+        } else {
+            self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
+        }
 
         if let Err(error) = self.modify_auth_headers() {
-            self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+            // ensure that the provider has an endpoint if the access key is missing else return a bad request
+            if self.llm_provider.as_ref().unwrap().endpoint.is_none() {
+                self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+            }
         }
         self.delete_content_length_header();
         self.save_ratelimit_header();
@@ -385,11 +397,13 @@ impl HttpContext for StreamContext {
                             self.llm_provider().name.to_string(),
                         );
 
-                        llm_span.add_event(Event::new(
-                            "time_to_first_token".to_string(),
-                            self.ttft_time.unwrap(),
-                        ));
-                        trace_data.add_span(llm_span);
+                        if self.ttft_time.is_some() {
+                            llm_span.add_event(Event::new(
+                                "time_to_first_token".to_string(),
+                                self.ttft_time.unwrap(),
+                            ));
+                            trace_data.add_span(llm_span);
+                        }
 
                         self.traces_queue.lock().unwrap().push_back(trace_data);
                     }
