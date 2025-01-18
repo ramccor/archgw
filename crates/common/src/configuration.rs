@@ -183,7 +183,7 @@ impl Display for LlmProviderType {
 //TODO: use enum for model, but if there is a new model, we need to update the code
 pub struct LlmProvider {
     pub name: String,
-    pub provider: LlmProviderType,
+    pub provider_interface: LlmProviderType,
     pub access_key: Option<String>,
     pub model: String,
     pub default: Option<bool>,

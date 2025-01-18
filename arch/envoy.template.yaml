@@ -125,15 +125,21 @@ static_resources:
                         - "*"
                       routes:
                       {% for provider in arch_llm_providers %}
+                        # if endpoint is set then use custom cluster for upstream llm
+                        {% if provider.endpoint %}
+                        {% set llm_cluster_name = provider.name %}
+                        {% else %}
+                        {% set llm_cluster_name = provider.provider_interface %}
+                        {% endif %}
                         - match:
                             prefix: "/"
                             headers:
                               - name: "x-arch-llm-provider"
                                 string_match:
-                                  exact: {{ provider.provider }}
+                                  exact: {{ llm_cluster_name }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.provider }}
+                            cluster: {{ llm_cluster_name }}
                             timeout: 60s
                       {% endfor %}
                 http_filters:
@@ -237,16 +243,16 @@ static_resources:
                       domains:
                         - "*"
                       routes:
-                        {% for internal_clustrer in ["arch_fc", "model_server"] %}
+                        {% for internal_cluster in ["arch_fc", "model_server"] %}
                         - match:
                             prefix: "/"
                             headers:
                               - name: "x-arch-upstream"
                                 string_match:
-                                  exact: {{ internal_clustrer }}
+                                  exact: {{ internal_cluster }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ internal_clustrer }}
+                            cluster: {{ internal_cluster }}
                             timeout: 60s
                         {% endfor %}
 
@@ -370,15 +376,21 @@ static_resources:
                             cluster: openai
                             timeout: 60s
                       {% for provider in arch_llm_providers %}
+                        # if endpoint is set then use custom cluster for upstream llm
+                        {% if provider.endpoint %}
+                        {% set llm_cluster_name = provider.name %}
+                        {% else %}
+                        {% set llm_cluster_name = provider.provider_interface %}
+                        {% endif %}
                         - match:
                             prefix: "/"
                             headers:
                               - name: "x-arch-llm-provider"
                                 string_match:
-                                  exact: {{ provider.provider }}
+                                  exact: {{ llm_cluster_name }}
                           route:
                             auto_host_rewrite: true
-                            cluster: {{ provider.provider }}
+                            cluster: {{ llm_cluster_name }}
                             timeout: 60s
                       {% endfor %}
                         - match:

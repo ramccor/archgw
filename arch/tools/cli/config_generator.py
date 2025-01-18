@@ -58,15 +58,23 @@ def validate_and_render_schema():
                     f"Unknown endpoint {name}, please add it in endpoints section in your arch_config.yaml file"
                 )
 
-    arch_llm_providers = config_yaml["llm_providers"]
     arch_tracing = config_yaml.get("tracing", {})
-    arch_config_string = yaml.dump(config_yaml)
-    config_yaml["mode"] = "llm"
-    arch_llm_config_string = yaml.dump(config_yaml)
 
     llms_with_endpoint = []
 
-    for llm_provider in arch_llm_providers:
+    updated_llm_providers = []
+    for llm_provider in config_yaml["llm_providers"]:
+        provider = None
+        if llm_provider.get("provider") and llm_provider.get("provider_interface"):
+            raise Exception(
+                "Please provide either provider or provider_interface, not both"
+            )
+        if llm_provider.get("provider"):
+            provider = llm_provider["provider"]
+            llm_provider["provider_interface"] = provider
+            del llm_provider["provider"]
+        updated_llm_providers.append(llm_provider)
+
         if llm_provider.get("endpoint", None):
             endpoint = llm_provider["endpoint"]
             if len(endpoint.split(":")) > 1:
@@ -74,11 +82,16 @@ def validate_and_render_schema():
                 llm_provider["port"] = int(endpoint.split(":")[1])
             llms_with_endpoint.append(llm_provider)
 
+    config_yaml["llm_providers"] = updated_llm_providers
+
+    arch_config_string = yaml.dump(config_yaml)
+    arch_llm_config_string = yaml.dump(config_yaml)
+
     data = {
         "arch_config": arch_config_string,
         "arch_llm_config": arch_llm_config_string,
         "arch_clusters": inferred_clusters,
-        "arch_llm_providers": arch_llm_providers,
+        "arch_llm_providers": config_yaml["llm_providers"],
         "arch_tracing": arch_tracing,
         "local_llms": llms_with_endpoint,
     }

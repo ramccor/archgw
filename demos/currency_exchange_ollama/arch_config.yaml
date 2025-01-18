@@ -8,9 +8,10 @@ listener:
 
 llm_providers:
   - name: local-llama
-    provider: openai
+    provider_interface: openai
     model: llama3.2
     endpoint: host.docker.internal:11434
+    default: true
 
 system_prompt: |
   You are a helpful assistant.

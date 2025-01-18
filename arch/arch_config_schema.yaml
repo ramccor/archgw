@@ -43,7 +43,12 @@ properties:
       properties:
         name:
           type: string
+        # this field is deprecated, use provider_interface instead
         provider:
+          type: string
+          enum:
+            - openai
+        provider_interface:
           type: string
           enum:
             - openai
@@ -59,7 +64,6 @@ properties:
       additionalProperties: false
       required:
         - name
-        - provider
         - model
   overrides:
     type: object

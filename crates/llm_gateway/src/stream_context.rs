@@ -179,7 +179,7 @@ impl HttpContext for StreamContext {
         if self.llm_provider().endpoint.is_none() {
             self.add_http_request_header(
                 ARCH_ROUTING_HEADER,
-                &self.llm_provider().provider.to_string(),
+                &self.llm_provider().provider_interface.to_string(),
             );
         } else {
             self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
