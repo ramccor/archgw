@@ -10,7 +10,6 @@ use common::consts::{
 };
 use common::errors::ServerError;
 use common::llm_providers::LlmProviders;
-use common::pii::obfuscate_auth_header;
 use common::ratelimit::Header;
 use common::stats::{IncrementingMetric, RecordingMetric};
 use common::tracing::{Event, Span, TraceData, Traceparent};
@@ -82,12 +81,16 @@ impl StreamContext {
             .get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
             .map(|llm_name| llm_name.into());
 
-        debug!("llm provider hint: {:?}", provider_hint);
         self.llm_provider = Some(routing::get_llm_provider(
             &self.llm_providers,
             provider_hint,
         ));
-        debug!("selected llm: {}", self.llm_provider.as_ref().unwrap().name);
+
+        debug!(
+            "llm provider hint: {:?}, selected llm: {}",
+            self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER),
+            self.llm_provider.as_ref().unwrap().name
+        );
     }
 
     fn modify_auth_headers(&mut self) -> Result<(), ServerError> {
@@ -173,6 +176,8 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+        let request_path = self.get_http_request_header(":path").unwrap_or_default();
+        debug!("request_path: {}", request_path);
         self.select_llm_provider();
 
         // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
@@ -196,12 +201,6 @@ impl HttpContext for StreamContext {
 
         self.is_chat_completions_request =
             self.get_http_request_header(":path").unwrap_or_default() == CHAT_COMPLETIONS_PATH;
-
-        debug!(
-            "on_http_request_headers S[{}] req_headers={:?}",
-            self.context_id,
-            obfuscate_auth_header(&mut self.get_http_request_headers())
-        );
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
@@ -310,11 +309,6 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        debug!(
-            "on_http_response_headers [S={}] end_stream={}",
-            self.context_id, _end_of_stream
-        );
-
         self.set_property(
             vec!["metadata", "filter_metadata", "llm_filter", "user_prompt"],
             Some("hello world from filter".as_bytes()),
@@ -324,11 +318,6 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        debug!(
-            "on_http_response_body [S={}] bytes={} end_stream={}",
-            self.context_id, body_size, end_of_stream
-        );
-
         if !self.is_chat_completions_request {
             debug!("non-chatcompletion request");
             return Action::Continue;
@@ -438,7 +427,7 @@ impl HttpContext for StreamContext {
             }
             streaming_chunk
         } else {
-            debug!("non streaming response bytes read: 0:{}", body_size);
+            trace!("non streaming response bytes read: 0:{}", body_size);
             match self.get_http_response_body(0, body_size) {
                 Some(body) => body,
                 None => {
@@ -520,7 +509,7 @@ impl HttpContext for StreamContext {
                 }
             }
         } else {
-            debug!("non streaming response");
+            trace!("non streaming response");
             let chat_completions_response: ChatCompletionsResponse =
                 match serde_json::from_str(body_utf8.as_str()) {
                     Ok(de) => de,
