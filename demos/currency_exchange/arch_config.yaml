@@ -7,7 +7,7 @@ listener:
   connect_timeout: 0.005s
 
 llm_providers:
-  - name: openai-gpt-4o
+  - name: gpt-4o
     access_key: $OPENAI_API_KEY
     provider_interface: openai
     model: gpt-4o
