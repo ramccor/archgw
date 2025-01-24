@@ -13,7 +13,7 @@ Following screen shows an example of interaction with arch gateway showing dynam
 
 ![LLM Routing Demo](llm_routing_demo.png)
 
-You can also pass in a header to override model when sending prompt. Following example shows shows how you can use `x-arch-llm-provider-hint` header to override model selection,
+You can also pass in a header to override model when sending prompt. Following example shows how you can use `x-arch-llm-provider-hint` header to override model selection,
 
 ```bash
 
