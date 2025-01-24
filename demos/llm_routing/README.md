@@ -20,8 +20,8 @@ You can pick different LLM based on header `x-arch-llm-provider-hint` to overrid
 
 Here is a preview of chat UI,
 
-![LLM Routing Demo](docs/source/_static/img/llm_routing_demo.png)
+![LLM Routing Demo](llm_routing_demo.png)
 
 And you can also see tracing using jaeger UI that we start by heading over to http://localhost:16686/
 
-![Jaeger Tracing](docs/source/_static/img/jaeger_tracing_llm_routing.png)
+![Jaeger Tracing](jaeger_tracing_llm_routing.png)
