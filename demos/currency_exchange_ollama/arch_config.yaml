@@ -7,11 +7,18 @@ listener:
   connect_timeout: 0.005s
 
 llm_providers:
+
   - name: local-llama
     provider_interface: openai
     model: llama3.2
     endpoint: host.docker.internal:11434
     default: true
+
+  - name: arch-fc-cloud
+    provider_interface: openai
+    model: Arch-Function
+    endpoint: api.fc.archgw.com:443
+    protocol: https
 
 system_prompt: |
   You are a helpful assistant.
