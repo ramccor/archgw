@@ -153,7 +153,7 @@ impl StreamContext {
         self.metrics
             .input_sequence_length
             .record(token_count as u64);
-        log::debug!("Recorded input token count: {}", token_count);
+        trace!("Recorded input token count: {}", token_count);
 
         // Check if rate limiting needs to be applied.
         if let Some(selector) = self.ratelimit_selector.take() {
@@ -164,7 +164,7 @@ impl StreamContext {
                 NonZero::new(token_count as u32).unwrap(),
             )?;
         } else {
-            log::debug!("No rate limit applied for model: {}", model);
+            trace!("No rate limit applied for model: {}", model);
         }
 
         Ok(())
@@ -331,7 +331,7 @@ impl HttpContext for StreamContext {
                 Ok(duration) => {
                     // Convert the duration to milliseconds
                     let duration_ms = duration.as_millis();
-                    debug!("Total latency: {} milliseconds", duration_ms);
+                    debug!("request latency: {}ms", duration_ms);
                     // Record the latency to the latency histogram
                     self.metrics.request_latency.record(duration_ms as u64);
 
@@ -339,11 +339,14 @@ impl HttpContext for StreamContext {
                         // Compute the time per output token
                         let tpot = duration_ms as u64 / self.response_tokens as u64;
 
-                        debug!("Time per output token: {} milliseconds", tpot);
                         // Record the time per output token
                         self.metrics.time_per_output_token.record(tpot);
 
-                        debug!("Tokens per second: {}", 1000 / tpot);
+                        trace!(
+                            "time per token: {}ms, tokens per second: {}",
+                            tpot,
+                            1000 / tpot
+                        );
                         // Record the tokens per second
                         self.metrics.tokens_per_second.record(1000 / tpot);
                     }
@@ -499,7 +502,7 @@ impl HttpContext for StreamContext {
                 match current_time.duration_since(self.start_time) {
                     Ok(duration) => {
                         let duration_ms = duration.as_millis();
-                        debug!("Time to First Token (TTFT): {} milliseconds", duration_ms);
+                        debug!("time to first token: {}ms", duration_ms);
                         self.ttft_duration = Some(duration);
                         self.metrics.time_to_first_token.record(duration_ms as u64);
                     }

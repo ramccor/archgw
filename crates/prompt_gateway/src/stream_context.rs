@@ -263,7 +263,7 @@ impl StreamContext {
             );
         }
 
-        // update prompt target name from the tool call
+        // update prompt target name from the tool call response
         callout_context.prompt_target_name =
             Some(self.tool_calls.as_ref().unwrap()[0].function.name.clone());
 
@@ -338,7 +338,8 @@ impl StreamContext {
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
             headers,
-            Some(tool_params_json_str.as_bytes()),
+            // Some(tool_params_json_str.as_bytes()),
+            None,
             vec![],
             Duration::from_secs(5),
         );
@@ -363,7 +364,6 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-        debug!("api_call_response_handler: http_status: {}", http_status);
         if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
@@ -385,7 +385,7 @@ impl StreamContext {
             self.tool_call_response.as_ref().unwrap()
         );
 
-        let mut messages = self.filter_out_arch_messages(&callout_context);
+        let mut messages = self.construct_llm_messages(&callout_context);
 
         let user_message = match messages.pop() {
             Some(user_message) => user_message,
@@ -442,25 +442,39 @@ impl StreamContext {
         self.resume_http_request();
     }
 
-    fn filter_out_arch_messages(&mut self, callout_context: &StreamCallContext) -> Vec<Message> {
-        let mut messages: Vec<Message> = Vec::new();
-        // add system prompt
+    fn get_system_prompt(&self, prompt_target: Option<PromptTarget>) -> Option<String> {
+        match prompt_target {
+            None => self.system_prompt.as_ref().clone(),
+            Some(prompt_target) => match prompt_target.system_prompt {
+                None => self.system_prompt.as_ref().clone(),
+                Some(system_prompt) => Some(system_prompt),
+            },
+        }
+    }
 
+    fn filter_out_arch_messages(&self, messages: &[Message]) -> Vec<Message> {
+        messages
+            .iter()
+            .filter(|m| {
+                !(m.role == TOOL_ROLE
+                    || m.content.is_none()
+                    || (m.tool_calls.is_some() && !m.tool_calls.as_ref().unwrap().is_empty()))
+            })
+            .cloned()
+            .collect()
+    }
+
+    fn construct_llm_messages(&mut self, callout_context: &StreamCallContext) -> Vec<Message> {
+        let mut messages: Vec<Message> = Vec::new();
+
+        // add system prompt
         let system_prompt = match callout_context.prompt_target_name.as_ref() {
             None => self.system_prompt.as_ref().clone(),
             Some(prompt_target_name) => {
-                let prompt_system_prompt = self
-                    .prompt_targets
-                    .get(prompt_target_name)
-                    .unwrap()
-                    .clone()
-                    .system_prompt;
-                match prompt_system_prompt {
-                    None => self.system_prompt.as_ref().clone(),
-                    Some(system_prompt) => Some(system_prompt),
-                }
+                self.get_system_prompt(self.prompt_targets.get(prompt_target_name).cloned())
             }
         };
+
         if system_prompt.is_some() {
             let system_prompt_message = Message {
                 role: SYSTEM_ROLE.to_string(),
@@ -472,18 +486,9 @@ impl StreamContext {
             messages.push(system_prompt_message);
         }
 
-        // don't send tools message and api response to chat gpt
-        for m in callout_context.request_body.messages.iter() {
-            // don't send api response and tool calls to upstream LLMs
-            if m.role == TOOL_ROLE
-                || m.content.is_none()
-                || (m.tool_calls.is_some() && !m.tool_calls.as_ref().unwrap().is_empty())
-            {
-                continue;
-            }
-            messages.push(m.clone());
-        }
-
+        messages.append(
+            &mut self.filter_out_arch_messages(callout_context.request_body.messages.as_ref()),
+        );
         messages
     }
 
