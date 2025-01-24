@@ -14,7 +14,7 @@ use common::http::{CallArgs, Client};
 use common::stats::Gauge;
 use derivative::Derivative;
 use http::StatusCode;
-use log::{debug, info, warn};
+use log::{debug, warn};
 use proxy_wasm::traits::*;
 use serde_yaml::Value;
 use std::cell::RefCell;
@@ -263,7 +263,7 @@ impl StreamContext {
             );
         }
 
-        // update prompt target name from the tool call
+        // update prompt target name from the tool call response
         callout_context.prompt_target_name =
             Some(self.tool_calls.as_ref().unwrap()[0].function.name.clone());
 
@@ -364,7 +364,6 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-        debug!("api_call_response_handler: http_status: {}", http_status);
         if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
@@ -446,22 +445,20 @@ impl StreamContext {
     fn get_system_prompt(&self, prompt_target: Option<PromptTarget>) -> Option<String> {
         match prompt_target {
             None => self.system_prompt.as_ref().clone(),
-            Some(prompt_target) => prompt_target.system_prompt,
+            Some(prompt_target) => match prompt_target.system_prompt {
+                None => self.system_prompt.as_ref().clone(),
+                Some(system_prompt) => Some(system_prompt),
+            },
         }
     }
 
-    fn filter_out_arch_messages(&self, messages: &Vec<Message>) -> Vec<Message> {
+    fn filter_out_arch_messages(&self, messages: &[Message]) -> Vec<Message> {
         messages
-            .into_iter()
+            .iter()
             .filter(|m| {
-                if m.role == TOOL_ROLE
+                !(m.role == TOOL_ROLE
                     || m.content.is_none()
-                    || (m.tool_calls.is_some() && !m.tool_calls.as_ref().unwrap().is_empty())
-                {
-                    true
-                } else {
-                    false
-                }
+                    || (m.tool_calls.is_some() && !m.tool_calls.as_ref().unwrap().is_empty()))
             })
             .cloned()
             .collect()
@@ -470,7 +467,6 @@ impl StreamContext {
     fn construct_llm_messages(&mut self, callout_context: &StreamCallContext) -> Vec<Message> {
         let mut messages: Vec<Message> = Vec::new();
 
-        info!("prompt target: {:?}", callout_context.prompt_target_name);
         // add system prompt
         let system_prompt = match callout_context.prompt_target_name.as_ref() {
             None => self.system_prompt.as_ref().clone(),
@@ -478,8 +474,6 @@ impl StreamContext {
                 self.get_system_prompt(self.prompt_targets.get(prompt_target_name).cloned())
             }
         };
-
-        info!("system_prompt: {:?}", system_prompt);
 
         if system_prompt.is_some() {
             let system_prompt_message = Message {
