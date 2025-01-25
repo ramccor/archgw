@@ -47,7 +47,6 @@ $ curl --header 'Content-Type: application/json' \
 ```
 
 # Observability
-
 Arch gateway publishes stats endpoint at http://localhost:19901/stats. In this demo we are using prometheus to pull stats from arch and we are using grafana to visualize the stats in dashboard. To see grafana dashboard follow instructions below,
 
 1. Navigate to http://localhost:3000/ to open grafana UI (use admin/grafana as credentials)
