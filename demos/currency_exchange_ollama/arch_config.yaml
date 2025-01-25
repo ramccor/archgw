@@ -14,12 +14,6 @@ llm_providers:
     endpoint: host.docker.internal:11434
     default: true
 
-  - name: arch-fc-cloud
-    provider_interface: openai
-    model: Arch-Function
-    endpoint: api.fc.archgw.com:443
-    protocol: https
-
 system_prompt: |
   You are a helpful assistant.
 
