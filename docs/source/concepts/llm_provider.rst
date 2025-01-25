@@ -38,11 +38,13 @@ Out of the box we provide support for openai and mistral llm providers. But if y
 
 1. Add the provider in the `llm_providers` section of the `arch_config.yaml` file. And supply details of how to reach to the provider using "endpoint"  and protocol.
 
-  - name: huggingface-qwen-2.5
-    provider_interface: openai
-    model: qwen-2.5
-    endpoint: endpoint_address:443
-    protocol: https
+.. code-block:: yaml
+
+    - name: huggingface-qwen-2.5
+      provider_interface: openai
+      model: qwen-2.5
+      endpoint: endpoint_address:443
+      protocol: https
 
 Example: Using the OpenAI Python SDK
 ------------------------------------
