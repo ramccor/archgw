@@ -52,7 +52,7 @@ For example following code block shows you how to add mistral llm provider in th
 
     - name: mistral-ai
       provider_interface: openai
-      model: llama3.2
+      model: ministral-3b-latest
       endpoint: api.mistral.ai:443
       protocol: https
 
