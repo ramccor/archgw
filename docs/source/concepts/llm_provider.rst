@@ -34,17 +34,29 @@ make outbound LLM calls.
 
 Adding custom LLM Provider
 --------------------------
-Out of the box we provide support for openai and mistral llm providers. But if you want to add your custom provider you can follow the below steps:
 
-1. Add the provider in the `llm_providers` section of the `arch_config.yaml` file. And supply details of how to reach to the provider using "endpoint"  and protocol.
+We support any OpenAI compliant LLM provider for example mistral, openai, ollama etc. Out of the box we provide support for openai and mistral. But if you want to add your custom provider you can follow the below steps:
+
+1. Add the llm provider in the `llm_providers` section of the `arch_config.yaml` file. And supply details of how to reach to the provider using "endpoint" and specify `https` in `protocol`` if your endpoint is hosted on public cloud.
 
 .. code-block:: yaml
 
-    - name: huggingface-qwen-2.5
+    - name: local-llama
       provider_interface: openai
-      model: qwen-2.5
-      endpoint: endpoint_address:443
+      model: llama3.2
+      endpoint: host.docker.internal:11434
+
+
+For example following code block shows you how to add mistral llm provider in the `arch_config.yaml` file.
+
+.. code-block:: yaml
+
+    - name: mistral-ai
+      provider_interface: openai
+      model: llama3.2
+      endpoint: api.mistral.ai:443
       protocol: https
+
 
 Example: Using the OpenAI Python SDK
 ------------------------------------
