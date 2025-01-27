@@ -79,7 +79,7 @@ impl HttpContext for StreamContext {
         };
 
         debug!(
-            "developer => archgw: {}",
+            "developer => archgw request body: {}",
             String::from_utf8_lossy(&body_bytes)
         );
 
@@ -152,7 +152,7 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!("archgw => archfc: {}", json_data);
+        debug!("archgw => modelserver request body: {}", json_data);
 
         let mut headers = vec![
             (ARCH_UPSTREAM_HOST_HEADER, MODEL_SERVER_NAME),

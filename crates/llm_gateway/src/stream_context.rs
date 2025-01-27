@@ -517,8 +517,11 @@ impl HttpContext for StreamContext {
             let chat_completions_response: ChatCompletionsResponse =
                 match serde_json::from_str(body_utf8.as_str()) {
                     Ok(de) => de,
-                    Err(_e) => {
-                        debug!("invalid response: {}", body_utf8);
+                    Err(err) => {
+                        debug!(
+                            "non chat-completion compliant response received err: {}, body: {}",
+                            err, body_utf8
+                        );
                         return Action::Continue;
                     }
                 };

@@ -125,13 +125,13 @@ impl StreamContext {
         mut callout_context: StreamCallContext,
     ) {
         let body_str = String::from_utf8(body).unwrap();
-        debug!("archgw <= archfc response: {}", body_str);
+        debug!("archgw <= modelserver response body: {}", body_str);
 
         let model_server_response: ModelServerResponse = match serde_json::from_str(&body_str) {
             Ok(arch_fc_response) => arch_fc_response,
             Err(e) => {
                 warn!(
-                    "error deserializing archfc response: {}, body: {}",
+                    "error deserializing modelserver response: {}, body: {}",
                     e, body_str
                 );
                 return self.send_server_error(ServerError::Deserialization(e), None);
@@ -141,7 +141,7 @@ impl StreamContext {
         let arch_fc_response = match model_server_response {
             ModelServerResponse::ChatCompletionsResponse(response) => response,
             ModelServerResponse::ModelServerErrorResponse(response) => {
-                debug!("archgw <= archfc error response: {}", response.result);
+                debug!("archgw <= modelserver error response: {}", response.result);
                 if response.result == "No intent matched" {
                     if let Some(default_prompt_target) = self
                         .prompt_targets
@@ -344,7 +344,7 @@ impl StreamContext {
         );
 
         debug!(
-            "archgw => api call, endpoint: {}{}, body: {}",
+            "archgw => developer api call endpoint: {}, path: {}, body: {}",
             endpoint.name.as_str(),
             path,
             tool_params_json_str
