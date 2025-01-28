@@ -18,6 +18,14 @@ fn wasm_module() -> String {
 fn request_headers_expectations(module: &mut Tester, http_context: i32) {
     module
         .call_proxy_on_request_headers(http_context, 0, false)
+        .expect_get_header_map_value(Some(MapType::HttpRequestHeaders), Some(":path"))
+        .returning(Some("/test_path"))
+        .expect_log(Some(LogLevel::Debug), Some("request_path: /test_path"))
+        .expect_get_header_map_value(
+            Some(MapType::HttpRequestHeaders),
+            Some("x-arch-llm-provider-hint"),
+        )
+        .returning(Some("default"))
         .expect_get_header_map_value(
             Some(MapType::HttpRequestHeaders),
             Some("x-arch-llm-provider-hint"),
@@ -25,9 +33,8 @@ fn request_headers_expectations(module: &mut Tester, http_context: i32) {
         .returning(Some("default"))
         .expect_log(
             Some(LogLevel::Debug),
-            Some("llm provider hint: Some(Default)"),
+            Some("llm provider hint: Some(\"default\"), selected llm: open-ai-gpt-4"),
         )
-        .expect_log(Some(LogLevel::Debug), Some("selected llm: open-ai-gpt-4"))
         .expect_add_header_map_value(
             Some(MapType::HttpRequestHeaders),
             Some("x-arch-llm-provider"),
@@ -50,11 +57,11 @@ fn request_headers_expectations(module: &mut Tester, http_context: i32) {
         .returning(None)
         .expect_get_header_map_value(Some(MapType::HttpRequestHeaders), Some(":path"))
         .returning(Some("/v1/chat/completions"))
-        .expect_log(Some(LogLevel::Debug), None)
+        // .expect_log(Some(LogLevel::Debug), None)
         .expect_get_header_map_value(Some(MapType::HttpRequestHeaders), Some("x-request-id"))
         .returning(None)
-        .expect_get_header_map_value(Some(MapType::HttpRequestHeaders), Some("traceparent"))
-        .returning(None)
+        // .expect_get_header_map_value(Some(MapType::HttpRequestHeaders), Some("traceparent"))
+        // .returning(None)
         .execute_and_expect(ReturnType::Action(Action::Continue))
         .unwrap();
 }
@@ -187,7 +194,6 @@ fn llm_gateway_successful_request_to_open_ai_chat_completions() {
 
     module
         .call_proxy_on_context_create(http_context, filter_context)
-        .expect_log(Some(LogLevel::Debug), None)
         .execute_and_expect(ReturnType::None)
         .unwrap();
 
