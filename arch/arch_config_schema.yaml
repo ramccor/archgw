@@ -63,6 +63,11 @@ properties:
           type: boolean
         endpoint:
           type: string
+        protocol:
+          type: string
+          enum:
+            - http
+            - https
       additionalProperties: false
       required:
         - name

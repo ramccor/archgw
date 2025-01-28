@@ -1,4 +1,6 @@
-Arch is an **intelligent proxy server designed for prompts** - to help you protect, observe, and build agentic apps by simply integrating (existing) APIs. Built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
+Focus on what matters most. Arch is an **intelligent proxy server designed for prompts** - to help you protect, observe, and build agentic apps by simply connecting (existing) APIs.
+
+Built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
 
 >Prompts are nuanced and opaque user requests, which require the same capabilities as traditional HTTP requests including secure handling, intelligent routing, robust observability, and integration with backend (API) systems for personalization – outside core business logic.*
 
@@ -58,7 +60,7 @@ Arch's CLI allows you to manage and interact with the Arch gateway efficiently. 
 ```console
 $ python -m venv venv
 $ source venv/bin/activate   # On Windows, use: venv\Scripts\activate
-$ pip install archgw==0.1.9
+$ pip install archgw==0.2.0
 ```
 
 ### Build AI Agent with Arch Gateway
