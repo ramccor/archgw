@@ -317,27 +317,35 @@ impl StreamContext {
         };
 
         let http_method = endpoint.method.unwrap_or_default().to_string();
-        let mut headers = vec![
+        let mut headers: HashMap<_, _> = [
             (ARCH_UPSTREAM_HOST_HEADER, endpoint.name.as_str()),
             (":method", &http_method),
             (":path", &path),
             (":authority", endpoint.name.as_str()),
             ("content-type", "application/json"),
             ("x-envoy-max-retries", "3"),
-        ];
+        ]
+        .into_iter()
+        .collect();
 
         if self.request_id.is_some() {
-            headers.push((REQUEST_ID_HEADER, self.request_id.as_ref().unwrap()));
+            headers.insert(REQUEST_ID_HEADER, self.request_id.as_ref().unwrap());
         }
 
         if self.traceparent.is_some() {
-            headers.push((TRACE_PARENT_HEADER, self.traceparent.as_ref().unwrap()));
+            headers.insert(TRACE_PARENT_HEADER, self.traceparent.as_ref().unwrap());
+        }
+
+        // override http headers that are set in the prompt target
+        let http_headers = endpoint.http_headers.unwrap_or_default();
+        for (key, value) in http_headers.iter() {
+            headers.insert(key.as_str(), value.as_str());
         }
 
         let call_args = CallArgs::new(
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
-            headers,
+            headers.into_iter().collect(),
             Some(tool_params_json_str.as_bytes()),
             vec![],
             Duration::from_secs(5),
