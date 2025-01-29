@@ -57,6 +57,33 @@ prompt_targets:
     system_prompt: |
       You are a helpful assistant. You are given response in json. Show name of the cluster and its status in human readable format also show some related details about the cluster but be concise.
 
+  - name: listAllPolicies
+    description: Lists all policies in the default namespace
+    endpoint:
+      http_method: GET
+      name: acm_service
+      path: /apis/policy.open-cluster-management.io/v1/namespaces/default/policies/
+    system_prompt: |
+      You are a helpful assistant. You are given response in json. Show name of the policies and key details in readable format.
+
+  - name: querySinglePolicyDetails
+    description: Query details of a single policy
+    endpoint:
+      http_method: GET
+      name: acm_service
+      path: /apis/policy.open-cluster-management.io/v1/namespaces/default/policies/{policy_name}
+      http_headers:
+        accept: application/yaml
+        content-type: application/yaml
+    parameters:
+      - name: policy_name
+        in_path: true
+        description: The name of the policy to retrieve
+        required: true
+        type: str
+    system_prompt: |
+      You are a helpful assistant. You are given response in json. Show name of the policies and key details in readable format.
+
   - name: default_target
     default: true
     description: This is the default target for all unmatched prompts.
