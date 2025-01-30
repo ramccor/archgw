@@ -15,6 +15,10 @@ endpoints:
     endpoint: host.docker.internal:8001
     connect_timeout: 0.005s
     http_host: localhost
+  local_proxy_service:
+    endpoint: host.docker.internal:8002
+    connect_timeout: 0.005s
+    http_host: localhost
 
 llm_providers:
   - name: gpt-4o-mini
@@ -72,9 +76,6 @@ prompt_targets:
       http_method: GET
       name: acm_service
       path: /apis/policy.open-cluster-management.io/v1/namespaces/default/policies/{policy_name}
-      http_headers:
-        accept: application/yaml
-        content-type: application/yaml
     parameters:
       - name: policy_name
         in_path: true
@@ -83,6 +84,28 @@ prompt_targets:
         type: str
     system_prompt: |
       You are a helpful assistant. You are given response in json. Show name of the policies and key details in readable format.
+
+  - name: createPolicy
+    description: Creates a policy in the default namespace
+    endpoint:
+      http_method: POST
+      name: local_proxy_service
+      path: /create_policy
+    parameters:
+      - name: policy_name
+        description: The name of the policy to retrieve
+        required: true
+        type: str
+      - name: remediationAction
+        description: The remediation action for the policy
+        required: true
+        type: str
+      - name: namespace
+        description: The namespace for the policy
+        required: true
+        type: str
+    system_prompt: |
+      You are a helpful assistant. You are given response in json for create policy operation. Show the result of the operation that is readable.
 
   - name: default_target
     default: true
