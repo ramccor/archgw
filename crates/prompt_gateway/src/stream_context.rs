@@ -14,7 +14,7 @@ use common::http::{CallArgs, Client};
 use common::stats::Gauge;
 use derivative::Derivative;
 use http::StatusCode;
-use log::{debug, warn};
+use log::{debug, trace, warn};
 use proxy_wasm::traits::*;
 use serde_yaml::Value;
 use std::cell::RefCell;
@@ -125,7 +125,8 @@ impl StreamContext {
         mut callout_context: StreamCallContext,
     ) {
         let body_str = String::from_utf8(body).unwrap();
-        debug!("archgw <= modelserver response body: {}", body_str);
+        debug!("model server response received");
+        trace!("response body: {}", body_str);
 
         let model_server_response: ModelServerResponse = match serde_json::from_str(&body_str) {
             Ok(arch_fc_response) => arch_fc_response,
@@ -343,10 +344,9 @@ impl StreamContext {
             Duration::from_secs(5),
         );
 
-        debug!(
-            "archgw => developer api call endpoint: {}, path: {}, body: {}",
-            endpoint.name.as_str(),
-            path,
+        debug!("dispatching api call to developer endpoint: {}, path: {}", endpoint.name, path);
+        trace!(
+            "request body: {}",
             tool_params_json_str
         );
 
@@ -363,7 +363,8 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-        if http_status != StatusCode::OK.as_str() {
+          debug!("api call response received: status code: {}", http_status);
+          if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
                 http_status
@@ -379,8 +380,8 @@ impl StreamContext {
             );
         }
         self.tool_call_response = Some(String::from_utf8(body).unwrap());
-        debug!(
-            "archgw <= api call response: {}",
+        trace!(
+            "response body: {}",
             self.tool_call_response.as_ref().unwrap()
         );
 
@@ -430,7 +431,8 @@ impl StreamContext {
                 return self.send_server_error(ServerError::Serialization(e), None);
             }
         };
-        debug!("archgw => llm request: {}", llm_request_str);
+        debug!("sending request to upstream llm");
+        trace!("request body: {}", llm_request_str);
 
         self.start_upstream_llm_request_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)

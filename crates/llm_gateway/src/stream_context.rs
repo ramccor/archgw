@@ -87,7 +87,7 @@ impl StreamContext {
         ));
 
         debug!(
-            "llm provider hint: {:?}, selected llm: {}",
+            "request received: llm provider hint: {:?}, selected llm: {}",
             self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER),
             self.llm_provider.as_ref().unwrap().name
         );
@@ -177,7 +177,6 @@ impl HttpContext for StreamContext {
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
         let request_path = self.get_http_request_header(":path").unwrap_or_default();
-        debug!("request_path: {}", request_path);
         self.select_llm_provider();
 
         // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
