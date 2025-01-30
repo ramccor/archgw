@@ -363,7 +363,7 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-        debug!("api call response received: status code: {}", http_status);
+        debug!("developer api call response received status code: {}", http_status);
         if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
