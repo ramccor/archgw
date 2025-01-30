@@ -176,7 +176,6 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        let request_path = self.get_http_request_header(":path").unwrap_or_default();
         self.select_llm_provider();
 
         // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
@@ -308,6 +307,12 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+        trace!(
+            "on_http_response_headers [S={}] end_stream={}",
+            self.context_id,
+            _end_of_stream
+        );
+
         self.set_property(
             vec!["metadata", "filter_metadata", "llm_filter", "user_prompt"],
             Some("hello world from filter".as_bytes()),
@@ -317,6 +322,13 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
+        trace!(
+            "on_http_response_body [S={}] bytes={} end_stream={}",
+            self.context_id,
+            body_size,
+            end_of_stream
+        );
+
         if !self.is_chat_completions_request {
             debug!("non-chatcompletion request");
             return Action::Continue;

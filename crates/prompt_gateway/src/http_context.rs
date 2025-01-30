@@ -10,6 +10,7 @@ use common::{
     },
     errors::ServerError,
     http::{CallArgs, Client},
+    pii::obfuscate_auth_header,
 };
 use http::StatusCode;
 use log::{debug, trace, warn};
@@ -38,6 +39,12 @@ impl HttpContext for StreamContext {
         }
 
         self.is_chat_completions_request = request_path == CHAT_COMPLETIONS_PATH;
+
+        trace!(
+            "on_http_request_headers S[{}] req_headers={:?}",
+            self.context_id,
+            obfuscate_auth_header(&mut self.get_http_request_headers())
+        );
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
@@ -78,10 +85,7 @@ impl HttpContext for StreamContext {
             }
         };
 
-        trace!(
-            "request body: {}",
-            String::from_utf8_lossy(&body_bytes)
-        );
+        trace!("request body: {}", String::from_utf8_lossy(&body_bytes));
 
         // Deserialize body into spec.
         // Currently OpenAI API.

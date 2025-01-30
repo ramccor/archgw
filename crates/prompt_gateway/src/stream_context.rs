@@ -344,11 +344,11 @@ impl StreamContext {
             Duration::from_secs(5),
         );
 
-        debug!("dispatching api call to developer endpoint: {}, path: {}", endpoint.name, path);
-        trace!(
-            "request body: {}",
-            tool_params_json_str
+        debug!(
+            "dispatching api call to developer endpoint: {}, path: {}",
+            endpoint.name, path
         );
+        trace!("request body: {}", tool_params_json_str);
 
         callout_context.upstream_cluster = Some(endpoint.name.to_owned());
         callout_context.upstream_cluster_path = Some(path.to_owned());
@@ -363,8 +363,8 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-          debug!("api call response received: status code: {}", http_status);
-          if http_status != StatusCode::OK.as_str() {
+        debug!("api call response received: status code: {}", http_status);
+        if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
                 http_status
