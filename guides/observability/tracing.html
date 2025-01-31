@@ -451,6 +451,47 @@ is completed.</p></li>
 <li><p><strong>Verify Traces</strong>: Access the Datadog APM dashboard to view your traces.</p></li>
 </ol>
 </section>
+<section id="langtrace">
+<h3>Langtrace<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#langtrace" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#langtrace'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
+<p>Langtrace is an observability tool designed specifically for large language models (LLMs). It helps you capture, analyze, and understand how LLMs are used in your applications including those built using Arch.</p>
+<p>To send tracing data to <a class="reference external" href="https://docs.langtrace.ai/supported-integrations/llm-tools/arch" rel="nofollow noopener">Langtrace<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>:</p>
+<ol class="arabic">
+<li><p><strong>Configure Arch</strong>: Make sure Arch is installed and setup correctly. For more information, refer to the <a class="reference external" href="https://github.com/katanemo/archgw?tab=readme-ov-file#prerequisites" rel="nofollow noopener">installation guide<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a>.</p></li>
+<li><p><strong>Install Langtrace</strong>: Install the Langtrace SDK.:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>langtrace-python-sdk
+</span></code></pre></div>
+</div>
+</li>
+<li><p><strong>Set Environment Variables</strong>: Provide your Langtrace API key.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">LANGTRACE_API_KEY</span><span class="o">=</span>&lt;Your-Langtrace-Api-Key&gt;
+</span></code></pre></div>
+</div>
+</li>
+<li><p><strong>Trace Requests</strong>: Once you have Langtrace set up, you can start tracing requests.</p>
+<p>Here’s an example of how to trace a request using the Langtrace Python SDK:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-2"><span class="kn">from</span> <span class="nn">langtrace_python_sdk</span> <span class="kn">import</span> <span class="n">langtrace</span>  <span class="c1"># Must precede any llm module imports</span>
+</span><span id="line-3"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+</span><span id="line-4">
+</span><span id="line-5"><span class="n">langtrace</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'LANGTRACE_API_KEY'</span><span class="p">])</span>
+</span><span id="line-6">
+</span><span id="line-7"><span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'OPENAI_API_KEY'</span><span class="p">],</span> <span class="n">base_url</span><span class="o">=</span><span class="s2">"http://localhost:12000/v1"</span><span class="p">)</span>
+</span><span id="line-8">
+</span><span id="line-9"><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="line-10">    <span class="n">model</span><span class="o">=</span><span class="s2">"gpt-4o-mini"</span><span class="p">,</span>
+</span><span id="line-11">    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+</span><span id="line-12">        <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"You are a helpful assistant"</span><span class="p">},</span>
+</span><span id="line-13">        <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Hello"</span><span class="p">},</span>
+</span><span id="line-14">    <span class="p">]</span>
+</span><span id="line-15"><span class="p">)</span>
+</span><span id="line-16">
+</span><span id="line-17"><span class="nb">print</span><span class="p">(</span><span class="n">chat_completion</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</span></code></pre></div>
+</div>
+</li>
+<li><p><strong>Verify Traces</strong>: Access the Langtrace dashboard to view your traces.</p></li>
+</ol>
+</section>
 </section>
 <section id="best-practices">
 <h2>Best Practices<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#best-practices" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#best-practices'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
@@ -474,6 +515,7 @@ tools like AWS X-Ray and Datadog, enhancing observability and facilitating faste
 <li><p><a class="reference external" href="https://www.w3.org/TR/trace-context/" rel="nofollow noopener">W3C Trace Context Specification<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 <li><p><a class="reference external" href="https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/awsxrayexporter" rel="nofollow noopener">AWS X-Ray Exporter<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 <li><p><a class="reference external" href="https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/datadogexporter" rel="nofollow noopener">Datadog Exporter<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
+<li><p><a class="reference external" href="https://docs.langtrace.ai/introduction" rel="nofollow noopener">Langtrace Documentation<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a></p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -519,6 +561,7 @@ tools like AWS X-Ray and Datadog, enhancing observability and facilitating faste
 <li><a :data-current="activeSection === '#integrating-with-tracing-tools'" class="reference internal" href="#integrating-with-tracing-tools">Integrating with Tracing Tools</a><ul>
 <li><a :data-current="activeSection === '#aws-x-ray'" class="reference internal" href="#aws-x-ray">AWS X-Ray</a></li>
 <li><a :data-current="activeSection === '#datadog'" class="reference internal" href="#datadog">Datadog</a></li>
+<li><a :data-current="activeSection === '#langtrace'" class="reference internal" href="#langtrace">Langtrace</a></li>
 </ul>
 </li>
 <li><a :data-current="activeSection === '#best-practices'" class="reference internal" href="#best-practices">Best Practices</a></li>
