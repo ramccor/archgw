@@ -54,10 +54,7 @@ impl Context for StreamContext {
             }
         } else {
             // :status header not found
-            return self.send_server_error(
-                ServerError::LogicError("missing :status header".to_string()),
-                Some(StatusCode::BAD_GATEWAY),
-            );
+            warn!("missing :status header");
         }
 
         #[cfg_attr(any(), rustfmt::skip)]
