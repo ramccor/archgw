@@ -26,7 +26,7 @@ prompt_targets:
     description: Get currency exchange rate from USD to other currencies
     parameters:
       - name: currency_symbol
-        description: the currency that needs conversion
+        description: Currency symbol
         required: true
         type: str
         in_path: true
