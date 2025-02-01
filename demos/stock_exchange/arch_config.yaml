@@ -1,0 +1,71 @@
+version: v0.1
+
+listener:
+  address: 0.0.0.0
+  port: 10000
+  message_format: huggingface
+  connect_timeout: 0.005s
+
+llm_providers:
+  - name: gpt-4o
+    access_key: $OPENAI_API_KEY
+    provider_interface: openai
+    model: gpt-4o
+
+system_prompt: |
+  You are a helpful assistant.
+
+endpoints:
+  twelvedata_api:
+    endpoint: api.twelvedata.com:443
+    protocol: https
+    http_host: api.twelvedata.com
+
+prompt_guards:
+  input_guards:
+    jailbreak:
+      on_exception:
+        message: Looks like you're curious about my abilities, but I can only provide assistance for currency exchange.
+
+prompt_targets:
+  - name: stock_quote
+    description: get current stock exchange rate for a given symbol
+    parameters:
+      - name: symbol
+        description: Stock symbol
+        required: true
+        type: str
+        in_path: true
+    endpoint:
+      name: twelvedata_api
+      path: /quote?symbol={symbol}
+      http_headers:
+        Authorization: "apikey $TWELVEDATA_API_KEY"
+    system_prompt: |
+      You are a helpful stock exchange assistant. You are given stock symbol along with its exchange rate in json format. Your task is to parse the data and present it in a human-readable format. Keep the details to highlevel and be concise.
+
+  - name: stock_quote_time_series
+    description: get historical stock exchange rate for a given symbol
+    parameters:
+      - name: symbol
+        description: Stock symbol
+        required: true
+        type: str
+        in_path: true
+      # - name: interval
+      #   description: Time interval
+      #   default: 1h
+      #   type: str
+      #   in_path: true
+    endpoint:
+      name: twelvedata_api
+      path: /time_series?symbol={symbol}&interval=1day
+      http_headers:
+        Authorization: "apikey $TWELVEDATA_API_KEY"
+    system_prompt: |
+      You are a helpful stock exchange assistant. You are given stock symbol along with its historical data in json format. Your task is to parse the data and present it in a human-readable format. Keep the details to highlevel only and be concise.
+
+
+tracing:
+  random_sampling: 100
+  trace_arch_internal: true

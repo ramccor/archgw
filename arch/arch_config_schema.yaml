@@ -33,6 +33,8 @@ properties:
             enum:
               - http
               - https
+          http_host:
+            type: string
         additionalProperties: false
         required:
           - endpoint

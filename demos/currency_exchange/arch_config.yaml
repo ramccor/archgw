@@ -48,7 +48,8 @@ prompt_targets:
 
 endpoints:
   frankfurther_api:
-    endpoint: host.docker.internal:1122
+    endpoint: api.frankfurter.dev:443
+    protocol: https
 
 tracing:
   random_sampling: 100
