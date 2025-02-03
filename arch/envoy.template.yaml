@@ -570,7 +570,11 @@ static_resources:
                     socket_address:
                       address: {{ local_llm_provider.endpoint }}
                       port_value: {{ local_llm_provider.port }}
+                  {% if local_llm_provider.http_host %}
+                  hostname: {{ local_llm_provider.http_host }}
+                  {% else %}
                   hostname: {{ local_llm_provider.endpoint }}
+                  {% endif %}
       {% if local_llm_provider.protocol == "https" %}
       transport_socket:
         name: envoy.transport_sockets.tls
