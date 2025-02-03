@@ -8,7 +8,7 @@ listener:
 
 llm_providers:
   - name: gpt-4o
-    access_key: $OPENAI_API_KEY1
+    access_key: $OPENAI_API_KEY
     provider_interface: openai
     model: gpt-4o
 
@@ -33,8 +33,6 @@ prompt_targets:
     endpoint:
       name: frankfurther_api
       path: /v1/latest?base=USD&symbols={currency_symbol}
-      http_headers:
-        Authorization: "Bearer $FRANKFURT_API_KEY"
     system_prompt: |
       You are a helpful assistant. Show me the currency symbol you want to convert from USD.
 
@@ -43,8 +41,6 @@ prompt_targets:
     endpoint:
       name: frankfurther_api
       path: /v1/currencies
-      http_headers:
-        Authorization: "Bearer $FRANKFURT_API_KEY"
 
 endpoints:
   frankfurther_api:
