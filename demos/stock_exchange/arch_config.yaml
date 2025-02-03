@@ -12,14 +12,13 @@ llm_providers:
     provider_interface: openai
     model: gpt-4o
 
-system_prompt: |
-  You are a helpful assistant.
-
 endpoints:
   twelvedata_api:
-    endpoint: api.twelvedata.com:443
+    endpoint: api.twelvedata.com
     protocol: https
-    http_host: api.twelvedata.com
+
+system_prompt: |
+  You are a helpful assistant.
 
 prompt_guards:
   input_guards:
@@ -64,7 +63,6 @@ prompt_targets:
         Authorization: "apikey $TWELVEDATA_API_KEY"
     system_prompt: |
       You are a helpful stock exchange assistant. You are given stock symbol along with its historical data in json format. Your task is to parse the data and present it in a human-readable format. Keep the details to highlevel only and be concise.
-
 
 tracing:
   random_sampling: 100

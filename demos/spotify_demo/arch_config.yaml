@@ -4,6 +4,11 @@ listener:
   port: 8080 #If you configure port 443, you'll need to update the listener with tls_certificates
   message_format: huggingface
 
+endpoints:
+  spotify:
+    endpoint: api.spotify.com
+    protocol: https
+
 system_prompt: |
  You are a music assistant. Extract critical details from the JSON response from Spotify like album images, artist name and artist image and display in a neat HTML-friendly way.
 
@@ -28,9 +33,3 @@ prompt_targets:
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
     description: browse new album releases in spotify
-
-endpoints:
-  spotify:
-    endpoint: api.spotify.com:443
-    protocol: https
-    http_host: api.spotify.com
