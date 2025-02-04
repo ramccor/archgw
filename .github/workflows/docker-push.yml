@@ -1,13 +1,12 @@
 name: Publish Docker image
 
 env:
-  DOCKER_IMAGE: katanemo/archgw  # Reusable variable
+  DOCKER_IMAGE: katanemo/archgw
 
 on:
   push:
     branches:
-      - main  # Run tests on pushes to the main branch
-  pull_request:
+      - main
 
 jobs:
   # Build ARM64 image on native ARM64 runner
