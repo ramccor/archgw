@@ -10,13 +10,13 @@ endpoints:
     protocol: https
 
 system_prompt: |
- You are a music assistant. Extract critical details from the JSON response from the spotify API. Write markdown with following details of each item,
-  - album art, scaled down to 25%, use <img> tag
-  - title
-  - release date only for albums
-  - link to spotify
+ You are a music assistant. Your job is to extract critical details from a Spotify's API response and generate Markdown that I can easily display in a gradio chat bot.
+ For each item in the JSON response, I want the following in Markdown in separate lines
+  - album art scaled to 25% of original size. Use an <img> tag
+  - The title of the item and its release date (release dates only for albums)
+  - A hyperlink to spotify displayed as "Listen on Spotify"
 
- Make sure each item is separated by <hr>, there are no markdown bullet points and remove any descriptive labels from data.
+ Make sure each item is separated by <hr>, and there are no markdown bullet points and remove any descriptive labels from data.
 
 llm_providers:
   - name: OpenAI
@@ -26,7 +26,7 @@ llm_providers:
     default: true
 
 prompt_targets:
-  - name: browse_new_album_releases
+  - name: browse_new_releases
     parameters:
       - name: country
         description: the country to select
@@ -38,18 +38,18 @@ prompt_targets:
       path: /v1/browse/new-releases?country={country}&limit=5
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
-    description: browse new album releases
+    description: browse new releases
 
-  - name: get_podcasts
+  - name: search_podcasts
     parameters:
-      - name: query
-        description: query for podcast
+      - name: type
+        description: the type of search podcasts
         required: true
         type: str
         in_path: true
     endpoint:
       name: spotify
-      path: /v1/search?q={query}&type=show&limit=5&market=US
+      path: /v1/search?q={type}&type=show&limit=5&market=US
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
-    description: get podcasts
+    description: search podcasts
