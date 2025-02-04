@@ -1,18 +1,35 @@
 name: Publish Docker image
 
+
 on:
-  release:
-    types: [published]
+  # push:
+  #   branches:
+  #     - main  # Run tests on pushes to the main branch
+  pull_request:
+    # branches:
+      # - main  # Run tests on pull requests to the main branch
+#   release:
+#     types: [published]
 
 jobs:
-  push_to_registry:
+
+  release:
     name: Push Docker image to Docker Hub
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.builder }}
     permissions:
       packages: write
       contents: read
       attestations: write
       id-token: write
+
+    strategy:
+      matrix:
+        include:
+          - builder: ubuntu-latest
+            platform: linux/amd64
+          - builder: buildjet-8vcpu-ubuntu-2204-arm
+            platform: linux/arm64
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -27,7 +44,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: katanemo/archgw
+          images: katanemo/archgw-test
 
       - name: Build and push Docker image
         id: push
