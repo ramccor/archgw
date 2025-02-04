@@ -1,5 +1,8 @@
 name: Publish Docker image
 
+env:
+  DOCKER_IMAGE: katanemo/archgw  # Reusable variable
+
 on:
   push:
     branches:
@@ -24,7 +27,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: katanemo/archgw
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=latest  # Force the tag to be "latest"
 
       - name: Build and Push ARM64 Image
         uses: docker/build-push-action@v5
@@ -52,7 +57,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: katanemo/archgw
+          images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value=latest  # Force the tag to be "latest"
 
       - name: Build and Push AMD64 Image
         uses: docker/build-push-action@v5
@@ -79,7 +86,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: katanemo/archgw  # Correct repository name
+          images: ${{ env.DOCKER_IMAGE }}
           tags: |
             type=raw,value=latest  # Force the tag to be "latest"
 
@@ -87,5 +94,5 @@ jobs:
         run: |
           # Combine the architecture-specific images into a "latest" manifest
           docker buildx imagetools create -t ${{ steps.meta.outputs.tags }} \
-            katanemo/archgw:latest-arm64 \
-            katanemo/archgw:latest-amd64
+            ${{ env.DOCKER_IMAGE }}:latest-arm64 \
+            ${{ env.DOCKER_IMAGE }}:latest-amd64
