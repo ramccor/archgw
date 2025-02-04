@@ -10,7 +10,7 @@ endpoints:
     protocol: https
 
 system_prompt: |
- You are a music assistant. Extract critical details from the JSON response from Spotify like album images, artist name and artist image and display in a neat HTML-friendly way.
+ You are a music assistant. Extract critical details from the JSON response from Spotify like album images, artist name and artist image and display in a neat HTML-friendly way. Only include artist album cover in the response.
 
 llm_providers:
   - name: OpenAI
