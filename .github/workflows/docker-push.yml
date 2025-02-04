@@ -68,7 +68,7 @@ on:
 jobs:
   # Build ARM64 image on native ARM64 runner
   build-arm64:
-    runs-on: [linux-arm64, arm64]
+    runs-on: [linux-arm64]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
