@@ -94,7 +94,7 @@ prompt_targets:
         in_path: true
     endpoint:
       name: spotify
-      path: /v1/browse/new-releases?country={country}&limit=5
+      path: /v1/browse/new-releases?limit=5
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
     description: Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).

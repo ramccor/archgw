@@ -348,7 +348,6 @@ impl StreamContext {
             &path,
             headers.into_iter().collect(),
             None,
-            // Some(tool_params_json_str.as_bytes()),
             vec![],
             Duration::from_secs(5),
         );
@@ -357,7 +356,6 @@ impl StreamContext {
             "dispatching api call to developer endpoint: {}, path: {}",
             endpoint.name, path
         );
-        trace!("request body: {}", tool_params_json_str);
 
         callout_context.upstream_cluster = Some(endpoint.name.to_owned());
         callout_context.upstream_cluster_path = Some(path.to_owned());
