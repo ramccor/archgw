@@ -99,19 +99,27 @@ prompt_targets:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
     description: Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).
 
-  - name: search_for_shows_and_podcasts
+  - name: get_catalog_information
     parameters:
       - name: q
-        description: The search filter to narrow down results
+        description: keywords to search about catalog
         required: true
         type: str
       - name: type
         type: str
         description: The type of catalog item
-        default: show
+        enum:
+          - album
+          - artist
+          - playlist
+          - track
+          - show
+          - episode
+          - audiobook
+        required: true
       - name: market
         type: str
-        description: A country code
+        description: A country code for catalog
         default: US
       - name: limit
         type: integer
@@ -122,4 +130,4 @@ prompt_targets:
       path: /v1/search
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
-    description: get Spotify catalog information about shows and podcasts that match the keyword filter.
+    description: Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a keyword string.

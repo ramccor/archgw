@@ -1,9 +1,12 @@
 use std::collections::{HashMap, HashSet};
 use urlencoding;
 
+use crate::configuration::Parameter;
+
 pub fn replace_params_in_path(
     path: &str,
-    params: &HashMap<String, String>,
+    tool_params: &HashMap<String, String>,
+    prompt_target_params: &Vec<Parameter>,
 ) -> Result<String, String> {
     let mut result = String::new();
     let mut in_param = false;
@@ -16,7 +19,7 @@ pub fn replace_params_in_path(
         } else if c == '}' {
             in_param = false;
             let param_name = current_param.clone();
-            if let Some(value) = params.get(&param_name) {
+            if let Some(value) = tool_params.get(&param_name) {
                 let value = urlencoding::encode(value);
                 result.push_str(value.into_owned().as_str());
                 vars_replaced.insert(param_name.clone());
@@ -32,13 +35,33 @@ pub fn replace_params_in_path(
     }
 
     // add the remaining params in path
-    for (param_name, value) in params.iter() {
+    for (param_name, value) in tool_params.iter() {
         let value = urlencoding::encode(value);
         if !vars_replaced.contains(param_name) {
+            vars_replaced.insert(param_name.clone());
             if result.contains("?") {
                 result.push_str(&format!("&{}={}", param_name, value));
             } else {
                 result.push_str(&format!("?{}={}", param_name, value));
+            }
+        }
+    }
+
+    // add default values
+    for param in prompt_target_params.iter() {
+        if !vars_replaced.contains(&param.name) && param.default.is_some() {
+            if result.contains("?") {
+                result.push_str(&format!(
+                    "&{}={}",
+                    param.name,
+                    param.default.as_ref().unwrap()
+                ));
+            } else {
+                result.push_str(&format!(
+                    "?{}={}",
+                    param.name,
+                    param.default.as_ref().unwrap()
+                ));
             }
         }
     }
@@ -48,6 +71,8 @@ pub fn replace_params_in_path(
 
 #[cfg(test)]
 mod test {
+    use crate::configuration::Parameter;
+
     #[test]
     fn test_replace_path() {
         let path = "/cluster.open-cluster-management.io/v1/managedclusters/{cluster_name}";
@@ -57,18 +82,31 @@ mod test {
         ]
         .into_iter()
         .collect();
+        let prompt_target_params = vec![Parameter {
+            name: "country".to_string(),
+            parameter_type: None,
+            description: "test target".to_string(),
+            required: None,
+            enum_values: None,
+            default: Some("US".to_string()),
+            in_path: None,
+            format: None,
+        }];
+
         assert_eq!(
-            super::replace_params_in_path(path, &params),
+            super::replace_params_in_path(path, &params, &prompt_target_params),
             Ok(
-                "/cluster.open-cluster-management.io/v1/managedclusters/test1?hello=hello%20world"
+                "/cluster.open-cluster-management.io/v1/managedclusters/test1?hello=hello%20world&country=US"
                     .to_string()
             )
         );
 
+        let prompt_target_params = vec![];
+
         let path = "/cluster.open-cluster-management.io/v1/managedclusters";
         let params = vec![].into_iter().collect();
         assert_eq!(
-            super::replace_params_in_path(path, &params),
+            super::replace_params_in_path(path, &params, &prompt_target_params),
             Ok("/cluster.open-cluster-management.io/v1/managedclusters".to_string())
         );
 
@@ -77,7 +115,7 @@ mod test {
             .into_iter()
             .collect();
         assert_eq!(
-            super::replace_params_in_path(path, &params),
+            super::replace_params_in_path(path, &params, &prompt_target_params),
             Ok("/foo/qux/baz".to_string())
         );
 
@@ -89,7 +127,7 @@ mod test {
         .into_iter()
         .collect();
         assert_eq!(
-            super::replace_params_in_path(path, &params),
+            super::replace_params_in_path(path, &params, &prompt_target_params),
             Ok("/foo/qux/baz/quux".to_string())
         );
 
@@ -98,7 +136,7 @@ mod test {
             .into_iter()
             .collect();
         assert_eq!(
-            super::replace_params_in_path(path, &params),
+            super::replace_params_in_path(path, &params, &prompt_target_params),
             Err("Missing value for parameter `qux`".to_string())
         );
     }

@@ -276,22 +276,17 @@ impl StreamContext {
 
         let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap().clone();
 
-        let mut tool_params = self.tool_calls.as_ref().unwrap()[0]
+        let tool_params = self.tool_calls.as_ref().unwrap()[0]
             .function
             .arguments
             .clone();
-        tool_params.insert(
-            String::from(MESSAGES_KEY),
-            serde_yaml::to_value(&callout_context.request_body.messages).unwrap(),
-        );
-
-        let tool_params_json_str = serde_json::to_string(&tool_params).unwrap();
 
         let endpoint = prompt_target.endpoint.unwrap();
         let path: String = endpoint.path.unwrap_or(String::from("/"));
+        let prompt_target_params = prompt_target.parameters.unwrap_or_default();
 
         // only add params that are of string, number and bool type
-        let url_params = tool_params
+        let tool_url_params = tool_params
             .iter()
             .filter(|(_, value)| value.is_number() || value.is_string() || value.is_bool())
             .map(|(key, value)| match value {
@@ -305,7 +300,7 @@ impl StreamContext {
             })
             .collect::<HashMap<String, String>>();
 
-        let path = match common::path::replace_params_in_path(&path, &url_params) {
+        let path = match common::path::replace_params_in_path(&path, &tool_url_params, &prompt_target_params) {
             Ok(path) => path,
             Err(e) => {
                 return self.send_server_error(
