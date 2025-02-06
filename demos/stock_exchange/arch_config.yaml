@@ -34,10 +34,9 @@ prompt_targets:
         description: Stock symbol
         required: true
         type: str
-        in_path: true
     endpoint:
       name: twelvedata_api
-      path: /quote?symbol={symbol}
+      path: /quote
       http_headers:
         Authorization: "apikey $TWELVEDATA_API_KEY"
     system_prompt: |
@@ -50,15 +49,16 @@ prompt_targets:
         description: Stock symbol
         required: true
         type: str
-        in_path: true
-      # - name: interval
-      #   description: Time interval
-      #   default: 1h
-      #   type: str
-      #   in_path: true
+      - name: interval
+        description: Time interval
+        default: 1day
+        enum:
+          - 1h
+          - 1day
+        type: str
     endpoint:
       name: twelvedata_api
-      path: /time_series?symbol={symbol}&interval=1day
+      path: /time_series
       http_headers:
         Authorization: "apikey $TWELVEDATA_API_KEY"
     system_prompt: |
