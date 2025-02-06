@@ -386,7 +386,7 @@ fn prompt_gateway_request_to_llm_gateway() {
                 ("x-arch-upstream", "api_server"),
                 (":authority", "api_server"),
                 ("x-envoy-max-retries", "3"),
-                (":path", "/weather")
+                (":path", "/weather"),
             ]),
             Some(expected_body),
             None,

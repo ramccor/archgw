@@ -52,3 +52,106 @@ pub fn compute_request_path_body(
 
     Ok((path, body))
 }
+
+#[cfg(test)]
+mod test {
+    use common::configuration::{HttpMethod, Parameter};
+
+    #[test]
+    fn test_compute_request_path_body() {
+        let endpoint_path = "/cluster.open-cluster-management.io/v1/managedclusters/{cluster_name}";
+        let tool_params = serde_yaml::from_str(
+            r#"
+      cluster_name: test1
+      hello: hello world
+      "#,
+        )
+        .unwrap();
+        let prompt_target_params = vec![Parameter {
+            name: "country".to_string(),
+            parameter_type: None,
+            description: "test target".to_string(),
+            required: None,
+            enum_values: None,
+            default: Some("US".to_string()),
+            in_path: None,
+            format: None,
+        }];
+        let http_method = HttpMethod::Get;
+        let (path, body) = super::compute_request_path_body(
+            endpoint_path,
+            &tool_params,
+            &prompt_target_params,
+            &http_method,
+        )
+        .unwrap();
+        assert_eq!(
+            path,
+            "/cluster.open-cluster-management.io/v1/managedclusters/test1?hello=hello%20world&country=US"
+        );
+        assert_eq!(body, None);
+    }
+
+    #[test]
+    fn test_compute_request_path_body_empty_params() {
+        let endpoint_path = "/cluster.open-cluster-management.io/v1/managedclusters/";
+        let tool_params = serde_yaml::from_str(r#"{}"#).unwrap();
+        let prompt_target_params = vec![Parameter {
+            name: "country".to_string(),
+            parameter_type: None,
+            description: "test target".to_string(),
+            required: None,
+            enum_values: None,
+            default: Some("US".to_string()),
+            in_path: None,
+            format: None,
+        }];
+        let http_method = HttpMethod::Get;
+        let (path, body) = super::compute_request_path_body(
+            endpoint_path,
+            &tool_params,
+            &prompt_target_params,
+            &http_method,
+        )
+        .unwrap();
+        assert_eq!(
+            path,
+            "/cluster.open-cluster-management.io/v1/managedclusters/?country=US"
+        );
+        assert_eq!(body, None);
+    }
+
+    #[test]
+    fn test_compute_request_path_body_override_default_val() {
+        let endpoint_path = "/cluster.open-cluster-management.io/v1/managedclusters/";
+        let tool_params = serde_yaml::from_str(
+            r#"
+      country: UK
+      "#,
+        )
+        .unwrap();
+        let prompt_target_params = vec![Parameter {
+            name: "country".to_string(),
+            parameter_type: None,
+            description: "test target".to_string(),
+            required: None,
+            enum_values: None,
+            default: Some("US".to_string()),
+            in_path: None,
+            format: None,
+        }];
+        let http_method = HttpMethod::Get;
+        let (path, body) = super::compute_request_path_body(
+            endpoint_path,
+            &tool_params,
+            &prompt_target_params,
+            &http_method,
+        )
+        .unwrap();
+        assert_eq!(
+            path,
+            "/cluster.open-cluster-management.io/v1/managedclusters/?country=UK"
+        );
+        assert_eq!(body, None);
+    }
+}
