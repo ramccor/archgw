@@ -3,7 +3,7 @@ use common::api::open_ai::{
     to_server_events, ArchState, ChatCompletionStreamResponse, ChatCompletionsRequest,
     ChatCompletionsResponse, Message, ModelServerResponse, ToolCall,
 };
-use common::configuration::{Overrides, PromptTarget, Tracing};
+use common::configuration::{HttpMethod, Overrides, PromptTarget, Tracing};
 use common::consts::{
     ARCH_FC_MODEL_NAME, ARCH_FC_REQUEST_TIMEOUT_MS, ARCH_INTERNAL_CLUSTER_NAME,
     ARCH_UPSTREAM_HOST_HEADER, ASSISTANT_ROLE, MESSAGES_KEY, REQUEST_ID_HEADER, SYSTEM_ROLE,
@@ -276,22 +276,18 @@ impl StreamContext {
 
         let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap().clone();
 
-        let mut tool_params = self.tool_calls.as_ref().unwrap()[0]
+        let tool_params = self.tool_calls.as_ref().unwrap()[0]
             .function
             .arguments
             .clone();
-        tool_params.insert(
-            String::from(MESSAGES_KEY),
-            serde_yaml::to_value(&callout_context.request_body.messages).unwrap(),
-        );
-
-        let tool_params_json_str = serde_json::to_string(&tool_params).unwrap();
 
         let endpoint = prompt_target.endpoint.unwrap();
         let path: String = endpoint.path.unwrap_or(String::from("/"));
+        let prompt_target_params = prompt_target.parameters.unwrap_or_default();
+        let http_method = endpoint.method.unwrap_or_default();
 
         // only add params that are of string, number and bool type
-        let url_params = tool_params
+        let tool_url_params = tool_params
             .iter()
             .filter(|(_, value)| value.is_number() || value.is_string() || value.is_bool())
             .map(|(key, value)| match value {
@@ -305,50 +301,77 @@ impl StreamContext {
             })
             .collect::<HashMap<String, String>>();
 
-        let path = match common::path::replace_params_in_path(&path, &url_params) {
-            Ok(path) => path,
-            Err(e) => {
-                return self.send_server_error(
-                    ServerError::BadRequest {
-                        why: format!("error replacing params in path: {}", e),
-                    },
-                    Some(StatusCode::BAD_REQUEST),
-                );
+        let (path_with_params, query_string, additional_params) =
+            match common::path::replace_params_in_path(
+                &path,
+                &tool_url_params,
+                &prompt_target_params,
+            ) {
+                Ok((path, query_string, additional_params)) => {
+                    (path, query_string, additional_params)
+                }
+                Err(e) => {
+                    return self.send_server_error(
+                        ServerError::BadRequest {
+                            why: format!("error replacing params in path: {}", e),
+                        },
+                        Some(StatusCode::BAD_REQUEST),
+                    );
+                }
+            };
+
+        let (path, body) = match http_method {
+            HttpMethod::Get => {
+                (format!("{}?{}", path_with_params, query_string), None)
+            }
+            HttpMethod::Post => {
+                let mut additional_params = additional_params;
+                if !query_string.is_empty() {
+                    query_string.split("&").for_each(|param| {
+                        let mut parts = param.split("=");
+                        let key = parts.next().unwrap();
+                        let value = parts.next().unwrap();
+                        additional_params.insert(key.to_string(), value.to_string());
+                    });
+                }
+                let body = serde_json::to_string(&additional_params).unwrap();
+                (path_with_params, Some(body))
             }
         };
 
-        let http_method = endpoint.method.unwrap_or_default().to_string();
-        let mut headers = vec![
+        let http_method_str = http_method.to_string();
+        let mut headers: HashMap<_, _> = [
             (ARCH_UPSTREAM_HOST_HEADER, endpoint.name.as_str()),
-            (":method", &http_method),
+            (":method", &http_method_str),
             (":path", &path),
             (":authority", endpoint.name.as_str()),
             ("content-type", "application/json"),
             ("x-envoy-max-retries", "3"),
-        ];
+        ]
+        .into_iter()
+        .collect();
 
         if self.request_id.is_some() {
-            headers.push((REQUEST_ID_HEADER, self.request_id.as_ref().unwrap()));
+            headers.insert(REQUEST_ID_HEADER, self.request_id.as_ref().unwrap());
         }
 
         if self.traceparent.is_some() {
-            headers.push((TRACE_PARENT_HEADER, self.traceparent.as_ref().unwrap()));
+            headers.insert(TRACE_PARENT_HEADER, self.traceparent.as_ref().unwrap());
         }
 
         let call_args = CallArgs::new(
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
-            headers,
-            Some(tool_params_json_str.as_bytes()),
+            headers.into_iter().collect(),
+            body.as_deref().map(|s| s.as_bytes()),
             vec![],
             Duration::from_secs(5),
         );
 
         debug!(
-            "dispatching api call to developer endpoint: {}, path: {}",
-            endpoint.name, path
+            "dispatching api call to developer endpoint: {}, path: {}, method: {}",
+            endpoint.name, path, http_method_str
         );
-        trace!("request body: {}", tool_params_json_str);
 
         callout_context.upstream_cluster = Some(endpoint.name.to_owned());
         callout_context.upstream_cluster_path = Some(path.to_owned());
