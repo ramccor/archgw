@@ -322,16 +322,6 @@ impl StreamContext {
 
         let (path, body) = match http_method {
             HttpMethod::Get => {
-                let additional_params_query = additional_params
-                    .iter()
-                    .map(|(k, v)| format!("{}={}", k, v))
-                    .collect::<Vec<String>>()
-                    .join("&");
-                let query_string = if query_string.is_empty() {
-                    additional_params_query
-                } else {
-                    format!("{}&{}", query_string, additional_params_query)
-                };
                 (format!("{}?{}", path_with_params, query_string), None)
             }
             HttpMethod::Post => {

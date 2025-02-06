@@ -86,28 +86,33 @@ llm_providers:
 
 prompt_targets:
   - name: get_new_releases
+    description: Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).
     parameters:
       - name: country
         description: the country where the album is released
         required: true
         type: str
         in_path: true
+      - name: limit
+        type: integer
+        description: The maximum number of results to return
+        default: "5"
     endpoint:
       name: spotify
-      path: /v1/browse/new-releases?limit=5
+      path: /v1/browse/new-releases
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
-    description: Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab).
 
-  - name: get_catalog_information
+  - name: search_for_item
+    description: Get information about albums, artists, playlists, tracks, shows, episodes or audiobooks. You can search for an item by its name, creator, or topic.
     parameters:
       - name: q
-        description: keywords to search about catalog
+        description: Your search query, which can include keywords related to the item name, its creator, or its topic.
         required: true
         type: str
       - name: type
         type: str
-        description: The type of catalog item
+        description: The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).
         enum:
           - album
           - artist
@@ -119,7 +124,7 @@ prompt_targets:
         required: true
       - name: market
         type: str
-        description: A country code for catalog
+        description: A country code
         default: US
       - name: limit
         type: integer
@@ -130,4 +135,3 @@ prompt_targets:
       path: /v1/search
       http_headers:
         Authorization: "Bearer $SPOTIFY_CLIENT_KEY"
-    description: Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a keyword string.
