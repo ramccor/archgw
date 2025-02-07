@@ -5,7 +5,7 @@ import java.util.List;
 public class WeatherForecastResponse {
     private String location;
     private String units;
-    private List<DayForecast> temperature;
+    private List<DayForecast> forecast;
 
     // Default Constructor
     public WeatherForecastResponse() {}
@@ -28,10 +28,10 @@ public class WeatherForecastResponse {
     }
 
     public List<DayForecast> getDailyForecast() {
-        return temperature;
+        return forecast;
     }
 
-    public void setDailyForecas(List<DayForecast> forecast) {
+    public void setDailyForecast(List<DayForecast> forecast) {
         this.forecast = forecast;
     }
 }

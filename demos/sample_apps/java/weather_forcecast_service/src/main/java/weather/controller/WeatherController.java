@@ -1,7 +1,6 @@
 package weather.controller;
 
 import weather.model.DayForecast;
-import weeather.model.Temperature;
 import weather.model.WeatherForecastResponse;
 import weather.model.WeatherRequest;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,7 @@ public class WeatherController {
     private Random random = new Random();
 
     @PostMapping("/weather")
-    public WeatherForecastResponse getWeather(@RequestBody WeatherRequest req) {
+    public WeatherForecastResponse getRandomWeatherForecast(@RequestBody WeatherRequest req) {
         WeatherForecastResponse response = new WeatherForecastResponse();
         response.setLocation(req.getLocation());
         response.setUnits(req.getUnits());

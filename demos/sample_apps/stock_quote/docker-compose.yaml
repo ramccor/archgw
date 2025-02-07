@@ -1,13 +1,12 @@
 services:
-
   chatbot_ui:
     build:
       context: ../../shared/chatbot_ui
-      dockerfile: Dockerfile
     ports:
       - "18080:8080"
     environment:
-      - CHAT_COMPLETION_ENDPOINT=http://host.docker.internal:12000/v1
+      # this is only because we are running the sample app in the same docker container environment as archgw
+      - CHAT_COMPLETION_ENDPOINT=http://host.docker.internal:10000/v1
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -20,13 +19,3 @@ services:
       - "16686:16686"
       - "4317:4317"
       - "4318:4318"
-
-  prometheus:
-    build:
-      context: ../shared/prometheus
-
-  grafana:
-    build:
-      context: ../shared/grafana
-    ports:
-      - "3000:3000"
