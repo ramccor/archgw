@@ -24,6 +24,7 @@ start_demo() {
 
   # Step 4: Start Network Agent
   echo "Starting Network Agent using Docker Compose..."
+  cd build
   docker compose up -d  # Run in detached mode
 }
 

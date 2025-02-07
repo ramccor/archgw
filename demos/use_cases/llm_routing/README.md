@@ -1,5 +1,5 @@
 # LLM Routing
-This demo shows how you can arch gateway to manage keys and route to appropriate LLM.
+This demo shows how you can arch gateway to manage keys and route to upstream LLM.
 
 # Starting the demo
 1. Please make sure the [pre-requisites](https://github.com/katanemo/arch/?tab=readme-ov-file#prerequisites) are installed correctly
