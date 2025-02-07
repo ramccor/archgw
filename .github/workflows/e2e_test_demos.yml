@@ -37,7 +37,7 @@ jobs:
           source venv/bin/activate
           cd model_server/ && echo "installing model server" && poetry install
           cd ../arch/tools && echo "installing archgw cli" && poetry install
-          cd ../../demos/test_runner && echo "installing test dependencies" && poetry install
+          cd ../../demos/shared/test_runner && echo "installing test dependencies" && poetry install
 
       - name: run demo tests
         env:
