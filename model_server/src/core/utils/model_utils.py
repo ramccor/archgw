@@ -157,7 +157,7 @@ class ArchBaseHandler:
                 content = f"<tool_call>\n{json.dumps(tool_calls[0]['function'])}\n</tool_call>"
             elif role == "tool":
                 role = "user"
-                content = f"<tool_response>\n{json.dumps(content)}\n</tool_response>"
+                content = f"<tool_response>\n\n</tool_response>"
 
             processed_messages.append({"role": role, "content": content})
 
