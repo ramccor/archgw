@@ -4,6 +4,9 @@ listener:
   port: 8080 #If you configure port 443, you'll need to update the listener with tls_certificates
   message_format: huggingface
 
+overrides:
+  optimize_context_window: true
+
 endpoints:
   spotify:
     endpoint: api.spotify.com
