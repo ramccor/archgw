@@ -68,6 +68,6 @@ archgw down
 
 log shutting down the weather_forecast demo
 log =======================================
-cd ../../demos/weather_forecast
+cd ../../demos/samples_python/weather_forecast
 docker compose down
 cd -
