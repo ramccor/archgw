@@ -168,7 +168,7 @@ impl HttpContext for StreamContext {
         };
 
         debug!("sending request to model server");
-        debug!("request body: {}", json_data);
+        trace!("request body: {}", json_data);
 
         let mut headers = vec![
             (ARCH_UPSTREAM_HOST_HEADER, MODEL_SERVER_NAME),
