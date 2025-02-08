@@ -15,5 +15,5 @@ do
   cd ../../samples_python/$demo
   archgw down
   docker compose down -v
-  cd .././shared/test_runner
+  cd ../../shared/test_runner
 done
