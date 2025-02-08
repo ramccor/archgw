@@ -14,7 +14,7 @@ services:
 
   jaeger:
     build:
-      context: ../shared/jaeger
+      context: ../../shared/jaeger
     ports:
       - "16686:16686"
       - "4317:4317"

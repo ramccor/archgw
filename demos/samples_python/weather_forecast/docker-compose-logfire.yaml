@@ -11,7 +11,7 @@ services:
 
   chatbot_ui:
     build:
-      context: ../shared/chatbot_ui
+      context: ../../shared/chatbot_ui
     ports:
       - "18080:8080"
     environment:
@@ -24,12 +24,12 @@ services:
 
   otel-collector:
     build:
-      context: ../shared/logfire/
+      context: ../../shared/logfire/
     ports:
       - "4317:4317"
       - "4318:4318"
     volumes:
-      - ../shared/logfire/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ../../shared/logfire/otel-collector-config.yaml:/etc/otel-collector-config.yaml
     env_file:
       - .env
     environment:
@@ -37,10 +37,10 @@ services:
 
   prometheus:
     build:
-      context: ../shared/prometheus
+      context: ../../shared/prometheus
 
   grafana:
     build:
-      context: ../shared/grafana
+      context: ../../shared/grafana
     ports:
       - "3000:3000"

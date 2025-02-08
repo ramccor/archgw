@@ -15,7 +15,7 @@ services:
 
   jaeger:
     build:
-      context: ../shared/jaeger
+      context: ../../shared/jaeger
     ports:
       - "16686:16686"
       - "4317:4317"
@@ -23,10 +23,10 @@ services:
 
   prometheus:
     build:
-      context: ../shared/prometheus
+      context: ../../shared/prometheus
 
   grafana:
     build:
-      context: ../shared/grafana
+      context: ../../shared/grafana
     ports:
       - "3000:3000"
