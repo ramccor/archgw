@@ -7,8 +7,8 @@ _Arch is an intelligent (edge and LLM) proxy designed for agentic applications -
 
 [Quickstart](##quickstart) •
 [Demos](##demos) •
-[Build Agentic App With Arch](###Build-AI-Agent-with-Arch-Gateway) •
-[Use Arch as a LLM Router](###Use-Arch-Gateway-as-LLM-Router-) •
+[Build agentic apps with Arch](###Build-AI-Agent-with-Arch-Gateway) •
+[Use Arch as an LLM router](###Use-Arch-Gateway-as-LLM-Router-) •
 [Documentation](https://docs.archgw.com) •
 [Contact](##contact)
 
