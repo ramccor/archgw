@@ -29,7 +29,7 @@ Arch Gateway was built by the contributors of [Envoy Proxy](https://www.envoypro
 
 Arch is engineered with purpose-built LLMs to handle critical but pesky tasks related to the handling and processing of prompts. This includes detecting and rejecting [jailbreak](https://github.com/verazuo/jailbreak_llms) attempts, intent-based routing for improved task accuracy, mapping user request into "backend" functions, and managing the observability of prompts and LLM API calls in a centralized way.
 
-*Core Features*:
+**Core Features**:
 
   - **Intent-based prompt routing & fast ⚡ function-calling via APIs**. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) to handle fast, cost-effective, and accurate prompt-based tasks like function/API calling, and parameter extraction from prompts to build more task-accurate agentic applications.
   - **Prompt [Guard](https://huggingface.co/collections/katanemo/arch-guard-6702bdc08b889e4bce8f446d)**: Arch centralizes guardrails to prevent jailbreak attempts and ensure safe user interactions without writing a single line of code.
@@ -49,9 +49,9 @@ Arch is engineered with purpose-built LLMs to handle critical but pesky tasks re
 To get in touch with us, please join our [discord server](https://discord.gg/pGZf2gcwEc). We will be monitoring that actively and offering support there.
 
 ## Demos
-* [Sample App: Weather Forecast Agent](demos/samples_python/weather_forecast/README.md) - Walk through of the core function calling capabilities of arch gateway using weather forecasting service
-* [Sample App: Network Operator Agent](demos/samples_python/network_switch_operator_agent/README.md) - Build a networking co-pilot/agent agent with Arch
-* [User Cases: Connecting to SaaS APIs](demos/use_cases/spotify_bearer_auth) - Connect 3rd party SaaS APIs to your agentic chat experience.
+* [Sample App: Weather Forecast Agent](demos/samples_python/weather_forecast/README.md) - A sample agentic weather forecasting appp that highlights core function calling capabilities of Arch.
+* [Sample App: Network Operator Agent](demos/samples_python/network_switch_operator_agent/README.md) - A simple network device switch operator agent that can retrive device statistics and reboot them.
+* [User Case: Connecting to SaaS APIs](demos/use_cases/spotify_bearer_auth) - Connect 3rd party SaaS APIs to your agentic chat experience.
 
 ## Quickstart
 
