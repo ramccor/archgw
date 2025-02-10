@@ -3,11 +3,6 @@
 </div>
 <div align="center">
 
-[![pre-commit](https://github.com/katanemo/arch/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/pre-commit.yml)
-[![rust tests (prompt and llm gateway)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml)
-[![e2e tests](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml)
-[![Build and Deploy Documentation](https://github.com/katanemo/arch/actions/workflows/static.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/static.yml)
-
 _Arch is an intelligent (edge and LLM) proxy designed for agentic applications - to help you protect, observe, and build agentic tasks by simply connecting (existing) APIs._
 
 [Quickstart](##quickstart) •
@@ -16,6 +11,11 @@ _Arch is an intelligent (edge and LLM) proxy designed for agentic applications -
 [Use Arch as a LLM Router](###Use-Arch-Gateway-as-LLM-Router-) •
 [Documentation](https://docs.archgw.com) •
 [Contact](##contact)
+
+[![pre-commit](https://github.com/katanemo/arch/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/pre-commit.yml)
+[![rust tests (prompt and llm gateway)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml)
+[![e2e tests](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml)
+[![Build and Deploy Documentation](https://github.com/katanemo/arch/actions/workflows/static.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/static.yml)
 </div>
 
 # Overview
@@ -29,13 +29,13 @@ Arch Gateway was built by the contributors of [Envoy Proxy](https://www.envoypro
 
 Arch is engineered with purpose-built LLMs to handle critical but pesky tasks related to the handling and processing of prompts. This includes detecting and rejecting [jailbreak](https://github.com/verazuo/jailbreak_llms) attempts, intent-based routing for improved task accuracy, mapping user request into "backend" functions, and managing the observability of prompts and LLM API calls in a centralized way.
 
-**Core Features**:
+*Core Features*:
 
-  - Intent-based prompt routing & fast ⚡ function-calling via APIs. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) to handle fast, cost-effective, and accurate prompt-based tasks like function/API calling, and parameter extraction from prompts to build more task-accurate agentic applications.
-  - Prompt [Guard](https://huggingface.co/collections/katanemo/arch-guard-6702bdc08b889e4bce8f446d): Arch centralizes guardrails to prevent jailbreak attempts and ensure safe user interactions without writing a single line of code.
-  - LLM Routing & Traffic Management: Arch centralizes calls to LLMs used by your applications, offering smart retries, automatic cutover, and resilient upstream connections for continuous availability.
-  - Observability: Arch uses the W3C Trace Context standard to enable complete request tracing across applications, ensuring compatibility with observability tools, and provides metrics to monitor latency, token usage, and error rates, helping optimize AI application performance.
-  - Built on [Envoy](https://envoyproxy.io): Arch runs alongside application servers as a separate containerized process, and builds on top of Envoy's proven HTTP management and scalability features to handle ingress and egress traffic related to prompts and LLMs.
+  - **Intent-based prompt routing & fast ⚡ function-calling via APIs**. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) to handle fast, cost-effective, and accurate prompt-based tasks like function/API calling, and parameter extraction from prompts to build more task-accurate agentic applications.
+  - **Prompt [Guard](https://huggingface.co/collections/katanemo/arch-guard-6702bdc08b889e4bce8f446d)**: Arch centralizes guardrails to prevent jailbreak attempts and ensure safe user interactions without writing a single line of code.
+  - **LLM Routing & Traffic Management**: Arch centralizes calls to LLMs used by your applications, offering smart retries, automatic cutover, and resilient upstream connections for continuous availability.
+  - **Observability**: Arch uses the W3C Trace Context standard to enable complete request tracing across applications, ensuring compatibility with observability tools, and provides metrics to monitor latency, token usage, and error rates, helping optimize AI application performance.
+  - **Built on [Envoy](https://envoyproxy.io)**: Arch runs alongside application servers as a separate containerized process, and builds on top of Envoy's proven HTTP management and scalability features to handle ingress and egress traffic related to prompts and LLMs.
 
 **High-Level Sequence Diagram**:
 ![alt text](docs/source/_static/img/arch_network_diagram_high_level.png)
