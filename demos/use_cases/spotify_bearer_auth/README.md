@@ -15,8 +15,8 @@ Where users can engage by asking questions like _"Show me the latest releases in
 1. Ensure the [prerequisites](https://github.com/katanemo/arch/?tab=readme-ov-file#prerequisites) are installed correctly.
 2. Create an `.env` file with API keys for OpenAI and Spotify.
    - Sign up for an OpenAI API key at [https://platform.openai.com/signup/](https://platform.openai.com/signup/)
-   - Generate Spotify Client Key/Secret by following the instructions at [https://developer.spotify.com/dashboard/](https://developer.spotify.com/dashboard/)
-   - Use Spotify Client Key/Secret to generate a token using curl or similar command using the [https://accounts.spotify.com/api/token API](https://accounts.spotify.com/api/token)
+   - Sign up for a Spotify Client Key/Secret by following instructions at [https://developer.spotify.com/dashboard/](https://developer.spotify.com/dashboard/)
+   - Generate a Spotify token using the [https://accounts.spotify.com/api/token API](https://accounts.spotify.com/api/token), using ```curl``` or similar commands.
    - Create a .env file with the following keys:
    ```
    OPENAI_API_KEY=your_openai_api_key
