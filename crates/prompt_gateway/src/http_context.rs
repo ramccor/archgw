@@ -10,6 +10,7 @@ use common::{
     },
     errors::ServerError,
     http::{CallArgs, Client},
+    pii::obfuscate_auth_header,
 };
 use http::StatusCode;
 use log::{debug, trace, warn};
@@ -38,6 +39,12 @@ impl HttpContext for StreamContext {
         }
 
         self.is_chat_completions_request = request_path == CHAT_COMPLETIONS_PATH;
+
+        trace!(
+            "on_http_request_headers S[{}] req_headers={:?}",
+            self.context_id,
+            obfuscate_auth_header(&mut self.get_http_request_headers())
+        );
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
@@ -137,10 +144,7 @@ impl HttpContext for StreamContext {
                 if metadata.is_none() {
                     metadata = Some(HashMap::new());
                 }
-                metadata
-                    .as_mut()
-                    .unwrap()
-                    .insert("optimize_context_window".to_string(), "true".to_string());
+                metadata.as_mut().unwrap().insert("optimize_context_window".to_string(), "true".to_string());
             }
         }
 

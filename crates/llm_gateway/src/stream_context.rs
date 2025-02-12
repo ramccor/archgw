@@ -176,8 +176,6 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        let request_path = self.get_http_request_header(":path").unwrap_or_default();
-        debug!("request_path: {}", request_path);
         self.select_llm_provider();
 
         // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
