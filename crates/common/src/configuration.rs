@@ -25,6 +25,7 @@ pub struct Configuration {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Overrides {
     pub prompt_target_intent_matching_threshold: Option<f64>,
+    pub optimize_context_window: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -242,6 +243,7 @@ pub struct EndpointDetails {
     pub path: Option<String>,
     #[serde(rename = "http_method")]
     pub method: Option<HttpMethod>,
+    pub http_headers: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

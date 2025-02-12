@@ -78,10 +78,7 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!(
-            "developer => archgw: {}",
-            String::from_utf8_lossy(&body_bytes)
-        );
+        trace!("request body: {}", String::from_utf8_lossy(&body_bytes));
 
         // Deserialize body into spec.
         // Currently OpenAI API.
@@ -133,9 +130,23 @@ impl HttpContext for StreamContext {
             .map(|(_, pt)| pt.into())
             .collect();
 
+        let mut metadata = deserialized_body.metadata.clone();
+
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.optimize_context_window.unwrap_or_default() {
+                if metadata.is_none() {
+                    metadata = Some(HashMap::new());
+                }
+                metadata
+                    .as_mut()
+                    .unwrap()
+                    .insert("optimize_context_window".to_string(), "true".to_string());
+            }
+        }
+
         let arch_fc_chat_completion_request = ChatCompletionsRequest {
             messages: deserialized_body.messages.clone(),
-            metadata: deserialized_body.metadata.clone(),
+            metadata,
             stream: deserialized_body.stream,
             model: "--".to_string(),
             stream_options: deserialized_body.stream_options.clone(),
@@ -152,7 +163,8 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!("archgw => archfc: {}", json_data);
+        debug!("sending request to model server");
+        trace!("request body: {}", json_data);
 
         let mut headers = vec![
             (ARCH_UPSTREAM_HOST_HEADER, MODEL_SERVER_NAME),

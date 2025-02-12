@@ -3,6 +3,7 @@ use crate::stream_context::StreamContext;
 use common::configuration::{Configuration, Overrides, PromptGuards, PromptTarget, Tracing};
 use common::http::Client;
 use common::stats::Gauge;
+use log::trace;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 use std::cell::RefCell;
@@ -83,6 +84,11 @@ impl RootContext for FilterContext {
     }
 
     fn create_http_context(&self, context_id: u32) -> Option<Box<dyn HttpContext>> {
+        trace!(
+            "||| create_http_context called with context_id: {:?} |||",
+            context_id
+        );
+
         Some(Box::new(StreamContext::new(
             context_id,
             Rc::clone(&self.metrics),

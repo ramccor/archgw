@@ -27,21 +27,34 @@ impl Context for StreamContext {
             .get_http_call_response_body(0, body_size)
             .unwrap_or_default();
 
-        let http_status = self
-            .get_http_call_response_header(":status")
-            .unwrap_or(StatusCode::OK.as_str().to_string());
-        if http_status != StatusCode::OK.as_str() {
-            let server_error = ServerError::Upstream {
-                host: callout_context.upstream_cluster.unwrap(),
-                path: callout_context.upstream_cluster_path.unwrap(),
-                status: http_status.clone(),
-                body: String::from_utf8(body).unwrap(),
-            };
-            warn!("filter received non 2xx code: {:?}", server_error);
-            return self.send_server_error(
-                server_error,
-                Some(StatusCode::from_str(http_status.as_str()).unwrap()),
-            );
+        if let Some(http_status) = self.get_http_call_response_header(":status") {
+            match StatusCode::from_str(http_status.as_str()) {
+                Ok(status_code) => {
+                    if !status_code.is_success() {
+                        let server_error = ServerError::Upstream {
+                            host: callout_context.upstream_cluster.unwrap(),
+                            path: callout_context.upstream_cluster_path.unwrap(),
+                            status: http_status.clone(),
+                            body: String::from_utf8(body).unwrap(),
+                        };
+                        warn!("received non 2xx code: {:?}", server_error);
+                        return self.send_server_error(
+                            server_error,
+                            Some(StatusCode::from_str(http_status.as_str()).unwrap()),
+                        );
+                    }
+                }
+                Err(_) => {
+                    // invalid status code (status code non numeric)
+                    return self.send_server_error(
+                        ServerError::LogicError(format!("invalid status code: {}", http_status)),
+                        Some(StatusCode::from_str(http_status.as_str()).unwrap()),
+                    );
+                }
+            }
+        } else {
+            // :status header not found
+            warn!("missing :status header");
         }
 
         #[cfg_attr(any(), rustfmt::skip)]

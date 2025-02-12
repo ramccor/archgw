@@ -87,7 +87,7 @@ impl StreamContext {
         ));
 
         debug!(
-            "llm provider hint: {:?}, selected llm: {}",
+            "request received: llm provider hint: {:?}, selected llm: {}",
             self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER),
             self.llm_provider.as_ref().unwrap().name
         );
@@ -309,6 +309,12 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+        trace!(
+            "on_http_response_headers [S={}] end_stream={}",
+            self.context_id,
+            _end_of_stream
+        );
+
         self.set_property(
             vec!["metadata", "filter_metadata", "llm_filter", "user_prompt"],
             Some("hello world from filter".as_bytes()),
@@ -318,6 +324,13 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
+        trace!(
+            "on_http_response_body [S={}] bytes={} end_stream={}",
+            self.context_id,
+            body_size,
+            end_of_stream
+        );
+
         if !self.is_chat_completions_request {
             debug!("non-chatcompletion request");
             return Action::Continue;
@@ -517,8 +530,11 @@ impl HttpContext for StreamContext {
             let chat_completions_response: ChatCompletionsResponse =
                 match serde_json::from_str(body_utf8.as_str()) {
                     Ok(de) => de,
-                    Err(_e) => {
-                        debug!("invalid response: {}", body_utf8);
+                    Err(err) => {
+                        debug!(
+                            "non chat-completion compliant response received err: {}, body: {}",
+                            err, body_utf8
+                        );
                         return Action::Continue;
                     }
                 };

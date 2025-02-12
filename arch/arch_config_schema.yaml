@@ -68,6 +68,8 @@ properties:
           enum:
             - http
             - https
+        http_host:
+          type: string
       additionalProperties: false
       required:
         - name
@@ -77,6 +79,8 @@ properties:
     properties:
       prompt_target_intent_matching_threshold:
         type: number
+      optimize_context_window:
+        type: boolean
   system_prompt:
     type: string
   prompt_targets:
@@ -133,6 +137,10 @@ properties:
               enum:
                 - GET
                 - POST
+            http_headers:
+              type: object
+              additionalProperties:
+                type: string
           additionalProperties: false
           required:
             - name
