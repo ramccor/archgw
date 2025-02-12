@@ -38,10 +38,10 @@ def start_archgw_docker(client, arch_config_file, env):
         volumes={
             f"{arch_config_file}": {
                 "bind": "/app/arch_config.yaml",
-                "mode": "ro",
+                "mode": "ro,Z",
             },
-            "/etc/ssl/cert.pem": {"bind": "/etc/ssl/cert.pem", "mode": "ro"},
-            logs_path_abs: {"bind": "/var/log"},
+            "/etc/ssl/cert.pem": {"bind": "/etc/ssl/cert.pem", "mode": "ro,Z"},
+            logs_path_abs: {"bind": "/var/log", "mode": "rw,Z"},
         },
         environment={
             "OTEL_TRACING_HTTP_ENDPOINT": "http://host.docker.internal:4318/v1/traces",
