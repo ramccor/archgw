@@ -107,7 +107,10 @@ properties:
               required:
                 type: boolean
               default:
-                type: string
+                anyOf:
+                  - type: string
+                  - type: integer
+                  - type: boolean
               description:
                 type: string
               type:
@@ -120,6 +123,8 @@ properties:
                 type: boolean
               format:
                 type: string
+              url_encode:
+                type: boolean
             additionalProperties: false
             required:
               - name

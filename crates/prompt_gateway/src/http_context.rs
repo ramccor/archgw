@@ -144,7 +144,10 @@ impl HttpContext for StreamContext {
                 if metadata.is_none() {
                     metadata = Some(HashMap::new());
                 }
-                metadata.as_mut().unwrap().insert("optimize_context_window".to_string(), "true".to_string());
+                metadata
+                    .as_mut()
+                    .unwrap()
+                    .insert("optimize_context_window".to_string(), "true".to_string());
             }
         }
 
