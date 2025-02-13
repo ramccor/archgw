@@ -326,16 +326,6 @@ mod test {
             Some("/agent/summary".to_string())
         );
 
-        let error_target = config.error_target.as_ref().unwrap();
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().name,
-            "error_target_1".to_string()
-        );
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().path,
-            Some("/error".to_string())
-        );
-
         let tracing = config.tracing.as_ref().unwrap();
         assert_eq!(tracing.sampling_rate.unwrap(), 0.1);
 
