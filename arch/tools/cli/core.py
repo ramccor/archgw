@@ -5,7 +5,7 @@ import sys
 import glob
 import docker
 from docker.errors import DockerException
-from cli.utils import getLogger, update_docker_host_env
+from cli.utils import getLogger
 from cli.consts import (
     ARCHGW_DOCKER_NAME,
     KATANEMO_LOCAL_MODEL_LIST,

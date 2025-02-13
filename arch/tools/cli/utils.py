@@ -24,23 +24,6 @@ def getLogger(name="cli"):
 log = getLogger(__name__)
 
 
-def update_docker_host_env():
-    """
-    Update DOCKER_HOST environment variable to use the local Docker socket
-    """
-    if os.getenv("DOCKER_HOST"):
-        return
-
-    default_docker_socket = os.getenv("DEFAULT_DOCKER_SOCKET", "/var/run/docker.sock")
-    if not os.path.exists(default_docker_socket):
-        home_dir = os.getenv("HOME")
-        docker_host = f"unix://{home_dir}/.docker/run/docker.sock"
-        log.info(
-            f"Default docker socket {default_docker_socket} not found, using {docker_host}"
-        )
-        os.environ["DOCKER_HOST"] = docker_host
-
-
 def validate_schema(arch_config_file: str) -> None:
     try:
         try:

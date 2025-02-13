@@ -5,13 +5,12 @@ import subprocess
 import multiprocessing
 import importlib.metadata
 from cli import targets
-from cli.docker_cli import stream_gateway_logs
+from cli.docker_cli import docker_validate_archgw_schema, stream_gateway_logs
 from cli.utils import (
     getLogger,
     get_llm_provider_access_keys,
     load_env_file_to_dict,
     stream_access_logs,
-    validate_schema,
 )
 from cli.core import (
     start_arch_modelserver,
@@ -173,11 +172,15 @@ def up(file, path, service, foreground):
 
     log.info(f"Validating {arch_config_file}")
 
-    try:
-        validate_schema(arch_config_file)
-    except Exception as e:
-        log.info(f"Exiting archgw up: validation failed")
-        log.info(f"Error: {str(e)}")
+    (
+        validation_return_code,
+        validation_stdout,
+        validation_stderr,
+    ) = docker_validate_archgw_schema(arch_config_file)
+    if validation_return_code != 0:
+        log.info(f"Error: Validation failed. Exiting")
+        log.info(f"Validation stdout: {validation_stdout}")
+        log.info(f"Validation stderr: {validation_stderr}")
         sys.exit(1)
 
     log.info("Starting arch model server and arch gateway")
