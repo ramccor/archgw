@@ -33,14 +33,6 @@ llm_providers:
     access_key: $OPENAI_API_KEY
     model: gpt-4o
     default: true
-    rate_limits:
-      selector: #optional headers, to add rate limiting based on http headers like JWT tokens or API keys
-        http_header:
-          name: Authorization
-          value: "" # Empty value means each separate value has a separate limit
-      limit:
-        tokens: 100000 # Tokens per unit
-        unit: minute
 
   - name: Mistral8x7b
     provider_interface: openai
@@ -95,11 +87,6 @@ prompt_targets:
         description: Confirmation flag to proceed with reboot.
         default: false
         enum: [true, false]
-
-error_target:
-  endpoint:
-    name: error_target_1
-    path: /error
 
 tracing:
   # sampling rate. Note by default Arch works on OpenTelemetry compatible tracing.

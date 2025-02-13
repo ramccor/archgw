@@ -124,7 +124,10 @@ properties:
               required:
                 type: boolean
               default:
-                type: string
+                anyOf:
+                  - type: string
+                  - type: integer
+                  - type: boolean
               description:
                 type: string
               type:
@@ -132,7 +135,10 @@ properties:
               enum:
                 type: array
                 items:
-                  type: string
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: boolean
               in_path:
                 type: boolean
               format:
