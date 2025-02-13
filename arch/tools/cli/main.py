@@ -5,10 +5,12 @@ import subprocess
 import multiprocessing
 import importlib.metadata
 from cli import targets
+from cli.docker_cli import stream_gateway_logs
 from cli.utils import (
     getLogger,
     get_llm_provider_access_keys,
     load_env_file_to_dict,
+    stream_access_logs,
     validate_schema,
 )
 from cli.core import (
@@ -17,12 +19,9 @@ from cli.core import (
     start_arch,
     stop_arch,
     download_models_from_hf,
-    stream_access_logs,
-    stream_gateway_logs,
 )
 from cli.consts import (
     KATANEMO_DOCKERHUB_REPO,
-    KATANEMO_LOCAL_MODEL_LIST,
     SERVICE_NAME_ARCHGW,
     SERVICE_NAME_MODEL_SERVER,
     SERVICE_ALL,
@@ -184,7 +183,10 @@ def up(file, path, service, foreground):
     log.info("Starting arch model server and arch gateway")
 
     # Set the ARCH_CONFIG_FILE environment variable
-    env_stage = {}
+    env_stage = {
+        "OTEL_TRACING_HTTP_ENDPOINT": "http://host.docker.internal:4318/v1/traces",
+        "MODEL_SERVER_PORT": os.getenv("MODEL_SERVER_PORT", "51000"),
+    }
     env = os.environ.copy()
     # check if access_keys are preesnt in the config file
     access_keys = get_llm_provider_access_keys(arch_config_file=arch_config_file)

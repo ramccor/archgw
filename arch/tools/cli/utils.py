@@ -1,10 +1,13 @@
+import glob
 import os
+import subprocess
+import sys
 import yaml
 import logging
 import docker
 from docker.errors import DockerException
 
-from cli.consts import ARCHGW_DOCKER_IMAGE, ARCHGW_DOCKER_NAME
+from cli.consts import ACCESS_LOG_FILES, ARCHGW_DOCKER_IMAGE
 
 logging.basicConfig(
     level=logging.INFO,
@@ -127,3 +130,23 @@ def load_env_file_to_dict(file_path):
                 env_dict[key] = value
 
     return env_dict
+
+
+def stream_access_logs(follow):
+    """
+    Get the archgw access logs
+    """
+    log_file_pattern_expanded = os.path.expanduser(ACCESS_LOG_FILES)
+    log_files = glob.glob(log_file_pattern_expanded)
+
+    stream_command = ["tail"]
+    if follow:
+        stream_command.append("-f")
+
+    stream_command.extend(log_files)
+    subprocess.run(
+        stream_command,
+        check=True,
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+    )
