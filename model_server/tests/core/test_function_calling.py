@@ -128,7 +128,6 @@ def get_greeting_data():
     "get_data_func",
     [
         get_hallucination_data_complex,
-        get_hallucination_data_easy,
         get_complete_data,
         get_irrelevant_data,
         get_complete_data_2,
