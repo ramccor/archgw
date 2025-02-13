@@ -129,18 +129,18 @@ def stop_server():
 
     pid_file = get_pid_file()
     if os.path.exists(pid_file):
-        logger.info("PID file found, shutting down the server.")
+        logger.info("pid file found, shutting down the server.")
         # read pid from file
         with open(pid_file, "r") as f:
             pid = int(f.read())
-            logger.info(f"Killing model server {pid}")
+            logger.info(f"killing model server {pid}")
             try:
                 os.kill(pid, signal.SIGKILL)
             except ProcessLookupError:
-                logger.info(f"Process {pid} not found")
+                logger.info(f"process {pid} not found")
         os.remove(pid_file)
     else:
-        logger.info("No PID file found, server is not running.")
+        logger.info("no pid file found, server is not running.")
 
 
 def restart_server(port=51000, foreground=False):
