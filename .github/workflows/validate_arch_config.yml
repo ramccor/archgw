@@ -1,4 +1,4 @@
-name: e2e archgw tests
+name: arch config tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  e2e_archgw_tests:
+  validate_arch_config:
     runs-on: ubuntu-latest
     defaults:
       run:
