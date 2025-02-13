@@ -43,8 +43,8 @@ HALLUCINATION_THRESHOLD_DICT = {
         "probability": 0.8,
     },
     MaskToken.PARAMETER_VALUE.value: {
-        "entropy": 0.35,
-        "varentropy": 1.7,
+        "entropy": 0.28,
+        "varentropy": 1.4,
         "probability": 0.8,
     },
 }
@@ -60,9 +60,9 @@ def check_threshold(entropy: float, varentropy: float, thd: Dict) -> bool:
         thd (dict): A dictionary containing the threshold values with keys 'entropy' and 'varentropy'.
 
     Returns:
-        bool: True if either the entropy or varentropy exceeds their respective thresholds, False otherwise.
+        bool: True if both the entropy and varentropy exceeds their respective thresholds, False otherwise.
     """
-    return entropy > thd["entropy"] or varentropy > thd["varentropy"]
+    return entropy > thd["entropy"] and varentropy > thd["varentropy"]
 
 
 def calculate_uncertainty(log_probs: List[float]) -> Tuple[float, float]:
@@ -322,6 +322,7 @@ class HallucinationState:
                             self._check_logprob()
                             self.check_parameter_name[self.parameter_name[-1]] = True
                 else:
+                    self._check_logprob()
                     self.error_message = f"Function name {self.function_name} not found in function properties"
                     logger.warning(
                         f"Function name {self.function_name} not found in function properties"
