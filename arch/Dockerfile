@@ -24,8 +24,10 @@ RUN pip install -r requirements.txt
 COPY arch/tools/cli/config_generator.py .
 COPY arch/envoy.template.yaml .
 COPY arch/arch_config_schema.yaml .
+COPY arch/validate_schema.sh .
 
 RUN pip install requests
 RUN touch /var/log/envoy.log
+RUN chmod a+x validate_schema.sh
 
 ENTRYPOINT ["sh","-c", "python config_generator.py && envsubst < /etc/envoy/envoy.yaml > /etc/envoy.env_sub.yaml && envoy -c /etc/envoy.env_sub.yaml --component-log-level wasm:debug 2>&1 | tee /var/log/envoy.log"]
