@@ -2,7 +2,6 @@ import subprocess
 import os
 import time
 import sys
-import glob
 from cli.utils import getLogger
 from cli.consts import (
     ARCHGW_DOCKER_NAME,
