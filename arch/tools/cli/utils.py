@@ -4,10 +4,8 @@ import subprocess
 import sys
 import yaml
 import logging
-import docker
-from docker.errors import DockerException
 
-from cli.consts import ACCESS_LOG_FILES, ARCHGW_DOCKER_IMAGE
+from cli.consts import ACCESS_LOG_FILES
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,46 +20,6 @@ def getLogger(name="cli"):
 
 
 log = getLogger(__name__)
-
-
-def validate_schema(arch_config_file: str) -> None:
-    try:
-        try:
-            client = docker.from_env()
-        except DockerException as e:
-            # try setting up the docker host environment variable and retry
-            update_docker_host_env()
-            client = docker.from_env()
-
-        container = client.containers.run(
-            image=ARCHGW_DOCKER_IMAGE,
-            volumes={
-                f"{arch_config_file}": {
-                    "bind": "/app/arch_config.yaml",
-                    "mode": "ro",
-                },
-            },
-            entrypoint=["python", "config_generator.py"],
-            detach=True,
-        )
-
-        # Wait for the container to finish and get the exit code
-        exit_code = container.wait()
-
-        # Check exit code for validation success
-        if exit_code["StatusCode"] != 0:
-            # Validation failed (non-zero exit code)
-            logs = container.logs().decode()  # Get container logs for debugging
-            raise ValueError(
-                f"Validation failed. Container exited with code {exit_code}.\nLogs:\n{logs}"
-            )
-
-        # Successful validation (exit code 0)
-        log.info("Schema validation successful!")
-
-    except docker.errors.APIError as e:
-        # Handle container creation error
-        raise ValueError(f"Failed to create container: {e}")
 
 
 def get_llm_provider_access_keys(arch_config_file):

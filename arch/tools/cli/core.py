@@ -3,8 +3,6 @@ import os
 import time
 import sys
 import glob
-import docker
-from docker.errors import DockerException
 from cli.utils import getLogger
 from cli.consts import (
     ARCHGW_DOCKER_NAME,
