@@ -104,7 +104,9 @@ def validate_and_render_schema():
     arch_config_string = yaml.dump(config_yaml)
     arch_llm_config_string = yaml.dump(config_yaml)
 
-    prompt_gateway_listener = config_yaml.get("listeners", {}).get("prompt_gateway", {})
+    prompt_gateway_listener = config_yaml.get("listeners", {}).get(
+        "ingress_traffic", {}
+    )
     if prompt_gateway_listener.get("port") == None:
         prompt_gateway_listener["port"] = 10000  # default port for prompt gateway
     if prompt_gateway_listener.get("address") == None:
@@ -112,7 +114,7 @@ def validate_and_render_schema():
     if prompt_gateway_listener.get("timeout") == None:
         prompt_gateway_listener["timeout"] = "10s"
 
-    llm_gateway_listener = config_yaml.get("listeners", {}).get("llm_gateway", {})
+    llm_gateway_listener = config_yaml.get("listeners", {}).get("egress_traffic", {})
     if llm_gateway_listener.get("port") == None:
         llm_gateway_listener["port"] = 12000  # default port for llm gateway
     if llm_gateway_listener.get("address") == None:

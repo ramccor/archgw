@@ -143,12 +143,12 @@ def start_arch(arch_config_file, env, log_timeout=120, foreground=False):
 
         prompt_gateway_port = (
             arch_config_dict.get("listeners", {})
-            .get("prompt_gateway", {})
+            .get("ingress_traffic", {})
             .get("port", 10000)
         )
         llm_gateway_port = (
             arch_config_dict.get("listeners", {})
-            .get("llm_gateway", {})
+            .get("egress_traffic", {})
             .get("port", 12000)
         )
 

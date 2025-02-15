@@ -43,7 +43,7 @@ Create ``arch_config.yaml`` file with the following content:
    version: v0.1
 
   listeners:
-    prompt_gateway:
+    ingress_traffic:
       address: 0.0.0.0
       port: 10000
       message_format: openai
@@ -146,9 +146,9 @@ Create ``arch_config.yaml`` file with the following content:
    version: v0.1
 
   listeners:
-    prompt_gateway:
+    egress_traffic:
       address: 0.0.0.0
-      port: 10000
+      port: 12000
       message_format: openai
       timeout: 30s
 
