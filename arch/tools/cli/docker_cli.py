@@ -103,7 +103,6 @@ def docker_validate_archgw_schema(arch_config_file):
         [
             "docker",
             "run",
-            "-it",
             "--rm",
             "-v",
             f"{arch_config_file}:/app/arch_config.yaml:ro",
