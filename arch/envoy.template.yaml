@@ -29,7 +29,7 @@ stats_config:
       - 180000
 static_resources:
   listeners:
-    - name: arch_listener_http
+    - name: ingress_traffic
       address:
         socket_address:
           address: {{ prompt_gateway_listener.address }}
@@ -55,7 +55,7 @@ static_resources:
                   random_sampling:
                     value: {{ arch_tracing.random_sampling }}
                 {% endif %}
-                stat_prefix: arch_listener_http
+                stat_prefix: ingress_traffic
                 codec_type: AUTO
                 scheme_header_transformation:
                   scheme_to_overwrite: https
@@ -82,7 +82,7 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
-    - name: arch_prompt_gateway_listener
+    - name: ingress_traffic_prompt
       address:
         socket_address:
           address: 0.0.0.0
@@ -104,11 +104,11 @@ static_resources:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
                         timeout: 0.250s
-                      service_name: prompt_processor
+                      service_name: ingress_traffic
                   random_sampling:
                     value: {{ arch_tracing.random_sampling }}
                 {% endif %}
-                stat_prefix: arch_prompt_gateway_listener
+                stat_prefix: ingress_traffic
                 codec_type: AUTO
                 scheme_header_transformation:
                   scheme_to_overwrite: https
@@ -201,7 +201,7 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
-    - name: arch_internal
+    - name: egress_api_traffic
       address:
         socket_address:
           address: 0.0.0.0
@@ -223,11 +223,11 @@ static_resources:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
                         timeout: 0.250s
-                      service_name: prompt_processor
+                      service_name: egress_api_traffic
                   random_sampling:
                     value: {{ arch_tracing.random_sampling }}
                 {% endif %}
-                stat_prefix: arch_internal
+                stat_prefix: egress_api_traffic
                 codec_type: AUTO
                 scheme_header_transformation:
                   scheme_to_overwrite: https
@@ -273,12 +273,12 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
-    - name: arch_listener_http_llm
+    - name: egress_traffic
       address:
         socket_address:
           address: {{ llm_gateway_listener.address }}
           port_value: {{ llm_gateway_listener.port }}
-      traffic_direction: INBOUND
+      traffic_direction: OUTBOUND
       filter_chains:
         - filters:
             - name: envoy.filters.network.http_connection_manager
@@ -299,7 +299,7 @@ static_resources:
                   random_sampling:
                     value: {{ arch_tracing.random_sampling }}
                 {% endif %}
-                stat_prefix: arch_listener_http
+                stat_prefix: egress_traffic
                 codec_type: AUTO
                 scheme_header_transformation:
                   scheme_to_overwrite: https
@@ -326,7 +326,7 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
-    - name: arch_listener_llm
+    - name: egress_traffic_llm
       address:
         socket_address:
           address: 0.0.0.0
@@ -347,11 +347,11 @@ static_resources:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
                         timeout: 0.250s
-                      service_name: llm_gateway
+                      service_name: egress_traffic_llm
                   random_sampling:
                     value: {{ arch_tracing.random_sampling }}
                 {% endif %}
-                stat_prefix: arch_listener_http
+                stat_prefix: egress_traffic
                 codec_type: AUTO
                 scheme_header_transformation:
                   scheme_to_overwrite: https
