@@ -24,3 +24,9 @@ In separate window start 1) model server, 2) arch gateway 3) docker container fo
    ```
    tail -F ~/archgw_logs/access_*
    ```
+
+Here is a sample screenshot of the demo in action,
+
+![screenshot](image2.png)
+- show usage of get namespace details and get pods
+![Demo Screenshot](image.png)
