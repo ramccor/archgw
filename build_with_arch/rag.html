@@ -10,7 +10,7 @@
 <title>RAG Apps | Arch Docs v0.2.2</title>
 <meta content="RAG Apps | Arch Docs v0.2.2" property="og:title"/>
 <meta content="RAG Apps | Arch Docs v0.2.2" name="twitter:title"/>
-<link href="../_static/pygments.css?v=75ebff74" rel="stylesheet" type="text/css"/>
+<link href="../_static/pygments.css?v=466e7b45" rel="stylesheet" type="text/css"/>
 <link href="../_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="../_static/_static/custom.css" rel="stylesheet" type="text/css"/>
 <link href="../_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
@@ -200,13 +200,13 @@ streamline data retrieval and processing to build more efficient and precise RAG
 <p>Once the prompt targets are configured as above, handling those parameters is</p>
 <div class="literal-block-wrapper docutils container" id="id2">
 <div class="code-block-caption"><span class="caption-text">Parameter handling with Flask</span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id2"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="linenos"> 1</span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
 </span><span id="line-2"><span class="linenos"> 2</span>
 </span><span id="line-3"><span class="linenos"> 3</span><span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </span><span id="line-4"><span class="linenos"> 4</span>
 </span><span id="line-5"><span class="linenos"> 5</span>
 </span><span id="line-6"><span class="linenos"> 6</span><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">"/agent/device_summary"</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"POST"</span><span class="p">])</span>
-</span><span id="line-7"><span class="linenos"> 7</span><span class="k">def</span> <span class="nf">get_device_summary</span><span class="p">():</span>
+</span><span id="line-7"><span class="linenos"> 7</span><span class="k">def</span><span class="w"> </span><span class="nf">get_device_summary</span><span class="p">():</span>
 </span><span id="line-8"><span class="linenos"> 8</span><span class="w">    </span><span class="sd">"""</span>
 </span><span id="line-9"><span class="linenos"> 9</span><span class="sd">    Endpoint to retrieve device statistics based on device IDs and an optional time range.</span>
 </span><span id="line-10"><span class="linenos">10</span><span class="sd">    """</span>
@@ -294,7 +294,7 @@ minutes. For additional details on how to build multi-turn RAG applications plea
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Feb 15, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Feb 21, 2025. </p>
 </div>
 </div>
 </footer>

@@ -10,7 +10,7 @@
 <title>Multi-Turn | Arch Docs v0.2.2</title>
 <meta content="Multi-Turn | Arch Docs v0.2.2" property="og:title"/>
 <meta content="Multi-Turn | Arch Docs v0.2.2" name="twitter:title"/>
-<link href="../_static/pygments.css?v=75ebff74" rel="stylesheet" type="text/css"/>
+<link href="../_static/pygments.css?v=466e7b45" rel="stylesheet" type="text/css"/>
 <link href="../_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="../_static/_static/custom.css" rel="stylesheet" type="text/css"/>
 <link href="../_static/sphinx-design.min.css?v=95c83b7e" rel="stylesheet" type="text/css"/>
@@ -253,32 +253,32 @@ response from your APIs.</p>
 <p>Once the prompt targets are configured as above, handle parameters across multi-turn as if its a single-turn request</p>
 <div class="literal-block-wrapper docutils container" id="id3">
 <div class="code-block-caption"><span class="caption-text">Parameter handling with Flask</span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id3"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="linenos"> 1</span><span class="kn">import</span> <span class="nn">os</span>
-</span><span id="line-2"><span class="linenos"> 2</span><span class="kn">import</span> <span class="nn">gradio</span> <span class="k">as</span> <span class="nn">gr</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="linenos"> 1</span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</span><span id="line-2"><span class="linenos"> 2</span><span class="kn">import</span><span class="w"> </span><span class="nn">gradio</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gr</span>
 </span><span id="line-3"><span class="linenos"> 3</span>
-</span><span id="line-4"><span class="linenos"> 4</span><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span>
-</span><span id="line-5"><span class="linenos"> 5</span><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
-</span><span id="line-6"><span class="linenos"> 6</span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-</span><span id="line-7"><span class="linenos"> 7</span><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
-</span><span id="line-8"><span class="linenos"> 8</span><span class="kn">from</span> <span class="nn">common</span> <span class="kn">import</span> <span class="n">create_gradio_app</span>
+</span><span id="line-4"><span class="linenos"> 4</span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span>
+</span><span id="line-5"><span class="linenos"> 5</span><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+</span><span id="line-6"><span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+</span><span id="line-7"><span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+</span><span id="line-8"><span class="linenos"> 8</span><span class="kn">from</span><span class="w"> </span><span class="nn">common</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_gradio_app</span>
 </span><span id="line-9"><span class="linenos"> 9</span>
 </span><span id="line-10"><span class="linenos">10</span><span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
 </span><span id="line-11"><span class="linenos">11</span>
 </span><span id="line-12"><span class="linenos">12</span>
 </span><span id="line-13"><span class="linenos">13</span><span class="c1"># Define the request model</span>
-</span><span id="line-14"><span class="linenos">14</span><span class="k">class</span> <span class="nc">EnergySourceRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="line-14"><span class="linenos">14</span><span class="k">class</span><span class="w"> </span><span class="nc">EnergySourceRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="line-15"><span class="linenos">15</span>    <span class="n">energy_source</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="line-16"><span class="linenos">16</span>    <span class="n">consideration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="line-17"><span class="linenos">17</span>
 </span><span id="line-18"><span class="linenos">18</span>
-</span><span id="line-19"><span class="linenos">19</span><span class="k">class</span> <span class="nc">EnergySourceResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="line-19"><span class="linenos">19</span><span class="k">class</span><span class="w"> </span><span class="nc">EnergySourceResponse</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="line-20"><span class="linenos">20</span>    <span class="n">energy_source</span><span class="p">:</span> <span class="nb">str</span>
 </span><span id="line-21"><span class="linenos">21</span>    <span class="n">consideration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="line-22"><span class="linenos">22</span>
 </span><span id="line-23"><span class="linenos">23</span>
 </span><span id="line-24"><span class="linenos">24</span><span class="c1"># Post method for device summary</span>
 </span><span id="line-25"><span class="linenos">25</span><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"/agent/energy_source_info"</span><span class="p">)</span>
-</span><span id="line-26"><span class="linenos">26</span><span class="k">def</span> <span class="nf">get_workforce</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">EnergySourceRequest</span><span class="p">):</span>
+</span><span id="line-26"><span class="linenos">26</span><span class="k">def</span><span class="w"> </span><span class="nf">get_workforce</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">EnergySourceRequest</span><span class="p">):</span>
 </span><span id="line-27"><span class="linenos">27</span><span class="w">    </span><span class="sd">"""</span>
 </span><span id="line-28"><span class="linenos">28</span><span class="sd">    Endpoint to get details about energy source</span>
 </span><span id="line-29"><span class="linenos">29</span><span class="sd">    """</span>
@@ -346,7 +346,7 @@ that you can test and modify locally for multi-turn RAG scenarios.</p>
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Feb 15, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Feb 21, 2025. </p>
 </div>
 </div>
 </footer>
