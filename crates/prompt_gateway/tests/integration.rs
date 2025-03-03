@@ -363,7 +363,11 @@ fn prompt_gateway_request_to_llm_gateway() {
             },
         }],
         model: String::from("test"),
-        metadata: None,
+        metadata: {
+            let mut map: HashMap<String, String> = HashMap::new();
+            map.insert("function_latency".to_string(), "0.0".to_string());
+            Some(map)
+        },
     };
 
     let expected_body = "{\"city\":\"seattle\"}";
@@ -378,17 +382,17 @@ fn prompt_gateway_request_to_llm_gateway() {
         .expect_log(Some(LogLevel::Trace), None)
         .expect_log(Some(LogLevel::Debug), None)
         .expect_log(Some(LogLevel::Trace), None)
-        .expect_log(Some(LogLevel::Trace), None)
+        .expect_log(Some(LogLevel::Debug), None)
         .expect_http_call(
             Some("arch_internal"),
             Some(vec![
-                (":method", "POST"),
-                ("content-type", "application/json"),
-                ("x-arch-upstream", "api_server"),
-                (":authority", "api_server"),
                 ("x-envoy-max-retries", "3"),
-                (":path", "/weather"),
+                ("x-arch-upstream", "api_server"),
+                ("content-type", "application/json"),
                 ("x-envoy-upstream-rq-timeout-ms", "30000"),
+                (":path", "/weather"),
+                (":method", "POST"),
+                (":authority", "api_server"),
             ]),
             Some(expected_body),
             None,
