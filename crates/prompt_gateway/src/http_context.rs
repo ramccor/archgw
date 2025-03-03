@@ -6,7 +6,8 @@ use common::{
     consts::{
         ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME, ARCH_STATE_HEADER,
         ARCH_UPSTREAM_HOST_HEADER, ASSISTANT_ROLE, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
-        MODEL_SERVER_NAME, REQUEST_ID_HEADER, TOOL_ROLE, TRACE_PARENT_HEADER, USER_ROLE,
+        MODEL_SERVER_NAME, MODEL_SERVER_REQUEST_TIMEOUT_MS, REQUEST_ID_HEADER, TOOL_ROLE,
+        TRACE_PARENT_HEADER, USER_ROLE,
     },
     errors::ServerError,
     http::{CallArgs, Client},
@@ -137,9 +138,23 @@ impl HttpContext for StreamContext {
             .map(|(_, pt)| pt.into())
             .collect();
 
+        let mut metadata = deserialized_body.metadata.clone();
+
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.optimize_context_window.unwrap_or_default() {
+                if metadata.is_none() {
+                    metadata = Some(HashMap::new());
+                }
+                metadata
+                    .as_mut()
+                    .unwrap()
+                    .insert("optimize_context_window".to_string(), "true".to_string());
+            }
+        }
+
         let arch_fc_chat_completion_request = ChatCompletionsRequest {
             messages: deserialized_body.messages.clone(),
-            metadata: deserialized_body.metadata.clone(),
+            metadata,
             stream: deserialized_body.stream,
             model: "--".to_string(),
             stream_options: deserialized_body.stream_options.clone(),
@@ -159,12 +174,15 @@ impl HttpContext for StreamContext {
         debug!("sending request to model server");
         trace!("request body: {}", json_data);
 
+        let timeout_str = MODEL_SERVER_REQUEST_TIMEOUT_MS.to_string();
+
         let mut headers = vec![
             (ARCH_UPSTREAM_HOST_HEADER, MODEL_SERVER_NAME),
             (":method", "POST"),
             (":path", "/function_calling"),
             ("content-type", "application/json"),
             (":authority", MODEL_SERVER_NAME),
+            ("x-envoy-upstream-rq-timeout-ms", timeout_str.as_str()),
         ];
 
         if self.request_id.is_some() {

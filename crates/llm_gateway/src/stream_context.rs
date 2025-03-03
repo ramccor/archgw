@@ -5,7 +5,7 @@ use common::api::open_ai::{
 };
 use common::configuration::LlmProvider;
 use common::consts::{
-    ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH,
+    ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
     RATELIMIT_SELECTOR_HEADER_KEY, REQUEST_ID_HEADER, TRACE_PARENT_HEADER,
 };
 use common::errors::ServerError;
@@ -176,6 +176,12 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+        let request_path = self.get_http_request_header(":path").unwrap_or_default();
+        if request_path == HEALTHZ_PATH {
+            self.send_http_response(200, vec![], None);
+            return Action::Continue;
+        }
+
         self.select_llm_provider();
 
         // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
@@ -381,7 +387,7 @@ impl HttpContext for StreamContext {
                     Ok(traceparent) => {
                         let mut trace_data = common::tracing::TraceData::new();
                         let mut llm_span = Span::new(
-                            "upstream_llm_time".to_string(),
+                            "egress_traffic".to_string(),
                             Some(traceparent.trace_id),
                             Some(traceparent.parent_id),
                             self.request_body_sent_time.unwrap(),

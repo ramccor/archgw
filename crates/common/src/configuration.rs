@@ -9,7 +9,6 @@ use crate::api::open_ai::{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
     pub version: String,
-    pub listener: Listener,
     pub endpoints: Option<HashMap<String, Endpoint>>,
     pub llm_providers: Vec<LlmProvider>,
     pub overrides: Option<Overrides>,
@@ -25,6 +24,7 @@ pub struct Configuration {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Overrides {
     pub prompt_target_intent_matching_threshold: Option<f64>,
+    pub optimize_context_window: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -45,32 +45,6 @@ pub enum GatewayMode {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ErrorTargetDetail {
     pub endpoint: Option<EndpointDetails>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Listener {
-    pub address: String,
-    pub port: u16,
-    pub message_format: MessageFormat,
-    // pub connect_timeout: Option<DurationString>,
-}
-
-impl Default for Listener {
-    fn default() -> Self {
-        Listener {
-            address: "".to_string(),
-            port: 0,
-            message_format: MessageFormat::default(),
-            // connect_timeout: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub enum MessageFormat {
-    #[serde(rename = "huggingface")]
-    #[default]
-    Huggingface,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -242,6 +216,7 @@ pub struct EndpointDetails {
     pub path: Option<String>,
     #[serde(rename = "http_method")]
     pub method: Option<HttpMethod>,
+    pub http_headers: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -349,16 +324,6 @@ mod test {
         assert_eq!(
             prompt_target.endpoint.as_ref().unwrap().path,
             Some("/agent/summary".to_string())
-        );
-
-        let error_target = config.error_target.as_ref().unwrap();
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().name,
-            "error_target_1".to_string()
-        );
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().path,
-            Some("/error".to_string())
         );
 
         let tracing = config.tracing.as_ref().unwrap();
