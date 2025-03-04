@@ -3,7 +3,6 @@ name: Publish docker image (release)
 on:
   release:
     types: [published]
-  push:
 
 jobs:
   # Build ARM64 image on native ARM64 runner
