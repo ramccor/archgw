@@ -586,14 +586,12 @@ class ArchFunctionHandler(ArchBaseHandler):
                     )
                     model_response = Message(content="", tool_calls=extracted["result"])
                 else:
-                    # TODO: make a call to default LLM to get responses or retry Arch-Function
                     logger.error(f"Invalid tool call - {verified['message']}")
             # Response without tool calls
             else:
                 model_response = Message(content=model_response, tool_calls=[])
         # Response with tool calls but contain errors
         else:
-            # TODO: make a call to default LLM to get responses or retry Arch-Function
             logger.error(f"Tool call extraction error - {extracted['message']}")
 
         chat_completion_response = ChatCompletionResponse(

@@ -115,7 +115,6 @@ async def function_calling(req: ChatMessage, res: Response):
         error_messages = f"[Arch-Intent] - Error in ChatCompletion: {e}"
 
     if error_messages is not None:
-        # TODO: make a call to default LLM to get responses
         logger.error(error_messages)
         final_response = ChatCompletionResponse(metadata={"error": error_messages})
 
