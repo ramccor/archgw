@@ -80,6 +80,8 @@ properties:
           type: boolean
         endpoint:
           type: string
+        base_url:
+          type: string
         protocol:
           type: string
           enum:
