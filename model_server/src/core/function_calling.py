@@ -223,32 +223,6 @@ class ArchFunctionConfig:
 
 
 class ArchAgentConfig(ArchFunctionConfig):
-    TASK_PROMPT = textwrap.dedent(
-        """
-        You will be given a list of tools and a user request. Your task is to match the user request with the most appropriate tool(s) based on the tool descriptions. Do not explain your reasoning, just provide the tool(s) that best match the user request.
-        """
-    ).strip()
-
-    TOOL_PROMPT_TEMPLATE = textwrap.dedent(
-        """
-    You will be presented with a list of tools and their descriptions:
-
-    <tools>
-    {tool_text}
-    </tools>
-    """
-    ).strip()
-
-    FORMAT_PROMPT = textwrap.dedent(
-        """
-        Provide your answer in the following format:
-        For each function call, return a json object with function name <tool_call></tool_call> XML tags:
-        <tool_call>
-        {"name": <function-name>}
-        </tool_call>
-    """
-    ).strip()
-
     GENERATION_PARAMS = {
         "temperature": 0.01,
         "stop_token_ids": [151645],
@@ -625,9 +599,13 @@ class ArchFunctionHandler(ArchBaseHandler):
         if extracted["status"]:
             # Response with tool calls
             if len(extracted["result"]):
-                verified = self._verify_tool_calls(
-                    tools=req.tools, tool_calls=extracted["result"]
-                )
+                verified = {}
+                if use_agent_orchestrator:
+                    verified = {"status": True, "message": ""}
+                else:
+                    verified = self._verify_tool_calls(
+                        tools=req.tools, tool_calls=extracted["result"]
+                    )
 
                 if verified["status"]:
                     logger.info(
