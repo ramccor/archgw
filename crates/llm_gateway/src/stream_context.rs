@@ -217,6 +217,12 @@ impl HttpContext for StreamContext {
     fn on_http_request_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
         // Let the client send the gateway all the data before sending to the LLM_provider.
         // TODO: consider a streaming API.
+        trace!(
+            "on_http_request_body [S={}] bytes={} end_stream={}",
+            self.context_id,
+            body_size,
+            end_of_stream
+        );
 
         if self.request_body_sent_time.is_none() {
             self.request_body_sent_time = Some(current_time_ns());
@@ -230,33 +236,37 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
+        let body_bytes = match self.get_http_request_body(0, body_size) {
+            Some(body_bytes) => body_bytes,
+            None => {
+                self.send_server_error(
+                    ServerError::LogicError(format!(
+                        "Failed to obtain body bytes even though body_size is {}",
+                        body_size
+                    )),
+                    None,
+                );
+                return Action::Pause;
+            }
+        };
+
         // Deserialize body into spec.
         // Currently OpenAI API.
         let mut deserialized_body: ChatCompletionsRequest =
-            match self.get_http_request_body(0, body_size) {
-                Some(body_bytes) => match serde_json::from_slice(&body_bytes) {
-                    Ok(deserialized) => deserialized,
-                    Err(e) => {
-                        self.send_server_error(
-                            ServerError::Deserialization(e),
-                            Some(StatusCode::BAD_REQUEST),
-                        );
-                        return Action::Pause;
-                    }
-                },
-                None => {
+            match serde_json::from_slice(&body_bytes) {
+                Ok(deserialized) => deserialized,
+                Err(e) => {
+                    debug!("body str: {}", String::from_utf8_lossy(&body_bytes));
                     self.send_server_error(
-                        ServerError::LogicError(format!(
-                            "Failed to obtain body bytes even though body_size is {}",
-                            body_size
-                        )),
-                        None,
+                        ServerError::Deserialization(e),
+                        Some(StatusCode::BAD_REQUEST),
                     );
                     return Action::Pause;
                 }
             };
 
         // remove metadata from the request body
+        //TODO: move this to prompt gateway
         deserialized_body.metadata = None;
         // delete model key from message array
         for message in deserialized_body.messages.iter_mut() {

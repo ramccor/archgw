@@ -152,6 +152,18 @@ impl HttpContext for StreamContext {
             }
         }
 
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.use_agent_orchestrator.unwrap_or_default() {
+                if metadata.is_none() {
+                    metadata = Some(HashMap::new());
+                }
+                metadata
+                    .as_mut()
+                    .unwrap()
+                    .insert("use_agent_orchestrator".to_string(), "true".to_string());
+            }
+        }
+
         let arch_fc_chat_completion_request = ChatCompletionsRequest {
             messages: deserialized_body.messages.clone(),
             metadata,

@@ -101,6 +101,8 @@ properties:
         type: number
       optimize_context_window:
         type: boolean
+      use_agent_orchestrator:
+        type: boolean
   system_prompt:
     type: string
   prompt_targets:
@@ -167,6 +169,8 @@ properties:
               type: object
               additionalProperties:
                 type: string
+            pass_context:
+              type: boolean
           additionalProperties: false
           required:
             - name

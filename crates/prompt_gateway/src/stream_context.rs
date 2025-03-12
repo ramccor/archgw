@@ -316,8 +316,10 @@ impl StreamContext {
     }
 
     fn schedule_api_call_request(&mut self, mut callout_context: StreamCallContext) {
+        // Construct messages early to avoid mutable borrow conflicts
+
         let tools_call_name = self.tool_calls.as_ref().unwrap()[0].function.name.clone();
-        let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap();
+        let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap().clone();
         let tool_params = &self.tool_calls.as_ref().unwrap()[0].function.arguments;
         let endpoint_details = prompt_target.endpoint.as_ref().unwrap();
         let endpoint_path: String = endpoint_details
@@ -361,6 +363,25 @@ impl StreamContext {
         .into_iter()
         .collect();
 
+        let api_call_body = match endpoint_details.pass_context.unwrap_or_default() {
+            true => {
+                let messages = self.construct_llm_messages(&callout_context);
+
+                let chat_completion_request = ChatCompletionsRequest {
+                    model: callout_context.request_body.model.clone(),
+                    messages,
+                    tools: None,
+                    stream: callout_context.request_body.stream,
+                    stream_options: callout_context.request_body.stream_options.clone(),
+                    metadata: None,
+                };
+
+                let body_str = serde_json::to_string(&chat_completion_request).unwrap();
+                Some(body_str)
+            }
+            false => body,
+        };
+
         if self.request_id.is_some() {
             headers.insert(REQUEST_ID_HEADER, self.request_id.as_ref().unwrap());
         }
@@ -375,11 +396,13 @@ impl StreamContext {
             headers.insert(key.as_str(), value.as_str());
         }
 
+        debug!("api call body string: {}", api_call_body.as_ref().unwrap());
+
         let call_args = CallArgs::new(
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
             headers.into_iter().collect(),
-            body.as_deref().map(|s| s.as_bytes()),
+            api_call_body.as_deref().map(|s| s.as_bytes()),
             vec![],
             Duration::from_secs(5),
         );
@@ -406,6 +429,11 @@ impl StreamContext {
             "developer api call response received: status code: {}",
             http_status
         );
+        let prompt_target = self
+            .prompt_targets
+            .get(callout_context.prompt_target_name.as_ref().unwrap())
+            .unwrap()
+            .clone();
         if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
@@ -440,6 +468,40 @@ impl StreamContext {
                 );
             }
         };
+
+        if !prompt_target
+            .auto_llm_dispatch_on_response
+            .unwrap_or_default()
+        {
+            let tool_call_response = self.tool_call_response.as_ref().unwrap().clone();
+
+            let direct_response_str = if self.streaming_response {
+                let chunks = vec![
+                    ChatCompletionStreamResponse::new(
+                        None,
+                        Some(ASSISTANT_ROLE.to_string()),
+                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        None,
+                    ),
+                    ChatCompletionStreamResponse::new(
+                        Some(tool_call_response.clone()),
+                        None,
+                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        None,
+                    ),
+                ];
+
+                to_server_events(chunks)
+            } else {
+                tool_call_response
+            };
+
+            return self.send_http_response(
+                StatusCode::OK.as_u16().into(),
+                vec![],
+                Some(direct_response_str.as_bytes()),
+            );
+        }
 
         let final_prompt = format!(
             "{}\ncontext: {}",
