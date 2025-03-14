@@ -8,7 +8,9 @@ pub fn filter_tool_params(tool_params: &Option<HashMap<String, Value>>) -> HashM
     if tool_params.is_none() {
         return HashMap::new();
     }
-    tool_params.as_ref().unwrap()
+    tool_params
+        .as_ref()
+        .unwrap()
         .iter()
         .filter(|(_, value)| value.is_number() || value.is_string() || value.is_bool())
         .map(|(key, value)| match value {

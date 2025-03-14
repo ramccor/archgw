@@ -4,7 +4,7 @@ use common::api::open_ai::{
     to_server_events, ArchState, ChatCompletionStreamResponse, ChatCompletionsRequest,
     ChatCompletionsResponse, Message, ToolCall,
 };
-use common::configuration::{Overrides, PromptTarget, Tracing};
+use common::configuration::{Endpoint, Overrides, PromptTarget, Tracing};
 use common::consts::{
     API_REQUEST_TIMEOUT_MS, ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME,
     ARCH_UPSTREAM_HOST_HEADER, ASSISTANT_ROLE, DEFAULT_TARGET_REQUEST_TIMEOUT_MS, MESSAGES_KEY,
@@ -46,6 +46,7 @@ pub struct StreamCallContext {
 pub struct StreamContext {
     system_prompt: Rc<Option<String>>,
     pub prompt_targets: Rc<HashMap<String, PromptTarget>>,
+    pub endpoints: Rc<Option<HashMap<String, Endpoint>>>,
     pub overrides: Rc<Option<Overrides>>,
     pub metrics: Rc<Metrics>,
     pub callouts: RefCell<HashMap<u32, StreamCallContext>>,
@@ -72,6 +73,7 @@ impl StreamContext {
         metrics: Rc<Metrics>,
         system_prompt: Rc<Option<String>>,
         prompt_targets: Rc<HashMap<String, PromptTarget>>,
+        endpoints: Rc<Option<HashMap<String, Endpoint>>>,
         overrides: Rc<Option<Overrides>>,
         tracing: Rc<Option<Tracing>>,
     ) -> Self {
@@ -80,6 +82,7 @@ impl StreamContext {
             metrics,
             system_prompt,
             prompt_targets,
+            endpoints,
             callouts: RefCell::new(HashMap::new()),
             chat_completions_request: None,
             tool_calls: None,
@@ -311,6 +314,51 @@ impl StreamContext {
         // update prompt target name from the tool call response
         callout_context.prompt_target_name =
             Some(self.tool_calls.as_ref().unwrap()[0].function.name.clone());
+
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.use_agent_orchestrator.unwrap_or_default() {
+                let mut metadata = HashMap::new();
+                metadata.insert("use_agent_orchestrator".to_string(), "true".to_string());
+
+                metadata.insert(
+                    "Agent-Name".to_string(),
+                    callout_context
+                        .prompt_target_name
+                        .as_ref()
+                        .unwrap()
+                        .to_string(),
+                );
+
+                if let Some(overrides) = self.overrides.as_ref() {
+                    if overrides.optimize_context_window.unwrap_or_default() {
+                        metadata.insert("optimize_context_window".to_string(), "true".to_string());
+                    }
+                }
+
+                if let Some(overrides) = self.overrides.as_ref() {
+                    if overrides.use_agent_orchestrator.unwrap_or_default() {
+                        metadata.insert("use_agent_orchestrator".to_string(), "true".to_string());
+                    }
+                }
+
+                let messages = self.construct_llm_messages(&callout_context);
+
+                let chat_completion_request = ChatCompletionsRequest {
+                    model: callout_context.request_body.model.clone(),
+                    messages,
+                    tools: None,
+                    stream: callout_context.request_body.stream,
+                    stream_options: callout_context.request_body.stream_options.clone(),
+                    metadata: Some(metadata),
+                };
+
+                let body_str = serde_json::to_string(&chat_completion_request).unwrap();
+                debug!("sending request to llm agent: {}", body_str);
+                self.set_http_request_body(0, self.request_body_size, body_str.as_bytes());
+                self.resume_http_request();
+                return;
+            }
+        }
 
         self.schedule_api_call_request(callout_context);
     }

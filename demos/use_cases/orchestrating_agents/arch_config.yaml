@@ -7,12 +7,20 @@ listeners:
     message_format: openai
     timeout: 30s
 
+  egress_traffic:
+    address: 0.0.0.0
+    port: 12000
+    message_format: openai
+    timeout: 30s
+
 overrides:
   use_agent_orchestrator: true
 
 endpoints:
-  triage_service:
+  agent_gateway:
+    agent_orchestrator: true
     endpoint: host.docker.internal:18083
+    connect_timeout: 0.005s
 
 llm_providers:
   - name: gpt-4o-mini
@@ -27,30 +35,12 @@ system_prompt: |
 prompt_targets:
   - name: sales_agent
     description: handles queries related to sales and purchases
-    endpoint:
-      name: triage_service
-      path: /sales
-      http_method: POST
-      pass_context: true
-    auto_llm_dispatch_on_response: false
 
   - name: issues_and_repairs
     description: handles issues, repairs, or refunds
-    endpoint:
-      name: triage_service
-      path: /issues
-      http_method: POST
-      pass_context: true
-    auto_llm_dispatch_on_response: false
 
   - name: escalate_to_human
     description: escalates to human agent
-    endpoint:
-      name: triage_service
-      path: /escalate
-      http_method: POST
-      pass_context: true
-    auto_llm_dispatch_on_response: false
 
 tracing:
   random_sampling: 100

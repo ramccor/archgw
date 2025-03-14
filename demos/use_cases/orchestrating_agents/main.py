@@ -1,12 +1,15 @@
 import json
 import os
 import random
+import time
 from typing import Any, Dict, List
 from fastapi import FastAPI, Response
 from datetime import datetime, date, timedelta, timezone
 import logging
+import openai
 from pydantic import BaseModel, Field
 from opentelemetry import trace
+from fastapi.responses import StreamingResponse
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -57,19 +60,103 @@ class Choice(BaseModel):
     message: Message
 
 
-@app.post("/sales")
-async def sales_agent(req: ChatCompletionsRequest, res: Response):
-    logger.info(f"sales: received messages: {req.messages}")
-    return "I am a sales agent, how can I help you?"
+class ChatCompletionResponse(BaseModel):
+    choices: List[Choice]
+    metadata: Dict[str, Any] = None
 
 
-@app.post("/issues")
-async def issues_agent(req: ChatCompletionsRequest, res: Response):
-    logger.info(f"issues: received messages: {req.messages}")
-    return "I am a issues agent, how can I help you?"
+class ChunkChoice(BaseModel):
+    delta: Message
 
 
-@app.post("/escalate")
-async def escalate_agent(req: ChatCompletionsRequest, res: Response):
-    logger.info(f"escalates: received messages: {req.messages}")
-    return "You're talking to a human, how can I help you?"
+class ChatCompletionStreamResponse(BaseModel):
+    model: str
+    choices: List[ChunkChoice]
+
+
+client = openai.OpenAI(base_url="http://host.docker.internal:12000/v1", api_key="--")
+
+agent_map = {
+    "sales_agent": {
+        "role": "sales agent",
+        "instructions": "You are a sales agent for ACME Inc."
+        "Always answer in a sentence or less."
+        "Follow the following routine with the user:"
+        "1. Ask them about any problems in their life related to catching roadrunners.\n"
+        "2. Casually mention one of ACME's crazy made-up products can help.\n"
+        " - Don't mention price.\n"
+        "3. Once the user is bought in, drop a ridiculous price.\n"
+        "4. Only after everything, and if the user says yes, "
+        "tell them a crazy caveat and execute their order.\n"
+        "",
+    },
+    "issues_and_repairs": {
+        "role": "issues and repairs agent",
+        "instructions": "You are a customer support agent for ACME Inc."
+        "Always answer in a sentence or less."
+        "Follow the following routine with the user:"
+        "1. First, ask probing questions and understand the user's problem deeper.\n"
+        " - unless the user has already provided a reason.\n"
+        "2. Propose a fix (make one up).\n"
+        "3. ONLY if not satisfied, offer a refund.\n"
+        "4. If accepted, search for the ID and then execute refund."
+        "",
+    },
+    "escalate_to_human": {
+        "role": "human agent",
+        "instructions": """Pretend you are a human trying to address the user's problem.""",
+    },
+    "unknown agent": {
+        "role": "llm agent",
+        "instructions": "You are an LLM agent. You can do anything you want.",
+    },
+}
+
+
+@app.post("/v1/chat/completions")
+async def completion_api(req: ChatCompletionsRequest):
+    if req.metadata is None:
+        req.metadata = {}
+    agent_name = req.metadata.get("Agent-Name", "unknown agent")
+    logger.info(f"agent: {agent_name}")
+
+    def stream():
+        agent_role = agent_map.get(agent_name)["role"]
+        agent_instructions = agent_map.get(agent_name)["instructions"]
+        system_prompt = "You are a " + agent_role + ". " + agent_instructions
+        messages = [{"role": "system", "content": system_prompt}]
+        for message in req.messages:
+            messages.append({"role": message.role, "content": message.content})
+        completion = client.chat.completions.create(
+            model="--",
+            messages=messages,
+            stream=True,
+        )
+        for line in completion:
+            if line.choices and len(line.choices) > 0 and line.choices[0].delta:
+                chunk_response_str = json.dumps(line.model_dump())
+                yield "data: " + chunk_response_str + "\n\n"
+        yield "data: [DONE]" + "\n\n"
+
+        # content = agent_map.get(agent_name)
+
+        # for c in content:
+        #     resp = ChatCompletionStreamResponse(
+        #         model="--",
+        #         choices=[
+        #             ChunkChoice(
+        #                 delta=Message(
+        #                     role="assistant",
+        #                     content=c,
+        #                 )
+        #             )
+        #         ],
+        #     )
+        #     # random sleep between 10m and 50ms
+        #     time.sleep(random.randint(10, 50) / 1000)
+
+        #     yield "data: " + json.dumps(resp.model_dump()) + "\n\n"
+
+        # yield "data: [DONE]" + "\n\n"
+
+    return StreamingResponse(stream(), media_type="text/event-stream")
