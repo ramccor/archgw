@@ -21,13 +21,11 @@ ARCH_ENDPOINT = os.getenv("ARCH_ENDPOINT", "https://archfc.katanemo.dev/v1")
 ARCH_API_KEY = "EMPTY"
 ARCH_CLIENT = OpenAI(base_url=ARCH_ENDPOINT, api_key=ARCH_API_KEY)
 ARCH_AGENT_CLIENT = ARCH_CLIENT
-# ARCH_AGENT_CLIENT = OpenAI(api_key=os.getenv("OPENAI_API_KEY", "EMPTY"))
 
 # Define model names
 ARCH_INTENT_MODEL_ALIAS = "Arch-Intent"
 ARCH_FUNCTION_MODEL_ALIAS = "Arch-Function"
 ARCH_AGENT_MODEL_ALIAS = ARCH_FUNCTION_MODEL_ALIAS
-# ARCH_AGENT_MODEL_ALIAS = "gpt-4o-mini"
 ARCH_GUARD_MODEL_ALIAS = "katanemo/Arch-Guard"
 
 # Define model handlers

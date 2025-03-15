@@ -630,7 +630,6 @@ class ArchFunctionHandler(ArchBaseHandler):
         return chat_completion_response
 
 
-# override ArchFunctionHandler
 class ArchAgentHandler(ArchFunctionHandler):
     def __init__(self, client: OpenAI, model_name: str, config: ArchAgentConfig):
         super().__init__(client, model_name, config)

@@ -214,7 +214,6 @@ impl HttpContext for StreamContext {
             }));
         } else {
             self.select_llm_provider();
-            debug!("setting routing header to: {}", self.llm_provider().name);
             self.add_http_request_header(
                 ARCH_ROUTING_HEADER,
                 &self.llm_provider().provider_interface.to_string(),
@@ -243,12 +242,6 @@ impl HttpContext for StreamContext {
     fn on_http_request_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
         // Let the client send the gateway all the data before sending to the LLM_provider.
         // TODO: consider a streaming API.
-        trace!(
-            "on_http_request_body [S={}] bytes={} end_stream={}",
-            self.context_id,
-            body_size,
-            end_of_stream
-        );
 
         if self.request_body_sent_time.is_none() {
             self.request_body_sent_time = Some(current_time_ns());
@@ -316,14 +309,6 @@ impl HttpContext for StreamContext {
 
         deserialized_body.model = model_name.to_string();
 
-        // if use_agent_orchestrator || self.llm_provider.as_ref().unwrap().model.is_none() {
-        //     deserialized_body.model = "None".to_string()
-        // } else {
-        //     // override model name from the llm provider
-        //     deserialized_body
-        //         .model
-        //         .clone_from(&self.llm_provider.as_ref().unwrap().model.as_ref().unwrap());
-        // }
         let chat_completion_request_str = serde_json::to_string(&deserialized_body).unwrap();
 
         trace!(

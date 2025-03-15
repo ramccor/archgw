@@ -119,7 +119,7 @@ async def completion_api(req: ChatCompletionsRequest):
     logger.info(f"request: {req}")
     if req.metadata is None:
         req.metadata = {}
-    agent_name = req.metadata.get("Agent-Name", "unknown agent")
+    agent_name = req.metadata.get("agent-name", "unknown agent")
     logger.info(f"agent: {agent_name}")
 
     agent_role = agent_map.get(agent_name)["role"]

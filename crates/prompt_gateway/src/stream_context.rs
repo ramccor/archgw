@@ -321,7 +321,7 @@ impl StreamContext {
                 metadata.insert("use_agent_orchestrator".to_string(), "true".to_string());
 
                 metadata.insert(
-                    "Agent-Name".to_string(),
+                    "agent-name".to_string(),
                     callout_context
                         .prompt_target_name
                         .as_ref()
