@@ -10,9 +10,7 @@ do
   cd ../../samples_python/$demo
   archgw up arch_config.yaml
   docker compose up -d
-  cd ../../shared/test_runner
   hurl --test hurl_tests
-  cd ../../samples_python/$demo
   archgw down
   docker compose down -v
   cd ../../shared/test_runner
