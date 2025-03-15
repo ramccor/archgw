@@ -547,7 +547,7 @@ class ArchFunctionHandler(ArchBaseHandler):
             messages=messages,
             model=self.model_name,
             stream=True,
-            extra_body={"temperature": 0.01, "logprobs": True},
+            extra_body=self.generation_params,
         )
 
         use_agent_orchestrator = req.metadata.get("use_agent_orchestrator", False)

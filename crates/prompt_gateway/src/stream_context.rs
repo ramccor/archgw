@@ -379,7 +379,7 @@ impl StreamContext {
         let http_method = endpoint_details.method.clone().unwrap_or_default();
         let prompt_target_params = prompt_target.parameters.clone().unwrap_or_default();
 
-        let (path, body) = match compute_request_path_body(
+        let (path, api_call_body) = match compute_request_path_body(
             &endpoint_path,
             tool_params,
             &prompt_target_params,
@@ -396,6 +396,8 @@ impl StreamContext {
             }
         };
 
+        debug!("api call body {:?}", api_call_body);
+
         let timeout_str = API_REQUEST_TIMEOUT_MS.to_string();
 
         let http_method_str = http_method.to_string();
@@ -411,25 +413,6 @@ impl StreamContext {
         .into_iter()
         .collect();
 
-        let api_call_body = match endpoint_details.pass_context.unwrap_or_default() {
-            true => {
-                let messages = self.construct_llm_messages(&callout_context);
-
-                let chat_completion_request = ChatCompletionsRequest {
-                    model: callout_context.request_body.model.clone(),
-                    messages,
-                    tools: None,
-                    stream: callout_context.request_body.stream,
-                    stream_options: callout_context.request_body.stream_options.clone(),
-                    metadata: None,
-                };
-
-                let body_str = serde_json::to_string(&chat_completion_request).unwrap();
-                Some(body_str)
-            }
-            false => body,
-        };
-
         if self.request_id.is_some() {
             headers.insert(REQUEST_ID_HEADER, self.request_id.as_ref().unwrap());
         }
@@ -444,7 +427,6 @@ impl StreamContext {
             headers.insert(key.as_str(), value.as_str());
         }
 
-        debug!("api call body string: {}", api_call_body.as_ref().unwrap());
 
         let call_args = CallArgs::new(
             ARCH_INTERNAL_CLUSTER_NAME,
@@ -519,7 +501,7 @@ impl StreamContext {
 
         if !prompt_target
             .auto_llm_dispatch_on_response
-            .unwrap_or_default()
+            .unwrap_or(true)
         {
             let tool_call_response = self.tool_call_response.as_ref().unwrap().clone();
 
@@ -675,7 +657,7 @@ impl StreamContext {
         // check if the default target should be dispatched to the LLM provider
         if !prompt_target
             .auto_llm_dispatch_on_response
-            .unwrap_or_default()
+            .unwrap_or(true)
         {
             let default_target_response_str = if self.streaming_response {
                 let chat_completion_response =

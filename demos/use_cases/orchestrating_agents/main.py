@@ -54,6 +54,7 @@ class ChatCompletionsRequest(BaseModel):
     messages: List[Message]
     model: str
     metadata: Dict[str, Any] = None
+    stream: bool = False
 
 
 class Choice(BaseModel):
@@ -115,48 +116,35 @@ agent_map = {
 
 @app.post("/v1/chat/completions")
 async def completion_api(req: ChatCompletionsRequest):
+    logger.info(f"request: {req}")
     if req.metadata is None:
         req.metadata = {}
     agent_name = req.metadata.get("Agent-Name", "unknown agent")
     logger.info(f"agent: {agent_name}")
 
-    def stream():
-        agent_role = agent_map.get(agent_name)["role"]
-        agent_instructions = agent_map.get(agent_name)["instructions"]
-        system_prompt = "You are a " + agent_role + ". " + agent_instructions
-        messages = [{"role": "system", "content": system_prompt}]
-        for message in req.messages:
-            messages.append({"role": message.role, "content": message.content})
-        completion = client.chat.completions.create(
-            model="--",
-            messages=messages,
-            stream=True,
-        )
-        for line in completion:
-            if line.choices and len(line.choices) > 0 and line.choices[0].delta:
-                chunk_response_str = json.dumps(line.model_dump())
-                yield "data: " + chunk_response_str + "\n\n"
-        yield "data: [DONE]" + "\n\n"
+    agent_role = agent_map.get(agent_name)["role"]
+    agent_instructions = agent_map.get(agent_name)["instructions"]
+    system_prompt = "You are a " + agent_role + ". " + agent_instructions
+    messages = [{"role": "system", "content": system_prompt}]
+    for message in req.messages:
+        messages.append({"role": message.role, "content": message.content})
+    logger.info("messages: " + str(messages))
+    completion = client.chat.completions.create(
+        model="--",
+        messages=messages,
+        stream=req.stream,
+    )
 
-        # content = agent_map.get(agent_name)
+    if req.stream:
 
-        # for c in content:
-        #     resp = ChatCompletionStreamResponse(
-        #         model="--",
-        #         choices=[
-        #             ChunkChoice(
-        #                 delta=Message(
-        #                     role="assistant",
-        #                     content=c,
-        #                 )
-        #             )
-        #         ],
-        #     )
-        #     # random sleep between 10m and 50ms
-        #     time.sleep(random.randint(10, 50) / 1000)
+        def stream():
+            for line in completion:
+                if line.choices and len(line.choices) > 0 and line.choices[0].delta:
+                    chunk_response_str = json.dumps(line.model_dump())
+                    yield "data: " + chunk_response_str + "\n\n"
+            yield "data: [DONE]" + "\n\n"
 
-        #     yield "data: " + json.dumps(resp.model_dump()) + "\n\n"
+        return StreamingResponse(stream(), media_type="text/event-stream")
 
-        # yield "data: [DONE]" + "\n\n"
-
-    return StreamingResponse(stream(), media_type="text/event-stream")
+    else:
+        return completion

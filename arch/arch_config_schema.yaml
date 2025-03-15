@@ -170,8 +170,6 @@ properties:
               type: object
               additionalProperties:
                 type: string
-            pass_context:
-              type: boolean
           additionalProperties: false
           required:
             - name
