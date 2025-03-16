@@ -13,8 +13,6 @@ do
   echo "starting docker containers"
   docker compose up -d 2>&1 > /dev/null
   echo "starting hurl tests"
-  pwd
-  ls
   hurl --test hurl_tests/*.hurl
   echo "stopping docker containers and archgw"
   archgw down
