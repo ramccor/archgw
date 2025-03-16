@@ -159,11 +159,11 @@ impl StreamContext {
         // Tokenize and record token count.
         let token_count = tokenizer::token_count(model, json_string).unwrap_or(0);
 
+        trace!("Recorded input token count: {}", token_count);
         // Record the token count to metrics.
         self.metrics
             .input_sequence_length
             .record(token_count as u64);
-        trace!("Recorded input token count: {}", token_count);
 
         // Check if rate limiting needs to be applied.
         if let Some(selector) = self.ratelimit_selector.take() {

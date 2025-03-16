@@ -15,7 +15,7 @@ do
   echo "starting hurl tests"
   pwd
   ls
-  hurl --test hurl_tests
+  hurl --test hurl_tests/*.hurl
   echo "stopping docker containers and archgw"
   archgw down
   docker compose down -v
