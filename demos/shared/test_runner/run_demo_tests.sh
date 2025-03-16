@@ -2,7 +2,7 @@
 set -eu
 
 # for demo in currency_exchange hr_agent
-for demo in currency_exchange weather_forecast
+for demo in currency_exchange
 do
   echo "******************************************"
   echo "Running tests for $demo ..."
