@@ -210,10 +210,9 @@ Each Prompt target specifies how a particular type of prompt should be handled, 
 </ul>
 </section>
 <section id="defining-parameters">
-<h3>Defining Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#defining-parameters" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#defining-parameters'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
+<span id="defining-prompt-target-parameters"></span><h3>Defining Parameters<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#defining-parameters" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#defining-parameters'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
 <p>Parameters are the pieces of information that Arch needs to extract from the user’s prompt to perform the desired action.
-Each parameter can be marked as required or optional.
-Here is a full list of parameter attributes that Arch can support:</p>
+Each parameter can be marked as required or optional. Here is a full list of parameter attributes that Arch can support:</p>
 <table class="docutils align-default" style="width: 100%">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Attribute</strong></p></th>
@@ -221,35 +220,29 @@ Here is a full list of parameter attributes that Arch can support:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p>Specifies identifier of parameters</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span> <span class="pre">(req.)</span></code></p></td>
+<td><p>Specifies name of the parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
-<td><p>Specifies the data type of the parameter.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">description</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">description</span> <span class="pre">(req.)</span></code></p></td>
 <td><p>Provides a human-readable explanation of the parameter’s purpose.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">required</span></code></p></td>
-<td><p>Indicates whether the parameter is mandatory or optional</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">(req.)</span></code></p></td>
+<td><p>Specifies the data type. Supported types include: <strong>int</strong>, <strong>str</strong>, <strong>float</strong>, <strong>bool</strong>, <strong>list</strong>, <strong>set</strong>, <strong>dict</strong>, <strong>tuple</strong></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
 <td><p>Specifies a default value for the parameter if not provided by the user.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
-<td><p>Used in the context of arrays to define the schema of items within an array.</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
-<td><p>Specifies a format for the parameter value, e.g., date and email</p></td>
+<td><p>Specifies a format for the parameter value. For example: <cite>2019-12-31</cite> for a date value.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enum</span></code></p></td>
-<td><p>Lists the allowable values for the parameter.</p></td>
+<td><p>Lists of allowable values for the parameter with data type matching the <code class="docutils literal notranslate"><span class="pre">type</span></code> attribute. <strong>Usage Example</strong>: <code class="docutils literal notranslate"><span class="pre">enum:</span> <span class="pre">["celsius`",</span> <span class="pre">"fahrenheit"]</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minimum</span></code></p></td>
-<td><p>Defines the minimum acceptable value for numeric parameters.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<td><p>Specifies the attribute of the elements when type euqals <strong>list</strong>, <strong>set</strong>, <strong>dict</strong>, <strong>tuple</strong>. <strong>Usage Example</strong>: <code class="docutils literal notranslate"><span class="pre">items:</span> <span class="pre">{"type":</span> <span class="pre">"str"}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maximum</span></code></p></td>
-<td><p>Specifies the maximum acceptable value for numeric parameters.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">required</span></code></p></td>
+<td><p>Indicates whether the parameter is mandatory or optional. Valid values: <strong>true</strong> or <strong>false</strong></p></td>
 </tr>
 </tbody>
 </table>
