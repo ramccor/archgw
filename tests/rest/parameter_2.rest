@@ -1,0 +1,240 @@
+@local_endpoint = http://localhost:8000
+@access_key = EMPTY
+
+#1. [2] weather | good | from model
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "weather in my place" 
+    },
+    {
+        "role": "assistant",
+        "content": "In which city and state should I look up the weather?"
+    },
+    {
+        "role": "user",
+        "content": "vancouver"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+#2. [2] weather | bad | model should clarify location as well, not just unit
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me weather forcast near me" 
+    }
+  ],
+  "temperature": 0.1,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#3. [2] stock | good | clarification
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "how does my stock perform today" 
+    }
+  ],
+  "temperature": 0.1,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#4. [2] stock | bad | model doesn't ask clarification questions, sometime hallucinate
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "how does stock perform today" 
+    }
+  ],
+  "temperature": 0.1,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#5. [2] spotify | good | correct clarification
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Find me song" 
+    }
+  ],
+  "temperature": 0.1,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+#6. [2] spotify | good | correct tool call
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Get me new albumn " 
+    },
+    {
+      "role": "assistant", 
+      "content": "In which country are you looking for new album releases? " 
+    },
+    {
+      "role": "user", 
+      "content": "my location, UK " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#7. [2] spotify | good | correct clarification
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Get me new albumn " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#7. [2] spotify | good | correct clarification
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Get me new albumn " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+# 8. [2] spotify | good | it ask more than the rquire mparameter
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Look up album by artist " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+# 9. [2] spotify | good | correct paraemter gathered
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Look up album by artist " 
+    },
+    {
+        "role": "assistant",
+        "content": "What artist are you looking for? How many albums are you interested in?"
+    },
+    {
+      "role": "user", 
+      "content": "The group Maroon V " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
