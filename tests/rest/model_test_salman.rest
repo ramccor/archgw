@@ -1,0 +1,32 @@
+@model_server_endpoint = http://localhost:51000
+@archfc_endpoint = http://localhost:5670
+
+
+### talk to Arch-Function directly for completion
+POST {{archfc_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to analyze user queries and determine if functions are needed to respond.\n\nYou have access to the following tools:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"get_networking_device_sumary\", \"description\": \"retrieve networking device statistics\", \"parameters\": {\"type\": \"object\", \"properties\": {\"device_ids\": {\"type\": \"list\", \"description\": \"A list of device identifier to retrieve statistics for\", \"items\": {\"type\": \"int\"}}, \"days\": {\"type\": \"int\", \"description\": \"the number of days for which to get a device\"}}, \"required\": [\"device_ids\"]}}\n</tools>\n\nYour task is to decide which functions are required and and collect missing parameters, if any.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"function1\", \"function2\", ...], \"clarification\": \"Text asking for missing information\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user",
+      "content": "give me device network stastics"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"get_networking_device_sumary\"], \"clarification\": \"Which device would you like to retrieve network statistics for?\"}"
+    },
+    {
+      "role": "user",
+      "content": "device id 114332"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
