@@ -1,0 +1,72 @@
+import json
+from typing import Any, Dict, List
+
+
+ARCH_FUNCTION_TOOL_PROMPT = (
+    "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed."
+    "\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>{tool_text}\n</tools>"
+    "\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\n"
+)
+
+ARCH_FUNCTION_FORMAT_PROMPT = """
+Based on your analysis, provide your response in one of the following JSON formats:
+1. If no functions are needed:
+```
+{"response": "Your response text here"}
+```
+2. If functions are needed but some required parameters are missing:
+```
+{"required_functions": ["func_name1", "func_name2", ...], "clarification": "Text asking for missing parameters"}
+```
+3. If functions are needed and all required parameters are available:
+```
+{"tool_calls": [{"name": "func_name1", "arguments": {"argument1": "value1", "argument2": "value2"}},... (more tool calls as required)]}
+```
+""".strip()
+
+
+tools = [
+    {
+        "name": "get_weather",
+        "description": "Determine weather in my location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The city and state e.g. San Francisco, CA",
+                },
+                "unit": {"type": "string", "enum": ["c", "f"]},
+            },
+            "required": ["location", "unit"],
+        },
+    },
+    {
+        "name": "get_stock_price",
+        "description": "Get the current stock price",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "symbol": {"type": "string", "description": "The stock symbol"}
+            },
+            "required": ["symbol"],
+        },
+    },
+]
+
+
+def build_system_prompt(tools: List[Dict[str, Any]]) -> str:
+    tool_text = ""
+    for tool in tools:
+        tool_text += "\n" + json.dumps(tool)
+
+    return (
+        ARCH_FUNCTION_TOOL_PROMPT.format(tool_text=tool_text)
+        + ARCH_FUNCTION_FORMAT_PROMPT
+    )
+
+
+if __name__ == "__main__":
+    system_prompt = build_system_prompt(tools)
+    # print(repr(system_prompt.encode("unicode_escape").decode()))
+    print(json.dumps(system_prompt))
