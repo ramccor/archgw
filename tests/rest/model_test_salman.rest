@@ -1,12 +1,14 @@
 @model_server_endpoint = http://localhost:51000
 @archfc_endpoint = http://localhost:5670
 
+
 ### Scenario: Single-Turn. Check for single required parameter
 ### Tools Used: apply_loan and check_account_balance
 ### Expected output(s): "content": "{\"required_functions\": [\"check_account_balance\"], \"clarification\": \"Could you please provide me with your account identifier?\"}",
 ### Notes: Tested 10 times. 9/10 times language is consistent and precise. The assistant asks for the missing parameter in a single-turn in the right format
 ### Status: Approved
 ### Tested By: Salman Paracha
+
 POST {{archfc_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -420,6 +422,69 @@ Content-Type: application/json
     {
         "role": "user",
         "content": "700"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+### Scenario: Single Turn Ten Required Parameters;
+### Tools Used: apply_loan, get_stock_price and check_account_balance, submit_mortgage_application
+### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}",
+### Notes: The assistant asked for all the missing required parameters
+### Status: Approved
+### Tested By: Salman Paracha
+
+POST {{archfc_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"string\", \"description\": \"User's account number or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"string\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"string\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"number\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"number\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"string\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+        "role": "user",
+        "content": "I want to submit a mortgage application"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### Scenario: Progressive Information Disclosure Ten required parameters;
+### Tools Used: apply_loan, get_stock_price and check_account_balance, submit_mortgage_application
+### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}",
+### Notes: The assistant asked for all the missing required parameters, but if I give it 5 then 80% of the time it hallucinates with the rest
+### Status: Needs Work
+### Tested By: Salman Paracha
+
+POST {{archfc_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"string\", \"description\": \"User's account number or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"string\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"string\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"number\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"number\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"string\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+        "role": "user",
+        "content": "I want to submit a mortgage application"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your name, the address of the property you want to purchase, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}"
+    },
+    {
+        "role": "user",
+        "content": "John Doe, 123 Main St, price of the house is $500000, down payment $100000, and term 30 years"
     }
   ],
   "temperature": 0.6,
