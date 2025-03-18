@@ -52,8 +52,6 @@ properties:
               - https
           http_host:
             type: string
-          agent_orchestrator:
-            type: boolean
         additionalProperties: false
         required:
           - endpoint

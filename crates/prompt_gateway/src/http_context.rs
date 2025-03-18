@@ -37,20 +37,19 @@ impl HttpContext for StreamContext {
             if overrides.use_agent_orchestrator.unwrap_or_default() {
                 // get endpoint that has agent_orchestrator set to true
                 if let Some(endpoints) = self.endpoints.as_ref() {
-                    let agent_orchestrator = endpoints
-                        .iter()
-                        .find(|(_, endpoint)| endpoint.agent_orchestrator.unwrap_or_default())
-                        .map(|(name, _)| name.clone());
-                    if let Some(agent_orchestrator_name) = agent_orchestrator {
-                        debug!(
-                            "Setting ARCH_PROVIDER_HINT_HEADER to {}",
-                            agent_orchestrator_name
+                    if endpoints.len() == 1 {
+                        let (name, _) = endpoints.iter().next().unwrap();
+                        debug!("Setting ARCH_PROVIDER_HINT_HEADER to {}", name);
+                        self.set_http_request_header(ARCH_ROUTING_HEADER, Some(&name));
+                    } else {
+                        warn!("Need single endpoint when use_agent_orchestrator is set");
+                        self.send_server_error(
+                            ServerError::LogicError(
+                                "Need single endpoint when use_agent_orchestrator is set".to_string(),
+                            ),
+                            None,
                         );
-                        self.set_http_request_header(
-                            ARCH_ROUTING_HEADER,
-                            Some(&agent_orchestrator_name),
-                        );
-                    };
+                    }
                 }
             }
         }

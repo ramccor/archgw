@@ -601,6 +601,7 @@ class ArchFunctionHandler(ArchBaseHandler):
             if len(extracted["result"]):
                 verified = {}
                 if use_agent_orchestrator:
+                    # skip tool call verification if using agent orchestrator
                     verified = {"status": True, "message": ""}
                 else:
                     verified = self._verify_tool_calls(

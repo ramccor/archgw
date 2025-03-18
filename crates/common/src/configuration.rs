@@ -177,7 +177,6 @@ impl Display for LlmProvider {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Endpoint {
     pub endpoint: Option<String>,
-    pub agent_orchestrator: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

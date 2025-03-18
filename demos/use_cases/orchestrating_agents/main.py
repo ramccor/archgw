@@ -75,9 +75,11 @@ class ChatCompletionStreamResponse(BaseModel):
     choices: List[ChunkChoice]
 
 
-client = openai.OpenAI(base_url="http://host.docker.internal:12000/v1", api_key="--")
+openai_client = openai.OpenAI(
+    base_url="http://host.docker.internal:12000/v1", api_key="--"
+)
 
-agent_map = {
+agents_definition = {
     "sales_agent": {
         "role": "sales agent",
         "instructions": "You are a sales agent for ACME Inc."
@@ -88,8 +90,7 @@ agent_map = {
         " - Don't mention price.\n"
         "3. Once the user is bought in, drop a ridiculous price.\n"
         "4. Only after everything, and if the user says yes, "
-        "tell them a crazy caveat and execute their order.\n"
-        "",
+        "tell them a crazy caveat and execute their order.\n",
     },
     "issues_and_repairs": {
         "role": "issues and repairs agent",
@@ -100,8 +101,7 @@ agent_map = {
         " - unless the user has already provided a reason.\n"
         "2. Propose a fix (make one up).\n"
         "3. ONLY if not satisfied, offer a refund.\n"
-        "4. If accepted, search for the ID and then execute refund."
-        "",
+        "4. If accepted, search for the ID and then execute refund.",
     },
     "escalate_to_human": {
         "role": "human agent",
@@ -109,9 +109,20 @@ agent_map = {
     },
     "unknown agent": {
         "role": "llm agent",
-        "instructions": "You are an LLM agent. You can do anything you want.",
+        "instructions": "You are a helpful LLM agent.",
     },
 }
+
+
+def construct_llm_messages(agent_name, messages):
+    agent_role = agents_definition.get(agent_name)["role"]
+    agent_instructions = agents_definition.get(agent_name)["instructions"]
+    system_prompt = "You are a " + agent_role + ". " + agent_instructions
+
+    updated_messages = [{"role": "system", "content": system_prompt}]
+    for message in messages:
+        updated_messages.append({"role": message.role, "content": message.content})
+    return updated_messages
 
 
 @app.post("/v1/chat/completions")
@@ -121,16 +132,10 @@ async def completion_api(req: ChatCompletionsRequest):
         req.metadata = {}
     agent_name = req.metadata.get("agent-name", "unknown agent")
     logger.info(f"agent: {agent_name}")
-
-    agent_role = agent_map.get(agent_name)["role"]
-    agent_instructions = agent_map.get(agent_name)["instructions"]
-    system_prompt = "You are a " + agent_role + ". " + agent_instructions
-    messages = [{"role": "system", "content": system_prompt}]
-    for message in req.messages:
-        messages.append({"role": message.role, "content": message.content})
+    messages = construct_llm_messages(agent_name, req.messages)
     logger.info("messages: " + str(messages))
-    completion = client.chat.completions.create(
-        model="--",
+    completion = openai_client.chat.completions.create(
+        model="None",
         messages=messages,
         stream=req.stream,
     )

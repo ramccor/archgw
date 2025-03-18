@@ -18,7 +18,6 @@ overrides:
 
 endpoints:
   agent_gateway:
-    agent_orchestrator: true
     endpoint: host.docker.internal:18083
     connect_timeout: 0.005s
 

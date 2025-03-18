@@ -48,7 +48,7 @@ def validate_and_render_schema():
         arch_config_schema = file.read()
 
     config_yaml = yaml.safe_load(arch_config)
-    config_schema_yaml = yaml.safe_load(arch_config_schema)
+    _ = yaml.safe_load(arch_config_schema)
     inferred_clusters = {}
 
     endpoints = config_yaml.get("endpoints", {})
@@ -150,12 +150,26 @@ def validate_and_render_schema():
     if llm_gateway_listener.get("timeout") == None:
         llm_gateway_listener["timeout"] = "10s"
 
-    agent_orchestrator = None
-    for name, endpoint_details in endpoints.items():
-        if endpoint_details.get("agent_orchestrator", False):
-            agent_orchestrator = name
-            break
+    use_agent_orchestrator = config_yaml.get("overrides", {}).get(
+        "use_agent_orchestrator", False
+    )
 
+    agent_orchestrator = None
+    if use_agent_orchestrator:
+        print("Using agent orchestrator")
+
+        if len(endpoints) == 0:
+            raise Exception(
+                "Please provide agent orchestrator in the endpoints section in your arch_config.yaml file"
+            )
+        elif len(endpoints) > 1:
+            raise Exception(
+                "Please provide single agent orchestrator in the endpoints section in your arch_config.yaml file"
+            )
+        else:
+            agent_orchestrator = list(endpoints.keys())[0]
+
+    print("agent_orchestrator: ", agent_orchestrator)
     data = {
         "prompt_gateway_listener": prompt_gateway_listener,
         "llm_gateway_listener": llm_gateway_listener,
