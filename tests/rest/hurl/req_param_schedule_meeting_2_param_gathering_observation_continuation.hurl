@@ -70,6 +70,8 @@ Content-Type: application/json
   "top_k": 10
 }
 
+# resp: The meeting was scheduled successfully.
+
 HTTP 200
 [Asserts]
 header "content-type" == "application/json"
