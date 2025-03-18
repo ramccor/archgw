@@ -1,0 +1,575 @@
+@local_endpoint = http://localhost:8000
+@access_key = EMPTY
+
+###1. [2] weather | good | from model
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "weather in my place" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+###2. [2] weather | bad | model should clarify location as well, not just unit
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me weather forcast near me" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###3. [2] stock | good | clarification
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "how does my stock perform today" 
+    }
+  ],
+  "temperature": 0.1,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###4. [2] stock | bad | model doesn't ask clarification questions, sometime hallucinate
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "how does my stock perform today" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###5. [2] spotify | good | correct clarification
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Find me music" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+###6. [2] spotify | good | correct tool call
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Get me new albumn " 
+    },
+    {
+      "role": "assistant", 
+      "content": "{\"required_functions\": [\"get_new_releases\"], \"clarification\": \"In which country are you interested in new album releases?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "my location, UK " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+
+### 8. [2] spotify | good | it ask more than the rquire mparameter
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Look up album by artist " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 9. [2] spotify | bad | incorrect parameter found
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Look up her" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"search_for_item\"], \"clarification\": \"Who is she?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "the album" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###10 [2] product | good | ask correct clarification questions
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Is my phone good?" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"query_database\"], \"clarification\": \"Could you please provide me with the phone model and its specifications?\"}",
+        "tool_calls": []
+    },
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 11. transfer money | goood
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"currency_exchange\", \"description\": \"Get currency exchange rate from USD to other currencies\", \"parameters\": {\"type\": \"object\", \"properties\": {\"currency_symbol\": {\"description\": \"currency symbol to convert from USD\", \"type\": \"string\"}}, \"required\": [\"currency_symbol\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"transfer_money\", \"description\": \"Transfer money from sender account to receiver account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"ammount\": {\"description\": \"transfer ammount\", \"type\": \"number\"}, \"sender_acount\": {\"description\": \"sender account\", \"type\": \"string\"}, \"receiver_account\": {\"description\": \"receiver account\", \"type\": \"string\"}}, \"required\": [\"ammount\", \"sender_acount\", \"receiver_account\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "transfer 5000" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"transfer_money\"], \"clarification\": \"Which account are you transferring from?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "my account" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"transfer_money\"], \"clarification\": \"Which account are you transferring to?\"}",
+        "tool_calls": []
+      },
+    {
+      "role": "user", 
+      "content": "my mom" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+
+###1. [6] sale | bad | model only get US
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me opportunity in US" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"In which industry are you looking for sales opportunities?\"}",
+        "tool_calls": []
+      },
+    {
+        "role": "user",
+        "content": "Private Banking in Sweden"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###2. [6] sale | not sure | model follows user request and chooose random
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me opportunity in US" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"In which industry are you looking for sales opportunities?\"}",
+        "tool_calls": []
+    }
+    ,
+    {
+        "role": "user",
+        "content": "I don't really care"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+#3. [6] sale | good | model get the correct tool and paramether
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me opportunity in the farming industry" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"Which region are you interested in?\"}",
+        "tool_calls": []
+    }
+    ,
+    {
+      "role": "user", 
+      "content": "Actually get the fishing opportunity in Wales" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###4. [6] sale | good | model response correctly because no matching tool provided
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "get me opportunity in the farming industry" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"Which region are you interested in?\"}",
+        "tool_calls": []
+    }
+    ,
+    {
+      "role": "user", 
+      "content": "actually get me the weather" 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###5. [6] product placement | good | nice clarification
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "I want some recommendation" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"product_recommendation\"], \"clarification\": \"What category of products would you like recommendations for?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "Place iphone order" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Could you please provide me with the shipping address and payment method?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "addres is 1600 ave SE" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"And the payment method?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "addres is 12720 ave SE, using credit card" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Please confirm the following details: You want to place an order for the iPhone, shipping it to 12720 ave SE, and paying for it using your credit card.\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "Yes" 
+    }
+  ],
+  "temperature": 0.01,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+
+
+###6. [6] product | good | hallucinated user id but track the correct function
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "I want some recommendation" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"product_recommendation\"], \"clarification\": \"What category of products would you like recommendations for?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "Place iphone order" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Could you please provide me with the shipping address and payment method?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "rice cooker recommendation" 
+    }
+  ],
+  "temperature": 0.01,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+###7. [2] spotify | good | correct clarification
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Get me new albumn " 
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+###7. [6] product | bad | include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "ace iphone order" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Could you please provide me with the user ID, product IDs, shipping address, and payment method for the iPhone order?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "my adress is 12720 ave, US actually don't order anything. Get me iphone sale opportunity in my region" 
+    }
+  ],
+  "temperature": 0.01,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 8. [6] product | good | correct paramethers
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "place iphone order" 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Could you please provide me with the user ID, product IDs, shipping address, and payment method for the iPhone order?\"}",
+        "tool_calls": []
+    },
+    {
+      "role": "user", 
+      "content": "my adress is 12720 ave, US " 
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"place_order\"], \"clarification\": \"Could you please provide me with the user ID, product IDs, shipping address, and payment method for the iPhone order?\"}",
+        "tool_calls": []
+      },
+    {
+      "role": "user", 
+      "content": "send me rice cooker to that location, i can pay by credit card, my user id is 123 " 
+    }
+  ],
+  "temperature": 0.01,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
