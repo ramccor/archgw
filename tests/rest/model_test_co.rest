@@ -1,7 +1,10 @@
 @local_endpoint = http://localhost:8000
 @access_key = EMPTY
 
-###1. [2] weather | good | from model
+### 1. Scenario: ambiguous location
+### Expected behavior(s): ask clarification about location
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 {
@@ -22,7 +25,10 @@ Content-Type: application/json
 }
 
 
-###2. [2] weather | bad | model should clarify location as well, not just unit
+### 2. Scenario: ambiguous location
+### Expected behavior(s): model should clarify location as well, not just unit
+### Status: Needs work
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -43,7 +49,10 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###3. [2] stock | good | clarification
+### 3. Scenario: undefine stock symbol
+### Expected behavior(s): clarification on the symbol
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -64,8 +73,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###4. [2] stock | bad | model doesn't ask clarification questions, sometime hallucinate
-
+### 4. Scenario: ambiguous stock
+### Expected behavior(s): clarification on the symbol
+### Note: model doesn't ask clarification questions, sometime hallucinate
+### Status: Needs work
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -86,8 +98,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###5. [2] spotify | good | correct clarification
-
+### 5. Scenario: ambiguous spotify parameter
+### Expected behavior(s): clarification on the music type
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -109,8 +124,11 @@ Content-Type: application/json
 }
 
 
-###6. [2] spotify | good | correct tool call
-
+### 6. Scenario: ambiguous location
+### Expected behavior(s): clarification on the music type/ get the correct location
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 {
@@ -140,7 +158,11 @@ Content-Type: application/json
 
 
 
-### 8. [2] spotify | good | it ask more than the rquire mparameter
+### 7. Scenario: spotify | ambiguous artist
+### Expected behavior(s): clarification on the artist
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -161,7 +183,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 9. [2] spotify | bad | incorrect parameter found
+### 8. Scenario: spotify | ambiguous keywords
+### Expected behavior(s): her as the keyword
+### Note: miss the keyword her in the parameters
+### Status: Needs work
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -191,7 +217,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###10 [2] product | good | ask correct clarification questions
+### 9. Scenario: product | ambiguous product
+### Expected behavior(s): clarification question
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -217,7 +247,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 11. transfer money | goood
+### 10. Scenario: transfer money | ambiguous parameter
+### Expected behavior(s): clarification question | track correct parameters
+### Note: sometimes it confirms the information again
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -258,7 +292,11 @@ Content-Type: application/json
 
 
 
-###1. [6] sale | bad | model only get US
+### 10. Scenario: sale | ambiguous location
+### Expected behavior(s): clarification question | track correct parameters
+### Note: it doesn't understand the correction of location
+### Status: Needs work
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -288,7 +326,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###2. [6] sale | not sure | model follows user request and chooose random
+### 10. Scenario: sale | ambiguous location
+### Expected behavior(s): clarification question | track correct parameters
+### Note: model follows user request and chooose random
+### Status: Not sure
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -319,7 +361,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-#3. [6] sale | good | model get the correct tool and paramether
+### 11. Scenario: sale | ambiguous location
+### Expected behavior(s): clarification question | track correct parameters
+### Note: model get the correct tool and paramether
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -350,8 +396,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###4. [6] sale | good | model response correctly because no matching tool provided
-
+### 12. Scenario: sale | ambiguous location
+### Expected behavior(s): clarification question | track correct parameters
+### Note: model response correctly because no matching tool provided
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -382,8 +431,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-###5. [6] product placement | good | nice clarification
-
+### 13. Scenario: sale | ambiguous request | multiple incomplete request
+### Expected behavior(s): clarification question | track correct parameters
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -442,8 +494,11 @@ Content-Type: application/json
 
 
 
-###6. [6] product | good | hallucinated user id but track the correct function
-
+### 14. Scenario: product | ambiguous request | multiple incomplete request
+### Expected behavior(s): clarification question | track correct parameters
+### Note: hallucinated user id but track the correct function
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -482,28 +537,13 @@ Content-Type: application/json
 }
 
 
-###7. [2] spotify | good | correct clarification
-POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
-Content-Type: application/json
 
-{
-  "model": "Arch-Function",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
-    },
-    {
-      "role": "user", 
-      "content": "Get me new albumn " 
-    }
-  ],
-  "temperature": 0.6,
-  "top_p": 1.0,
-  "top_k": 10
-}
 
-###7. [6] product | bad | include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
+### 15. Scenario: product | ambiguous request | multiple incomplete request
+### Expected behavior(s): clarification question | track correct parameters
+### Note: include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
+### Status: Needs work
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -533,7 +573,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 8. [6] product | good | correct paramethers
+### 16. Scenario: product | ambiguous request | multiple incomplete request | change parameter
+### Expected behavior(s): clarification question | track correct parameters
+### Note: 
+### Status: Approved
+### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
