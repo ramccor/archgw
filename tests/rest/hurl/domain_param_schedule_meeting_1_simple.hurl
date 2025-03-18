@@ -10,7 +10,7 @@ Content-Type: application/json
     },
     {
       "role": "user",
-      "content": "I need help in scheduling a meeting with Joe and Jane tomorrow at 10am with title 'Project Kickoff'"
+      "content": "I need help in scheduling a meeting with joe@gmail.com and jane@gmail.com tomorrow at 10am with title 'Project Kickoff'"
     }
   ],
   "temperature": 0.6,
