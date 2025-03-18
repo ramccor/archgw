@@ -642,3 +642,81 @@ Content-Type: application/json
   "top_p": 1.0,
   "top_k": 10
 }
+
+
+
+### Scenario: Context Swtich Between Functions. Start with one function, move to another, to another.
+### Tools Used: 15 (order_food, book_flight, schedule_meeting, reserve_hotel, rent_car, set_reminder, send_email, buy_movie_tickets, create_calendar_event, apply_loan, get_stock_price, check_account_balance, submit_mortgage_application, apply_credit_card, order_groceries)
+### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"date\": \"tomorrow\", \"participants\": [\"user\"], \"time\": \"10 am\", \"duration_minutes\": \"60\"}}]}",
+### Notes: The last chat history was a bit ambiguous and the model made multiple function calls.
+### Status: Needs Work
+### Tested By: Salman Paracha
+
+POST {{archfc_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"string\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"string\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"string\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"string\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"string\"}}, \"delivery_address\": {\"type\": \"string\"}, \"payment_method\": {\"type\": \"string\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"string\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"string\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"string\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"string\"}, \"check_out_date\": {\"type\": \"string\"}, \"room_type\": {\"type\": \"string\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"string\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"string\"}, \"return_date\": {\"type\": \"string\"}, \"car_type\": {\"type\": \"string\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"string\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"string\"}, \"time\": {\"type\": \"string\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"string\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"string\"}, \"body\": {\"type\": \"string\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"string\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"string\"}, \"show_time\": {\"type\": \"string\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"string\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"string\"}, \"start_time\": {\"type\": \"string\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"string\"}, \"delivery_address\": {\"type\": \"string\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"string\"}, \"subject\": {\"type\": \"string\"}, \"message_body\": {\"type\": \"string\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"string\"}, \"email\": {\"type\": \"string\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"string\"}, \"user_email\": {\"type\": \"string\"}, \"priority_level\": {\"type\": \"string\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"string\"}, \"appointment_date\": {\"type\": \"string\"}, \"appointment_time\": {\"type\": \"string\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"string\"}, \"gift_item\": {\"type\": \"string\"}, \"delivery_address\": {\"type\": \"string\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+        "role": "user",
+        "content": "I want to buy movie tickets for the Matrix movie"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}"
+    },
+    {
+        "role": "user",
+        "content": "Actually I want to order some food"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}"
+    },
+    {
+        "role": "user",
+        "content": "Cheeze pizza from Pizza hut and I will pay with my credit card"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}"
+    },
+    {
+        "role": "user",
+        "content": "Sure 13576 NE 203rd CT, Woodinville, WA 98072"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}"
+    },
+    {
+        "role": "user",
+        "content": "Actually let's finish buying my movie tickets. I want two tickets at the AMC theater near me"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}"
+    },
+    {
+        "role": "user",
+        "content": "Actually first lets book me a meeting with my manager for tomorrow at 10 am"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please confirm the following details: You want to book a meeting with your manager, the date is tomorrow at 10 am, and the meeting is 60 minutes long.\"}"
+    },
+    {
+        "role": "user",
+        "content": "Yes"
+    }
+
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
