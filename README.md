@@ -38,8 +38,8 @@ And you think to youself, can't I move faster by focusing on higher-level object
 
 **Core Features**:
 
-  - `🚦 Routing`. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) for blazng fast (<100ms) routing and hand-off decisions to downstream agents.
-  - `⚡ Function Calling`: Improve speed for common scenarios by letting Arch clarfiy and convert prompts to tools/APIs.
+  - `🚦 Routing`. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) for fast (<100ms) agent routing and hand-off.
+  - `⚡ Function Calling`: Improve speed for common agentic scenarios by letting Arch clarfiy and convert prompts to tools/APIs.
   - `⛨ Guardrails`: Centrally configure and prevent jailbreaks and harmful outcomes, and ensure safe user interactions.
   - `🔗 Unified Access to LLMs`: Centralize access and traffic to LLMs with smart retries, automatic cutover for continuous availability.
   - `🕵 Observability`: W3C Trace Context compatible request tracing, ensuring compatibility with popular observability tools, and provides metrics to monitor latency, token usage, and error rates.
