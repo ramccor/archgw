@@ -4,8 +4,8 @@
 <div align="center">
 
 
-_The intelligent (edge and LLM) proxy server for agentic applications._<br>
-_Move faster by letting Arch handle the **pesky** heavy lifting in building agetns: fast input clarification, agent routing, seamless integration of prompts with tools for common tasks, and unified access and observability of LLMs._
+_The intelligent (edge and LLM) proxy server for agentic applications._<br><br>
+Move faster by letting Arch handle the **pesky** heavy lifting in building agetns: fast input clarification, agent routing, seamless integration of prompts with tools for common tasks, and unified access and observability of LLMs.
 
 [Quickstart](#Quickstart) •
 [Demos](#Demos) •
@@ -27,10 +27,10 @@ _Move faster by letting Arch handle the **pesky** heavy lifting in building aget
 
 Past the thrill of a quick AI demo, have you ever found yourself hitting these walls 🧱. You know, the all-too-familiar ones:
 
-- You go from one BIG prompt to specialized prompts, but get stuck building **routing and handoff code**?
-- You want to incorporatefeatures of new LLMs, but struggle to safely, and **rapidly incorporate new LLMs** without writing integrate code?
-- The hit/miss boilerplate prompt engineering work to ensure that your agent **clarifies the user ask and validates the input** to improve performance?
-- Wasting cycles chosing, integrating and insutrumenting application code for **rich observability**, when all of that should just happen transparently?
+- You go from one BIG prompt to specialized prompts, but get stuck building **routing and handoff+** code?
+- You want multiple LLMs, but struggle to **quickly and safely add new models** without integration code?
+- You're bogged down with prompt engineering just to **clarify user intent and validate inputs** effectively?
+- You're wasting cycles choosing and integrating code for **observability** instead of it happening transparently?
 
 And you think to youself, can't I move faster and just focus on higher-level objectives in a language and framework agnostic way? Yes, you can. <br> **Arch Gateway** was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
 
