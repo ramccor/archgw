@@ -32,7 +32,8 @@ Past the thrill of a quick AI demo, have you ever found yourself hitting these w
 - You're bogged down with prompt engineering just to **clarify user intent and validate inputs** effectively?
 - You're wasting cycles choosing and integrating code for **observability** instead of it happening transparently?
 
-And you think to youself, can't I move faster and just focus on higher-level objectives in a language and framework agnostic way? Yes, you can. <br> **Arch Gateway** was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
+And you think to youself, can't I move faster and just focus on higher-level objectives in a language and framework agnostic way? Yes, you can!
+**Arch Gateway** was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
 
 >Prompts are nuanced and opaque user requests, which require the same capabilities as traditional HTTP requests including secure handling, intelligent routing, robust observability, and integration with backend (API) systems to improve speed and accuracy for common agentic scenarios  – all outside core application logic.*
 
