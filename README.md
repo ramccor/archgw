@@ -27,10 +27,10 @@ _Move faster by letting Arch handle the **pesky** heavy lifting in building aget
 
 Past the thrill of a quick AI demo, have you ever found yourself hitting these walls 🧱. You know, the all-too-familiar ones:
 
-- To improve performance you go from one prompt to specialized prompt, but get stuck building/manintaing **routing and handoff code** in the application layer?
-- You want to incorporate strengths and features of new LLMs, but struggle to safely, reliably, and **rapidly incorporate new LLMs** without writing integrate code?
-- The hit/miss boilerplate prompt engineering work to ensure that your agent **quickly clarifies the user ask and validates the input** to improve performance?
-- Wasting cycles chosing, integrating and insutrumenting your application code for **rich observability**, when all of that should just happen transparently?
+- You go from one BIG prompt to specialized prompts, but get stuck building **routing and handoff code**?
+- You want to incorporatefeatures of new LLMs, but struggle to safely, and **rapidly incorporate new LLMs** without writing integrate code?
+- The hit/miss boilerplate prompt engineering work to ensure that your agent **clarifies the user ask and validates the input** to improve performance?
+- Wasting cycles chosing, integrating and insutrumenting application code for **rich observability**, when all of that should just happen transparently?
 
 And you think to youself, can't I move faster and just focus on higher-level objectives in a language and framework agnostic way? Yes, you can. <br> **Arch Gateway** was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
 
