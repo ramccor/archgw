@@ -26,13 +26,14 @@ class ChatCompletionsRequest(BaseModel):
 
 
 openai_client = openai.OpenAI(
-    api_key=" -- ",  # Replace with your OpenAI API key
+    api_key="None",  # archgw picks the API key from the config file
+    base_url="http://host.docker.internal:12000/v1",
 )
 
 
 def call_openai(messages: List[Dict[str, str]], stream: bool):
     completion = openai_client.chat.completions.create(
-        model="gpt-4o",  # archgw picks the default LLM configured in the config file
+        model="None",  # archgw picks the default LLM configured in the config file
         messages=messages,
         stream=stream,
     )
@@ -93,7 +94,12 @@ AGENTS = {
 @app.post("/v1/chat/completions")
 def completion_api(req: ChatCompletionsRequest, request: Request):
     agent_name = req.metadata.get("agent-name", "unknown_agent")
-    agent = AGENTS.get(agent_name, AGENTS["unknown_agent"])
+    agent = AGENTS.get(agent_name)
     logger.info(f"Routing to agent: {agent_name}")
 
     return agent.handle(req)
+
+
+@app.get("/healthz")
+async def healthz():
+    return {"status": "ok"}

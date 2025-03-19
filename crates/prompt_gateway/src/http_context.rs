@@ -40,7 +40,7 @@ impl HttpContext for StreamContext {
                     if endpoints.len() == 1 {
                         let (name, _) = endpoints.iter().next().unwrap();
                         debug!("Setting ARCH_PROVIDER_HINT_HEADER to {}", name);
-                        self.set_http_request_header(ARCH_ROUTING_HEADER, Some(&name));
+                        self.set_http_request_header(ARCH_ROUTING_HEADER, Some(name));
                     } else {
                         warn!("Need single endpoint when use_agent_orchestrator is set");
                         self.send_server_error(

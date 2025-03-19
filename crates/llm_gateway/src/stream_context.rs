@@ -504,6 +504,10 @@ impl HttpContext for StreamContext {
         };
 
         if self.streaming_response {
+            if body_utf8 == "data: [DONE]\n" {
+                return Action::Continue;
+            }
+
             let chat_completions_chunk_response_events =
                 match ChatCompletionStreamResponseServerEvents::try_from(body_utf8.as_str()) {
                     Ok(response) => response,
@@ -517,7 +521,10 @@ impl HttpContext for StreamContext {
                 };
 
             if chat_completions_chunk_response_events.events.is_empty() {
-                debug!("empty streaming response");
+                debug!(
+                    "cound't parse any streaming events: body str: {}",
+                    body_utf8
+                );
                 return Action::Continue;
             }
 
