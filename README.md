@@ -41,8 +41,8 @@ And you think to youself, can't I move faster by focusing on higher-level object
   - `🚦 Routing`. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) for fast (<100ms) agent routing and hand-off scenarios
   - `⚡ Tools Use`: For common agentic scenarios let Arch instantly clarfiy and convert prompts to tools/API calls
   - `⛨ Guardrails`: Centrally configure and prevent harmful outcomes and ensure safe user interactions
-  - `🔗 Access to LLMs`: Centralize access and traffic to LLMs with smart retries, automatic cutover for continuous availability
-  - `🕵 Observability`: W3C compatible request tracing, ensuring compatibility with popular observability tools, and provides metrics to monitor latency, token usage, and error rates
+  - `🔗 Access to LLMs`: Centralize access and traffic to LLMs with smart retries for continuous availability
+  - `🕵 Observability`: W3C compatible request tracing and LLM metrics that are compatible with popular observability tools
   - `🧱 Built on Envoy`: Arch runs alongside app servers as a containerized process, and builds on top of [Envoy's](https://envoyproxy.io) proven HTTP management and scalability features to handle ingress and egress traffic related to prompts and LLMs.
 
 **High-Level Sequence Diagram**:
