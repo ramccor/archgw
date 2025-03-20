@@ -7,9 +7,9 @@
 <meta content="white" media="(prefers-color-scheme: light)" name="theme-color"/>
 <meta content="black" media="(prefers-color-scheme: dark)" name="theme-color"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>Prompt Target | Arch Docs v0.2.3</title>
-<meta content="Prompt Target | Arch Docs v0.2.3" property="og:title"/>
-<meta content="Prompt Target | Arch Docs v0.2.3" name="twitter:title"/>
+<title>Prompt Target | Arch Docs v0.2.4</title>
+<meta content="Prompt Target | Arch Docs v0.2.4" property="og:title"/>
+<meta content="Prompt Target | Arch Docs v0.2.4" name="twitter:title"/>
 <link href="../_static/pygments.css?v=466e7b45" rel="stylesheet" type="text/css"/>
 <link href="../_static/theme.css?v=42baaae4" rel="stylesheet" type="text/css"/>
 <link href="../_static/_static/custom.css" rel="stylesheet" type="text/css"/>
@@ -39,7 +39,7 @@
     </a><header class="sticky top-0 z-40 w-full border-b shadow-sm border-border supports-backdrop-blur:bg-background/60 bg-background/95 backdrop-blur"><div class="container flex items-center h-14">
 <div class="hidden mr-4 md:flex">
 <a class="flex items-center mr-6" href="../index.html">
-<img alt="Logo" class="mr-2 dark:invert" height="24" src="../_static/favicon.ico" width="24"/><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Arch Docs v0.2.3</span>
+<img alt="Logo" class="mr-2 dark:invert" height="24" src="../_static/favicon.ico" width="24"/><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Arch Docs v0.2.4</span>
 </a></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
 <svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
@@ -75,7 +75,7 @@
 </header>
 <div class="flex-1"><div class="container flex-1 items-start md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full shrink-0 overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
 <a class="!justify-start text-sm md:!hidden bg-background" href="../index.html">
-<img alt="Logo" class="mr-2 dark:invert" height="16" src="../_static/favicon.ico" width="16"/><span class="font-bold text-clip whitespace-nowrap">Arch Docs v0.2.3</span>
+<img alt="Logo" class="mr-2 dark:invert" height="16" src="../_static/favicon.ico" width="16"/><span class="font-bold text-clip whitespace-nowrap">Arch Docs v0.2.4</span>
 </a>
 <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0 h-[calc(100vh-8rem)] md:h-auto">
 <div class="overflow-y-auto h-full w-full relative pr-6">
@@ -114,6 +114,7 @@
 <p class="caption" role="heading"><span class="caption-text">Guides</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../guides/prompt_guard.html">Prompt Guard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guides/agent_routing.html">Agent Routing and Hand Off</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../guides/function_calling.html">Function Calling</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../guides/observability/observability.html">Observability<button @click.prevent.stop="expanded = !expanded" type="button"><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-show="expanded">
 <li class="toctree-l2"><a class="reference internal" href="../guides/observability/tracing.html">Tracing</a></li>
@@ -145,7 +146,7 @@
 <div class="w-full min-w-0 mx-auto">
 <nav aria-label="breadcrumbs" class="flex items-center mb-4 space-x-1 text-sm text-muted-foreground">
 <a class="overflow-hidden text-ellipsis whitespace-nowrap hover:text-foreground" href="../index.html">
-<span class="hidden md:inline">Arch Docs v0.2.3</span>
+<span class="hidden md:inline">Arch Docs v0.2.4</span>
 <svg aria-label="Home" class="md:hidden" fill="currentColor" height="18" stroke="none" viewbox="0 96 960 960" width="18" xmlns="http://www.w3.org/2000/svg">
 <path d="M240 856h120V616h240v240h120V496L480 316 240 496v360Zm-80 80V456l320-240 320 240v480H520V696h-80v240H160Zm320-350Z"></path>
 </svg>
@@ -155,13 +156,11 @@
 <div id="content" role="main">
 <section id="prompt-target">
 <span id="id1"></span><h1>Prompt Target<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#prompt-target"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
-<p><strong>Prompt Targets</strong> are a fundamental component of Arch, enabling developers to define how different types of user prompts are processed and routed within their generative AI applications.
-This section provides an in-depth look at prompt targets, including their purpose, configuration, usage, and best practices to help you effectively leverage this feature in your projects.</p>
+<p><strong>Prompt Targets</strong> are a core concept in Arch, empowering developers to clearly define how user prompts are interpreted, processed, and routed within their generative AI applications. Prompts can seamlessly be routed either to specialized AI agents capable of handling sophisticated, context-driven tasks or to targeted tools provided by your application, offering users a fast, precise, and personalized experience.</p>
+<p>This section covers the essentials of prompt targets—what they are, how to configure them, their practical uses, and recommended best practices—to help you fully utilize this feature in your applications.</p>
 <section id="what-are-prompt-targets">
 <h2>What Are Prompt Targets?<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#what-are-prompt-targets" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#what-are-prompt-targets'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>Prompt targets are predefined endpoints within Arch that handle specific types of user prompts.
-They act as the bridge between user inputs and your backend services or APIs, enabling Arch to route, process, and manage prompts efficiently.
-By defining prompt targets, you can separate your application’s business logic from the complexities of prompt processing, ensuring a cleaner and more maintainable codebase.</p>
+<p>Prompt targets are endpoints within Arch that handle specific types of user prompts. They act as the bridge between user inputs and your backend agemts or tools (APIs), enabling Arch to route, process, and manage prompts efficiently. Defining prompt targets helps you decouple your application’s core logic from processing and handling complexities, leading to clearer code organization, better scalability, and easier maintenance.</p>
 <table class="docutils align-default" style="width: 100%">
 <thead>
 <tr class="row-odd"><th class="head"><p><strong>Capability</strong></p></th>
@@ -175,8 +174,8 @@ By defining prompt targets, you can separate your application’s business logic
 <tr class="row-odd"><td><p>Parameter Extraction</p></td>
 <td><p>Extract necessary data from the prompt.</p></td>
 </tr>
-<tr class="row-even"><td><p>API Invocation</p></td>
-<td><p>Call relevant backend services or functions.</p></td>
+<tr class="row-even"><td><p>Invocation</p></td>
+<td><p>Call relevant backend agents or tools (APIs).</p></td>
 </tr>
 <tr class="row-odd"><td><p>Response Handling</p></td>
 <td><p>Process and return responses to the user.</p></td>
@@ -187,9 +186,9 @@ By defining prompt targets, you can separate your application’s business logic
 <h3>Key Features<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#key-features" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#key-features'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
 <p>Below are the key features of prompt targets that empower developers to build efficient, scalable, and personalized GenAI solutions:</p>
 <ul class="simple">
-<li><p><strong>Modular Design</strong>: Define multiple prompt targets to handle diverse functionalities.</p></li>
-<li><p><strong>Parameter Management</strong>: Specify required and optional parameters for each target.</p></li>
-<li><p><strong>Function Integration</strong>: Seamlessly connect prompts to backend APIs or functions.</p></li>
+<li><p><strong>Design Scenarios</strong>: Define prompt targets to effectively handle specific agentic scenarios.</p></li>
+<li><p><strong>Input Management</strong>: Specify required and optional parameters for each target.</p></li>
+<li><p><strong>Tools Integration</strong>: Seamlessly connect prompts to backend APIs or functions.</p></li>
 <li><p><strong>Error Handling</strong>: Direct errors to designated handlers for streamlined troubleshooting.</p></li>
 <li><p><strong>Metadata Enrichment</strong>: Attach additional context to prompts for enhanced processing.</p></li>
 </ul>
@@ -197,15 +196,14 @@ By defining prompt targets, you can separate your application’s business logic
 </section>
 <section id="configuring-prompt-targets">
 <h2>Configuring Prompt Targets<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#configuring-prompt-targets" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#configuring-prompt-targets'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>Configuring prompt targets involves defining them in Arch’s configuration file.
-Each Prompt target specifies how a particular type of prompt should be handled, including the endpoint to invoke and any parameters required.</p>
+<p>Configuring prompt targets involves defining them in Arch’s configuration file. Each Prompt target specifies how a particular type of prompt should be handled, including the endpoint to invoke and any parameters required.</p>
 <section id="basic-configuration">
 <h3>Basic Configuration<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#basic-configuration" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#basic-configuration'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
 <p>A prompt target configuration includes the following elements:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: A unique identifier for the prompt target.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: A brief explanation of what the prompt target does.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">endpoint</span></code>: The API endpoint or function that handles the prompt.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">endpoint</span></code>: Required if you want to call a tool or specific API. <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">path</span></code> <code class="docutils literal notranslate"><span class="pre">http_method</span></code> are the three attributes of the endpoint.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">parameters</span></code> (Optional): A list of parameters to extract from the prompt.</p></li>
 </ul>
 </section>
@@ -229,26 +227,31 @@ Each parameter can be marked as required or optional. Here is a full list of par
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span> <span class="pre">(req.)</span></code></p></td>
 <td><p>Specifies the data type. Supported types include: <strong>int</strong>, <strong>str</strong>, <strong>float</strong>, <strong>bool</strong>, <strong>list</strong>, <strong>set</strong>, <strong>dict</strong>, <strong>tuple</strong></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">in_path</span></code></p></td>
+<td><p>Indicates whether the parameter is part of the path in the endpoint url. Valid values: <strong>true</strong> or <strong>false</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">default</span></code></p></td>
 <td><p>Specifies a default value for the parameter if not provided by the user.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
 <td><p>Specifies a format for the parameter value. For example: <cite>2019-12-31</cite> for a date value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enum</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enum</span></code></p></td>
 <td><p>Lists of allowable values for the parameter with data type matching the <code class="docutils literal notranslate"><span class="pre">type</span></code> attribute. <strong>Usage Example</strong>: <code class="docutils literal notranslate"><span class="pre">enum:</span> <span class="pre">["celsius`",</span> <span class="pre">"fahrenheit"]</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">items</span></code></p></td>
 <td><p>Specifies the attribute of the elements when type euqals <strong>list</strong>, <strong>set</strong>, <strong>dict</strong>, <strong>tuple</strong>. <strong>Usage Example</strong>: <code class="docutils literal notranslate"><span class="pre">items:</span> <span class="pre">{"type":</span> <span class="pre">"str"}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">required</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">required</span></code></p></td>
 <td><p>Indicates whether the parameter is mandatory or optional. Valid values: <strong>true</strong> or <strong>false</strong></p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="example-configuration">
-<h3>Example Configuration<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#example-configuration" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#example-configuration'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
+<section id="example-configuration-for-tools">
+<h3>Example Configuration For Tools<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#example-configuration-for-tools" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#example-configuration-for-tools'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Tools and Function Calling Configuration Example</span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id2"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nt">prompt_targets</span><span class="p">:</span>
 </span><span id="line-2"><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get_weather</span>
 </span><span id="line-3"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Get the current weather for a location</span>
@@ -267,16 +270,39 @@ Each parameter can be marked as required or optional. Here is a full list of par
 </span><span id="line-16"><span class="w">      </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/weather</span>
 </span></code></pre></div>
 </div>
+</div>
+</section>
+<section id="example-configuration-for-agents">
+<h3>Example Configuration For Agents<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#example-configuration-for-agents" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#example-configuration-for-agents'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Agent Orchestration Configuration Example</span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id3"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="nt">overrides</span><span class="p">:</span>
+</span><span id="line-2"><span class="w">  </span><span class="nt">use_agent_orchestrator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="line-3">
+</span><span id="line-4"><span class="nt">prompt_targets</span><span class="p">:</span>
+</span><span id="line-5"><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sales_agent</span>
+</span><span id="line-6"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">handles queries related to sales and purchases</span>
+</span><span id="line-7">
+</span><span id="line-8"><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">issues_and_repairs</span>
+</span><span id="line-9"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">handles issues, repairs, or refunds</span>
+</span><span id="line-10">
+</span><span id="line-11"><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">escalate_to_human</span>
+</span><span id="line-12"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">escalates to human agent</span>
+</span></code></pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Today, you can use Arch to coordinate more specific agentic scenarios via tools and function calling, or use it for high-level agent routing and hand off scenarios. In the future, we plan to offer you the ability to combine these two approaches for more complex scenarios. Please see <a class="reference external" href="https://github.com/katanemo/archgw/issues/442" rel="nofollow noopener">github issues<svg fill="currentColor" height="1em" stroke="none" viewbox="0 96 960 960" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M188 868q-11-11-11-28t11-28l436-436H400q-17 0-28.5-11.5T360 336q0-17 11.5-28.5T400 296h320q17 0 28.5 11.5T760 336v320q0 17-11.5 28.5T720 696q-17 0-28.5-11.5T680 656V432L244 868q-11 11-28 11t-28-11Z"></path></svg></a> for more details.</p>
+</div>
 </section>
 </section>
 <section id="routing-logic">
 <h2>Routing Logic<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#routing-logic" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#routing-logic'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>Prompt targets determine where and how user prompts are processed.
-Arch uses intelligent routing logic to ensure that prompts are directed to the appropriate targets based on their intent and context.</p>
+<p>Prompt targets determine where and how user prompts are processed. Arch uses intelligent routing logic to ensure that prompts are directed to the appropriate targets based on their intent and context.</p>
 <section id="default-targets">
 <h3>Default Targets<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#default-targets" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#default-targets'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
-<p>For general-purpose prompts that do not match any specific prompt target, Arch routes them to a designated default target.
-This is useful for handling open-ended queries like document summarization or information extraction.</p>
+<p>For general-purpose prompts that do not match any specific prompt target, Arch routes them to a designated default target. This is useful for handling open-ended queries like document summarization or information extraction.</p>
 </section>
 <section id="intent-matching">
 <h3>Intent Matching<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#intent-matching" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#intent-matching'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h3>
@@ -290,9 +316,8 @@ This is useful for handling open-ended queries like document summarization or in
 </section>
 <section id="summary">
 <h2>Summary<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#summary" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#summary'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
-<p>Prompt targets are essential for defining how user prompts are handled within your generative AI applications using Arch.
-By carefully configuring prompt targets, you can ensure that prompts are accurately routed, necessary parameters are extracted, and backend services are invoked seamlessly.
-This modular approach not only simplifies your application’s architecture but also enhances scalability, maintainability, and overall user experience.</p>
+<p>Prompt targets are essential for defining how user prompts are handled within your generative AI applications using Arch.</p>
+<p>By carefully configuring prompt targets, you can ensure that prompts are accurately routed, necessary parameters are extracted, and backend services are invoked seamlessly. This modular approach not only simplifies your application’s architecture but also enhances scalability, maintainability, and overall user experience.</p>
 </section>
 </section>
 </div><div class="flex justify-between items-center pt-6 mt-12 border-t border-border gap-4">
@@ -322,7 +347,8 @@ This modular approach not only simplifies your application’s architecture but 
 <li><a :data-current="activeSection === '#configuring-prompt-targets'" class="reference internal" href="#configuring-prompt-targets">Configuring Prompt Targets</a><ul>
 <li><a :data-current="activeSection === '#basic-configuration'" class="reference internal" href="#basic-configuration">Basic Configuration</a></li>
 <li><a :data-current="activeSection === '#defining-parameters'" class="reference internal" href="#defining-parameters">Defining Parameters</a></li>
-<li><a :data-current="activeSection === '#example-configuration'" class="reference internal" href="#example-configuration">Example Configuration</a></li>
+<li><a :data-current="activeSection === '#example-configuration-for-tools'" class="reference internal" href="#example-configuration-for-tools">Example Configuration For Tools</a></li>
+<li><a :data-current="activeSection === '#example-configuration-for-agents'" class="reference internal" href="#example-configuration-for-agents">Example Configuration For Agents</a></li>
 </ul>
 </li>
 <li><a :data-current="activeSection === '#routing-logic'" class="reference internal" href="#routing-logic">Routing Logic</a><ul>
@@ -339,12 +365,12 @@ This modular approach not only simplifies your application’s architecture but 
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Mar 19, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Mar 20, 2025. </p>
 </div>
 </div>
 </footer>
 </div>
-<script src="../_static/documentation_options.js?v=a64e9957"></script>
+<script src="../_static/documentation_options.js?v=4350aeca"></script>
 <script src="../_static/doctools.js?v=9bcbadda"></script>
 <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
 <script defer="defer" src="../_static/theme.js?v=073f68d9"></script>
