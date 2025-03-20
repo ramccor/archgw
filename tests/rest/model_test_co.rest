@@ -609,4 +609,263 @@ Content-Type: application/json
   "top_k": 10
 }
 
+### Complex case
 
+### 17. Scenario: Turns (Multi). Parameters (3,  Required)  | ambiguous parameter | incomplete request |
+### Scenario: Multiple parameters with same descriptions but different names across functions
+### Tool Used: book_flight
+### Expected behavior(s): clarification question on the departing location and arrival location
+### Note: It doesn't understand Vancouver is arrival city, it keeps asking me to confirm im leaving Vancouver, the time is wrong too.
+### Status: Failed
+### Trials: 0/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Can you book me flight to Vancouver"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"What date will you leave and how many tickets do you need?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "I only need 1 ticket, and leave on March 19."
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"Please confirm the following details: You're leaving Vancouver on March 19th for 1 ticket.\"}"
+    },
+    {
+      "role": "user", 
+      "content": "No, I want to book flight to Vancouver, not leaving it."
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"What date would you like to leave?\"}"
+      }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 18. Scenario: Turns (Multi). Parameters (3,  Required)  | ambiguous parameter | incomplete request |
+### Scenario: Multiple parameters with same name and descriptions across functions
+### Tool Used: book_flight, order_food
+### Expected behavior(s): clarification question and correct parameter.
+### Note: wrong paramether collected even after confirmation, doesn't ask for restaurant name
+### Trials: 0/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Can you book me flight from Ho Chi Minh to Seattle"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"When are you leaving and for how many people?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "i leave on May 1st"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"How many people are traveling?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "for only me, can you order food for me and my girlfriend at the leaving airport?"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"What is the payment method for food delivery?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "cash"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"Could you please specify the address for food delivery?\"}"
+    },
+    {
+      "role": "user", 
+      "content": "Ho Chi Minh airport"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"Please confirm: I am ordering food for you and your girlfriend from the Ho Chi Minh airport. The departure date is May 1st and you are traveling alone.\"}"
+    },
+    {
+      "role": "user", 
+      "content": "yes"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+
+### 18. Scenario: Turns (Multi). Parameters (3,  Required)  | ambiguous parameter | incomplete request |
+### Tool Used: book_flight, get_weather
+### Scenario: Parameter Collision
+### Expected behavior(s): clarification question Seattle for booking flight or weather
+### Note: always ask clarrification on about get weather
+### Status: Failed
+### Trials: 0/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Is Seattle good for my trip next week?"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 19. Scenario: Turns (Single). Parameters (3,  Required)  | ambiguous request
+### Tool Used: send_gift, order_food
+### Scenario: 2. Multiple parameters with same name and descriptions across functions
+### Expected behavior(s): use the send_gift function
+### Note: always ask clarrification on about get weather
+### Status: Failed
+### Trials: 0/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "I want to get food as a gift for my girlfriend"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 20. Scenario: Turns (Multi). Parameters (3,  Required)  | ambiguous request
+### Tool Used: create_calendar_event
+### Scenario: 2. Multiple parameters with same name and descriptions across functions
+### Expected behavior(s): collect parameter  on create_calendar_event
+### Note: always ask clarrification on about event clendar
+### Status: Approved
+### Trials: 10/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "create an event calendar for me for my package delivery"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+### 21. Scenario: Turns (Multi). Parameters (3,  Required)  | ambiguous request
+### Tool Used: schedule_meeting, reserve_hotel
+### Scenario: 2. Multiple parameters with same name and descriptions across functions
+### Expected behavior(s): collect parameter  on schedule_meeting and also reserve hotel
+### Note: always ask clarrification on about schedule meeting but no booking hotel
+### Status: Failed
+### Trials: 0/10 pass
+### Tested By: Co Tran
+
+
+POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user", 
+      "content": "Hi, i want to schedule a meeting in a hotel"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please tell me the details of the meeting such as the date and time?\"}"
+    }
+    ,
+    {
+      "role": "user", 
+      "content": "Hi, 5pm in Jan 1st"
+    },
+    {
+        "role": "assistant",
+        "content": "{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Can you please tell me the name of the hotel and how many people will be attending the meeting?\"}"
+    }
+    ,
+    {
+      "role": "user", 
+      "content": "The White Lotus and 5 people"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
