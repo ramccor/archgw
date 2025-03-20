@@ -1,12 +1,15 @@
 @local_endpoint = http://localhost:8000
 @access_key = EMPTY
 
-### 1. Scenario: ambiguous location
+### 1. Scenario: Turns (Single). Parameters (Single,  Required).  | ambiguous location
+### Tool Used: get_weather 
 ### Expected behavior(s): ask clarification about location
 ### Status: Approved
+### Trials: 10/10
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
+
 {
   "model": "Arch-Function",
   "messages": [
@@ -25,9 +28,11 @@ Content-Type: application/json
 }
 
 
-### 2. Scenario: ambiguous location
+### 2. Scenario: Turns (Single). Parameters (Single,  Required) | ambiguous location
+### Tool Used: get_weather
 ### Expected behavior(s): model should clarify location as well, not just unit
 ### Status: Needs work
+### Trials: 3/10 model ask location, 3/10 say cant do the request 4/10 ask only about unit
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
@@ -49,9 +54,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 3. Scenario: undefine stock symbol
+### 3. Scenario: Turns (Single). Parameters (Single,  Required) | undefine stock symbol
+### Tool Used: get_stock_price 
 ### Expected behavior(s): clarification on the symbol
 ### Status: Approved
+### Trials: 9/10 ask clarification, 1/10 hallucinate choose AAPL
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
@@ -73,10 +80,12 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 4. Scenario: ambiguous stock
+### 4. Scenario: Turns (Single). Parameters (Single,  Required) | ambiguous stock
+### Tool Used: get_stock_price 
 ### Expected behavior(s): clarification on the symbol
-### Note: model doesn't ask clarification questions, sometime hallucinate
+### Note: model doesn't ask clarification questions, hallucinate
 ### Status: Needs work
+### Trials: 9/10 hallucinate, 1/10 ask clarification
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
@@ -98,9 +107,10 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 5. Scenario: ambiguous spotify parameter
+### 5. Scenario: Turns (Single). Parameters (Single,  Required) | ambiguous spotify parameter
+### Tool Used: spotify_api 
 ### Expected behavior(s): clarification on the music type
-### Note: 
+### Trials: 8/10 ask clarficaition, 2/10 hallucinate
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -124,13 +134,16 @@ Content-Type: application/json
 }
 
 
-### 6. Scenario: ambiguous location
+### 6. Scenario: Turns (Multi). Parameters (2,  Required) | ambiguous location
+### Tool Used: spotify_api 
 ### Expected behavior(s): clarification on the music type/ get the correct location
 ### Note: 
+### Trials: 10/10 get correct tool
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
+
 {
   "model": "Arch-Function",
   "messages": [
@@ -158,10 +171,11 @@ Content-Type: application/json
 
 
 
-### 7. Scenario: spotify | ambiguous artist
+### 7. Scenario:  Turns (Single). Parameters (1,  Required) | spotify | ambiguous artist
+### Tool Used: spotify_api 
 ### Expected behavior(s): clarification on the artist
-### Note: 
-### Status: Approved
+### Trials: 5/10 ask clarification, 5/10 hallucinate
+### Status: Needs work
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
@@ -183,9 +197,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 8. Scenario: spotify | ambiguous keywords
+### 8. Scenario:  Turns (Multi). Parameters (1,  Required) | spotify | ambiguous keywords
+### Tool Used: spotify_api 
 ### Expected behavior(s): her as the keyword
 ### Note: miss the keyword her in the parameters
+### Trials: 8/10 wrong keyword
 ### Status: Needs work
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -217,9 +233,10 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 9. Scenario: product | ambiguous product
+### 9. Scenario:  Turns (Single). Parameters (1,  Required) | ambiguous product
+### Tool Used: product_recommendation 
 ### Expected behavior(s): clarification question
-### Note: 
+### Trials: 10/10 
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -235,21 +252,18 @@ Content-Type: application/json
     {
       "role": "user", 
       "content": "Is my phone good?" 
-    },
-    {
-        "role": "assistant",
-        "content": "{\"required_functions\": [\"query_database\"], \"clarification\": \"Could you please provide me with the phone model and its specifications?\"}",
-        "tool_calls": []
-    },
+    }
   ],
   "temperature": 0.6,
   "top_p": 1.0,
   "top_k": 10
 }
 
-### 10. Scenario: transfer money | ambiguous parameter
+### 10. Scenario: Turns (Multi). Parameters (3,  Required). transfer money | ambiguous parameter
+### Tool Used: transfer_money 
 ### Expected behavior(s): clarification question | track correct parameters
-### Note: sometimes it confirms the information again
+### Note: 1/30 it confirms the information again
+### Trials: 10/10 
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -292,9 +306,11 @@ Content-Type: application/json
 
 
 
-### 10. Scenario: sale | ambiguous location
+### 11. Scenario: Turns (Multi). Parameters (2,  Required). | ambiguous parameter
+### Tool Used: sales_opportunity 
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: it doesn't understand the correction of location
+### Trials: 5/10 use US as location
 ### Status: Needs work
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -313,12 +329,11 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"In which industry are you looking for sales opportunities?\"}",
-        "tool_calls": []
+        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"In which industry are you looking for sales opportunities?\"}"
       },
     {
         "role": "user",
-        "content": "Private Banking in Sweden"
+        "content": "Private Banking in Europe"
     }
   ],
   "temperature": 0.6,
@@ -326,44 +341,12 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 10. Scenario: sale | ambiguous location
-### Expected behavior(s): clarification question | track correct parameters
-### Note: model follows user request and chooose random
-### Status: Not sure
-### Tested By: Co Tran
-POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
-Content-Type: application/json
 
-{
-  "model": "Arch-Function",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
-    },
-    {
-      "role": "user", 
-      "content": "get me opportunity in US" 
-    },
-    {
-        "role": "assistant",
-        "content": "{\"required_functions\": [\"sales_opportunity\"], \"clarification\": \"In which industry are you looking for sales opportunities?\"}",
-        "tool_calls": []
-    }
-    ,
-    {
-        "role": "user",
-        "content": "I don't really care"
-    }
-  ],
-  "temperature": 0.6,
-  "top_p": 1.0,
-  "top_k": 10
-}
-
-### 11. Scenario: sale | ambiguous location
+### 12. Scenario: Turns (Multi). Parameters (2,  Required). | ambiguous parameter
+### Tool Used: sales_opportunity 
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: model get the correct tool and paramether
+### Trials: 10/10 use US as location
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -396,9 +379,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 12. Scenario: sale | ambiguous location
-### Expected behavior(s): clarification question | track correct parameters
+### 12. Scenario: Turns (Multi). Parameters (2,  Required) | ambiguous intention
+### Tool Used: sales_opportunity 
+### Expected behavior(s): cannot perform latest request
 ### Note: model response correctly because no matching tool provided
+### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -431,9 +416,11 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 13. Scenario: sale | ambiguous request | multiple incomplete request
+### 13. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request
+### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: 
+### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -494,9 +481,11 @@ Content-Type: application/json
 
 
 
-### 14. Scenario: product | ambiguous request | multiple incomplete request
+### 14. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request
+### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: hallucinated user id but track the correct function
+### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -539,9 +528,11 @@ Content-Type: application/json
 
 
 
-### 15. Scenario: product | ambiguous request | multiple incomplete request
+### 15. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request
+### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
-### Note: include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
+### Note: 
+### Trials: 10/10 include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
 ### Status: Needs work
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -573,10 +564,12 @@ Content-Type: application/json
   "top_k": 10
 }
 
-### 16. Scenario: product | ambiguous request | multiple incomplete request | change parameter
+### 16. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request | change parameter
+### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: 
 ### Status: Approved
+### Trials: 10/10  correct parameters
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
