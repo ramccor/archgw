@@ -137,7 +137,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"property_address\": {\"type\": \"str\", \"description\": \"Complete address of the property\", \"format\": \"Street address, City, State/Province, ZIP/Postal Code, Country\"}, \"required\": [\"property_address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -371,6 +371,351 @@ Content-Type: application/json
     {
       "role": "user",
       "content": "I want to transfer 50,000 USD"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+# tools = [
+#     {
+#         "name": "account_balance",
+#         "description": "Get the account balance",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"}
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+#     {
+#         "name": "transfer_funds",
+#         "description": "Transfer funds between accounts",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "from_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer from",
+#                 },
+#                 "to_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer to",
+#                 },
+#                 "amount": {"type": "int", "description": "The amount to transfer"},
+#                 "note": {
+#                     "type": "str",
+#                     "description": "The note to attach to the transaction",
+#                 },
+#                 "transaction_type": {
+#                     "type": "str",
+#                     "description": "The type of transaction (e.g. 'transfer', 'payment')",
+#                 },
+#             },
+#             "required": ["from_account", "to_account", "amount"],
+#         },
+#     },
+#     {
+#         "name": "account_transactions",
+#         "description": "Get the account transactions",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"},
+#                 "start_date": {
+#                     "type": "str",
+#                     "description": "The start date of the transactions",
+#                 },
+#                 "end_date": {
+#                     "type": "str",
+#                     "description": "The end date of the transactions",
+#                 },
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+# ]
+
+### scenario: multi-turn - 3 required and two optional params
+# tools used: account_balance, transfer_funds, account_transactions
+# expected: model should ask for required parameters
+# Status: Not Approved
+# Notes: model is not making tool call even though all parameters have been passed. 3 out of 10 times model asked for confirmation but other times it kept asking for parameters that have been provided already.
+
+# sample response,
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm that you want to transfer 25 USD from account 921249 to account 921211.\"}"
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"How much money do you want to transfer?\"}"
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"How much money do you want to transfer and do you want to make a payment or transfer?\"}"
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"You want to transfer 25 USD from account 921249 to account 921211. Is this correct?\"}"
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm the transfer of 25 USD from account 921249 to account 921211.\"}"
+
+POST {{archfc_endpoint}}/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"account_balance\", \"description\": \"Get the account balance\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"transfer_funds\", \"description\": \"Transfer funds between accounts\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_account\": {\"type\": \"str\", \"description\": \"The account to transfer from\"}, \"to_account\": {\"type\": \"str\", \"description\": \"The account to transfer to\"}, \"amount\": {\"type\": \"int\", \"description\": \"The amount to transfer\"}, \"note\": {\"type\": \"str\", \"description\": \"The note to attach to the transaction\"}, \"transaction_type\": {\"type\": \"str\", \"description\": \"The type of transaction (e.g. 'transfer', 'payment')\"}}, \"required\": [\"from_account\", \"to_account\", \"amount\"]}}\n{\"name\": \"account_transactions\", \"description\": \"Get the account transactions\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}, \"start_date\": {\"type\": \"str\", \"description\": \"The start date of the transactions\"}, \"end_date\": {\"type\": \"str\", \"description\": \"The end date of the transactions\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user",
+      "content": "I want to make a transfer of 25 USD"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"From which account do you want to transfer the funds?\"}"
+    },
+    {
+      "role": "user",
+      "content": "921249"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"To which account do you want to transfer the funds?\"}"
+    },
+    {
+      "role": "user",
+      "content": "921211"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+
+tools = [
+    {
+        "name": "account_balance",
+        "description": "Get the account balance",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "account_id": {"type": "str", "description": "The account ID"}
+            },
+            "required": ["account_id"],
+        },
+    },
+    {
+        "name": "transfer_funds",
+        "description": "Transfer funds between accounts",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "from_account": {
+                    "type": "str",
+                    "description": "The account to transfer from",
+                },
+                "to_account": {
+                    "type": "str",
+                    "description": "The account to transfer to",
+                },
+                "amount": {"type": "int", "description": "The amount to transfer"},
+                "note": {
+                    "type": "str",
+                    "description": "The note to attach to the transaction",
+                },
+                "transaction_type": {
+                    "type": "str",
+                    "description": "The type of transaction (e.g. 'transfer', 'payment')",
+                },
+            },
+            "required": ["from_account", "to_account", "amount", "note"],
+        },
+    },
+    {
+        "name": "account_transactions",
+        "description": "Get the account transactions",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "account_id": {"type": "str", "description": "The account ID"},
+                "start_date": {
+                    "type": "str",
+                    "description": "The start date of the transactions",
+                },
+                "end_date": {
+                    "type": "str",
+                    "description": "The end date of the transactions",
+                },
+            },
+            "required": ["account_id"],
+        },
+    },
+]
+
+### scenario: multi-turn - 4 required and one optional params
+# tools used: account_balance, transfer_funds, account_transactions
+# expected: model should ask for required parameters
+# Status: Not Approved
+# Notes: model is not asking for required parameters. It is making tool calls with hallucinated values.
+# 3/10 times tool calls with hallucinated values
+# 2/10 times asks for confirmation
+# rest of the times it asked for required parameter values
+
+# sample response,
+
+#  "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"account_id\", \"to_account\": \"contractor_account_id\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\"}}]}",
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm the following: Transfer 25 USD from your account to the contractor's account with the note 'payment to contractor for home repairs'.\"}",
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Who would you like to transfer the funds from?\"}"
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"What's the account ID for the account you want to transfer the funds from?\"}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"my_account\", \"to_account\": \"contractor_account\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+
+POST {{archfc_endpoint}}/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"account_balance\", \"description\": \"Get the account balance\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"transfer_funds\", \"description\": \"Transfer funds between accounts\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_account\": {\"type\": \"str\", \"description\": \"The account to transfer from\"}, \"to_account\": {\"type\": \"str\", \"description\": \"The account to transfer to\"}, \"amount\": {\"type\": \"int\", \"description\": \"The amount to transfer\"}, \"note\": {\"type\": \"str\", \"description\": \"The note to attach to the transaction\"}, \"transaction_type\": {\"type\": \"str\", \"description\": \"The type of transaction (e.g. 'transfer', 'payment')\"}}, \"required\": [\"from_account\", \"to_account\", \"amount\", \"note\"]}}\n{\"name\": \"account_transactions\", \"description\": \"Get the account transactions\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}, \"start_date\": {\"type\": \"str\", \"description\": \"The start date of the transactions\"}, \"end_date\": {\"type\": \"str\", \"description\": \"The end date of the transactions\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user",
+      "content": "I want to make a transfer of 25 USD"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"What's the note you want to attach to the transaction?\"}"
+    },
+    {
+      "role": "user",
+      "content": "payment to contractor for home repairs"
+    }
+  ],
+  "temperature": 0.6,
+  "top_p": 1.0,
+  "top_k": 10
+}
+
+# tools = [
+#     {
+#         "name": "account_balance",
+#         "description": "Get the account balance",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"}
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+#     {
+#         "name": "transfer_funds",
+#         "description": "Transfer funds between accounts",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "from_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer from",
+#                 },
+#                 "to_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer to",
+#                 },
+#                 "amount": {"type": "int", "description": "The amount to transfer"},
+#                 "note": {
+#                     "type": "str",
+#                     "description": "The note to attach to the transaction",
+#                 },
+#                 "transaction_type": {
+#                     "type": "str",
+#                     "description": "The type of transaction (e.g. 'transfer', 'payment')",
+#                 },
+#             },
+#             "required": [
+#                 "from_account",
+#                 "to_account",
+#                 "amount",
+#                 "note",
+#                 "transaction_type",
+#             ],
+#         },
+#     },
+#     {
+#         "name": "account_transactions",
+#         "description": "Get the account transactions",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"},
+#                 "start_date": {
+#                     "type": "str",
+#                     "description": "The start date of the transactions",
+#                 },
+#                 "end_date": {
+#                     "type": "str",
+#                     "description": "The end date of the transactions",
+#                 },
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+# ]
+
+### scenario: multi-turn - 5 required parameters
+# tools used: account_balance, transfer_funds, account_transactions
+# expected: model should ask for required parameters
+# Status: Not Approved
+# Notes: 7/10 times it made tool call without asking for additional required parameter. It hallucinated value for transaction type
+# 3/10 times it asked for confirmation
+
+# sample response,
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}"
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm: transfer 25 USD from account 9221124 to account 921211 with note 'payment to contractor for home repairs' and transaction type 'transfer'.\"}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+# "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm the following: Transfer of 25 USD from account 9221124 to account 921211 for the payment to contractor for home repairs.\"}",
+#  "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Please confirm the transfer of 25 USD from account 9221124 to account 921211 with the note 'payment to contractor for home repairs'.\"}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+# "{\"tool_calls\": [{\"name\": \"transfer_funds\", \"arguments\": {\"from_account\": \"9221124\", \"to_account\": \"921211\", \"amount\": 25, \"note\": \"payment to contractor for home repairs\", \"transaction_type\": \"transfer\"}}]}",
+
+POST {{archfc_endpoint}}/v1/chat/completions
+Content-Type: application/json
+
+{
+  "model": "Arch-Function",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"account_balance\", \"description\": \"Get the account balance\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"transfer_funds\", \"description\": \"Transfer funds between accounts\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_account\": {\"type\": \"str\", \"description\": \"The account to transfer from\"}, \"to_account\": {\"type\": \"str\", \"description\": \"The account to transfer to\"}, \"amount\": {\"type\": \"int\", \"description\": \"The amount to transfer\"}, \"note\": {\"type\": \"str\", \"description\": \"The note to attach to the transaction\"}, \"transaction_type\": {\"type\": \"str\", \"description\": \"The type of transaction (e.g. 'transfer', 'payment')\"}}, \"required\": [\"from_account\", \"to_account\", \"amount\", \"note\", \"transaction_type\"]}}\n{\"name\": \"account_transactions\", \"description\": \"Get the account transactions\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}, \"start_date\": {\"type\": \"str\", \"description\": \"The start date of the transactions\"}, \"end_date\": {\"type\": \"str\", \"description\": \"The end date of the transactions\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+    },
+    {
+      "role": "user",
+      "content": "I want to make a transfer of 25 USD"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"What's the note you want to attach to the transaction?\"}"
+    },
+    {
+      "role": "user",
+      "content": "payment to contractor for home repairs"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Which account is the transfer coming from?\"}"
+    },
+    {
+      "role": "user",
+      "content": "9221124"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"transfer_funds\"], \"clarification\": \"And which account is the transfer going to?\"}"
+    },
+    {
+      "role": "user",
+      "content": "921211"
     }
   ],
   "temperature": 0.6,
