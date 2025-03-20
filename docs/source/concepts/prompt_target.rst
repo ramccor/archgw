@@ -48,7 +48,7 @@ A prompt target configuration includes the following elements:
 
 - ``name``: A unique identifier for the prompt target.
 - ``description``: A brief explanation of what the prompt target does.
-- ``endpoint`` (Optional): Used for tools scenarios, where a path, http_method, and name are specified.
+- ``endpoint``: Required if you want to call a tool or specific API. ``name`` and ``path`` ``http_method`` are the three attributes of the endpoint.
 - ``parameters`` (Optional): A list of parameters to extract from the prompt.
 
 .. _defining_prompt_target_parameters:
@@ -67,7 +67,7 @@ Each parameter can be marked as required or optional. Here is a full list of par
     ``name (req.)``           Specifies name of the parameter.
     ``description (req.)``    Provides a human-readable explanation of the parameter's purpose.
     ``type (req.)``           Specifies the data type. Supported types include: **int**, **str**, **float**, **bool**, **list**, **set**, **dict**, **tuple**
-    ``in_path``               Indicates whether the parameter is part of the path in the endpoint. Valid values: **true** or **false**
+    ``in_path``               Indicates whether the parameter is part of the path in the endpoint url. Valid values: **true** or **false**
     ``default``               Specifies a default value for the parameter if not provided by the user.
     ``format``                Specifies a format for the parameter value. For example: `2019-12-31` for a date value.
     ``enum``                  Lists of allowable values for the parameter with data type matching the ``type`` attribute. **Usage Example**: ``enum: ["celsius`", "fahrenheit"]``
