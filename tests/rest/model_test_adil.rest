@@ -1,5 +1,80 @@
-### Missing required parameters - simple 1
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+@archfc_endpoint = http://localhost:8282
+
+# tools = [
+#     {
+#         "name": "verify_address",
+#         "description": "Verify the address",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "address": {"type": "str", "description": "The address to verify"}
+#             },
+#             "required": ["address"],
+#         },
+#     },
+#     {
+#         "name": "track_shipment",
+#         "description": "Track the shipment",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "tracking_number": {
+#                     "type": "str",
+#                     "description": "The tracking number",
+#                 }
+#             },
+#             "required": ["tracking_number"],
+#         },
+#     },
+#     {
+#         "name": "generate_label",
+#         "description": "Generate the shipping label",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "sender": {"type": "str", "description": "The address to ship from"},
+#                 "recipient": {
+#                     "type": "str",
+#                     "description": "The address to ship to",
+#                 },
+#                 "weight": {
+#                     "type": "int",
+#                     "description": "The weight of the package",
+#                 },
+#             },
+#             "required": ["sender", "recipient", "weight"],
+#         },
+#     },
+#     {
+#         "name": "calculate_shipping_rate",
+#         "description": "Calculate the shipping rate",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "sender": {"type": "str", "description": "The address to ship from"},
+#                 "recipient": {
+#                     "type": "str",
+#                     "description": "The address to ship to",
+#                 },
+#                 "weight": {
+#                     "type": "int",
+#                     "description": "The weight of the package",
+#                 },
+#             },
+#             "required": ["sender", "recipient", "weight"],
+#         },
+#     },
+# ]
+
+
+# system prompt: "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+
+
+### scenario: single turn - User request missing one critical parameter
+### tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+### expected sample response: {\"required_functions\": [\"track_shipment\"], \"clarification\": \"Could you please provide me with the tracking number?\"}
+### Status: Approved - worked 10/10
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -7,11 +82,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"exchange_rate\", \"description\": \"Get the current exchange rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_currency\": {\"type\": \"string\", \"description\": \"The currency to convert from\", \"default\": \"USD\"}, \"to_currency\": {\"type\": \"string\", \"description\": \"The currency to convert to\"}}, \"required\": [\"to_currency\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "I need help in converting currency"
+      "content": "I want to track my shipment"
     }
   ],
   "temperature": 0.6,
@@ -19,10 +94,12 @@ Content-Type: application/json
   "top_k": 10
 }
 
-# resp: {\"required_functions\": [\"exchange_rate\"], \"clarification\": \"Which currency would you like to convert from and to?\"}
 
-### Missing required parameters - simple 2
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+### scenario: single turn - User request missing multiple required parameters
+### tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+### expected sample response: {\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the sender's address, recipient's address, and the weight of the package?\"}
+### Status: Approved - worked 10/10
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -30,11 +107,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"exchange_rate\", \"description\": \"Get the current exchange rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_currency\": {\"type\": \"string\", \"description\": \"The currency to convert from\", \"default\": \"USD\"}, \"to_currency\": {\"type\": \"string\", \"description\": \"The currency to convert to\"}}, \"required\": [\"to_currency\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "what is the exchange rate for jpy from usd?"
+      "content": "I want to create a shipping label"
     }
   ],
   "temperature": 0.6,
@@ -42,11 +119,17 @@ Content-Type: application/json
   "top_k": 10
 }
 
-# resp: {\"tool_calls\": [{\"name\": \"exchange_rate\", \"arguments\": {\"from_currency\": \"USD\", \"to_currency\": \"JPY\"}}]}
 
+### scenario: single turn - User providing vague information for a required parameter
+### tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+### expected sample response: {\"required_functions\": [\"verify_address\"], \"clarification\": \"I can help you verify the address, please give me your address\"}
+### Status: Not Approved
+### Notes: model keeps sending tool call with incorrect address. Following is an example response from model,
 
-### Missing required parameters - simple - default value
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+### {\"tool_calls\": [{\"name\": \"verify_address\", \"arguments\": {\"address\": \"My new home address\"}}]}
+### {\"tool_calls\": [{\"name\": \"verify_address\", \"arguments\": {\"address\": \"Newly built home address\"}}]}
+
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -54,11 +137,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"exchange_rate\", \"description\": \"Get the current exchange rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_currency\": {\"type\": \"string\", \"description\": \"The currency to convert from\", \"default\": \"USD\"}, \"to_currency\": {\"type\": \"string\", \"description\": \"The currency to convert to\"}}, \"required\": [\"to_currency\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "what is the exchange rate for jpy?"
+      "content": "I recently moved to a newly built home but I am not sure if the address is correct or not"
     }
   ],
   "temperature": 0.6,
@@ -66,10 +149,17 @@ Content-Type: application/json
   "top_k": 10
 }
 
-# resp: "{\"tool_calls\": [{\"name\": \"exchange_rate\", \"arguments\": {\"from_currency\": \"USD\", \"to_currency\": \"JPY\"}}]}"
 
-### Missing required parameters - parameter gathering
-POST http://localhost:8282/v1/chat/completions  HTTP/1.1
+### scenario: two turn - User providing vague information for a required parameter - take 2
+### tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+### expected sample response: {\"required_functions\": [\"verify_address\"], \"clarification\": \"I can help you verify the address, please give me your address\"}
+### Status: Not Approved
+### Notes: model keeps sending tool call with incorrect address. Expected response is to ask for the sender and recipient address. Here is the sample response,
+
+### {\"tool_calls\": [{\"name\": \"calculate_shipping_rate\", \"arguments\": {\"sender\": \"your_address\", \"recipient\": \"friend_address\", \"weight\": 15}}]}
+### {\"tool_calls\": [{\"name\": \"calculate_shipping_rate\", \"arguments\": {\"sender\": \"My address\", \"recipient\": \"Friend's address in Germany\", \"weight\": \"10-15 pounds\"}}]}
+
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -77,19 +167,19 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"exchange_rate\", \"description\": \"Get the current exchange rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_currency\": {\"type\": \"string\", \"description\": \"The currency to convert from\", \"default\": \"USD\"}, \"to_currency\": {\"type\": \"string\", \"description\": \"The currency to convert to\"}}, \"required\": [\"to_currency\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "I need help in converting currency"
+      "content": "I want to send gift to my friend who lives in germany but I am not sure how much it would cost to ship the package"
     },
     {
       "role": "assistant",
-      "content": "From which currency to which currency?"
+      "content": "{\"required_functions\": [\"calculate_shipping_rate\"], \"clarification\": \"Could you please provide me with the weight of the package?\"}"
     },
     {
       "role": "user",
-      "content": "USD to INR"
+      "content": "I am not sure about the weight but it would be around 10-15 pounds"
     }
   ],
   "temperature": 0.6,
@@ -97,10 +187,22 @@ Content-Type: application/json
   "top_k": 10
 }
 
-# resp: {\"tool_calls\": [{\"name\": \"exchange_rate\", \"arguments\": {\"from_currency\": \"USD\", \"to_currency\": \"INR\"}}]}
+### Domain-specific parameter omission
 
-### Missing required parameters - parameter gathering with observation
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+### scenario: single turn - Domain-specific parameter omission
+# tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+# expected sample response: ask for sender address
+# Status: Not Approved
+# Notes: model is not asking for sender and recipient address. Following is an example response from model. There are times when model does ask for sender address. But still falls short of asking for recipient address.
+
+# sample response,
+# "{\"required_functions\": [\"generate_label\", \"calculate_shipping_rate\"], \"clarification\": \"Where will the package be sent from?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the sender's address?\"}",
+# "{\"required_functions\": [\"generate_label\", \"calculate_shipping_rate\"], \"clarification\": \"Could you please provide me with your address?\"}",
+# "{\"tool_calls\": [{\"name\": \"generate_label\", \"arguments\": {\"sender\": \"Your address\", \"recipient\": \"Your friend's address\", \"weight\": 10}}]}",
+# "{\"required_functions\": [\"generate_label\", \"calculate_shipping_rate\"], \"clarification\": \"Could you please provide me with the sender's address?\"}",
+
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -108,35 +210,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"exchange_rate\", \"description\": \"Get the current exchange rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_currency\": {\"type\": \"string\", \"description\": \"The currency to convert from\", \"default\": \"USD\"}, \"to_currency\": {\"type\": \"string\", \"description\": \"The currency to convert to\"}}, \"required\": [\"to_currency\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "I need help in converting currency"
-    },
-    {
-      "role": "assistant",
-      "content": "From which currency to which currency?"
-    },
-    {
-      "role": "user",
-      "content": "USD to JPY"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"tool_calls\": [{\"name\": \"exchange_rate\", \"arguments\": {\"from_currency\": \"USD\", \"to_currency\": \"JPY\"}}]}"
-    },
-    {
-      "role": "user",
-      "content": "<tool_response>\n{'name': 'exchange_rate', 'result': '149 JPY'}\n</tool_response>"
-    },
-    {
-      "role": "assistant",
-      "content": "price from usd to jpy is 149"
-    },
-    {
-      "role": "user",
-      "content": "what about eur?"
+      "content": "I want to sending a package to my friend. He lives in New York and the package is 10 pounds"
     }
   ],
   "temperature": 0.6,
@@ -144,11 +222,24 @@ Content-Type: application/json
   "top_k": 10
 }
 
-# resp: {\"tool_calls\": [{\"name\": \"exchange_rate\", \"arguments\": {\"from_currency\": \"USD\", \"to_currency\": \"EUR\"}}]}
+### scenario: 2-turn - omitting domain specific parameter
+# tools used: verify_address, track_shipment, generate_label, calculate_shipping_rate,
+# expected sample response: ask for sender address
+# Status: Not Approved
+# Notes: Model is confused a bit, it keeps asking for recipient address but did not ask details about sender address. And in some occasions it asked about all required parameters. And few times it just returned tool.
 
+# sample response,
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Can you provide me with the sender address, recipient address, and the weight of the package?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the recipient address?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Can you please provide me with the recipient's address?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the recipient address?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the recipient address?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the recipient's address?\"}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the recipient address?\"}",
+# "{\"tool_calls\": [{\"name\": \"generate_label\", \"arguments\": {\"sender\": \"New York\", \"recipient\": \"Friend's address\", \"weight\": 10}}]}",
+# "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the sender address and recipient address?\"}",
 
-### Domain-specific parameter omissions - schedule meetings
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -156,11 +247,19 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"list\", \"description\": \"List of participants\"}, \"start_time\": {\"type\": \"string\", \"description\": \"The start time of the meeting\"}, \"duration\": {\"type\": \"string\", \"description\": \"The duration of the meeting\", \"default\": \"1 hour\"}}, \"required\": [\"participants\", \"start_time\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"verify_address\", \"description\": \"Verify the address\", \"parameters\": {\"type\": \"object\", \"properties\": {\"address\": {\"type\": \"str\", \"description\": \"The address to verify\"}}, \"required\": [\"address\"]}}\n{\"name\": \"track_shipment\", \"description\": \"Track the shipment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"tracking_number\": {\"type\": \"str\", \"description\": \"The tracking number\"}}, \"required\": [\"tracking_number\"]}}\n{\"name\": \"generate_label\", \"description\": \"Generate the shipping label\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n{\"name\": \"calculate_shipping_rate\", \"description\": \"Calculate the shipping rate\", \"parameters\": {\"type\": \"object\", \"properties\": {\"sender\": {\"type\": \"str\", \"description\": \"The address to ship from\"}, \"recipient\": {\"type\": \"str\", \"description\": \"The address to ship to\"}, \"weight\": {\"type\": \"int\", \"description\": \"The weight of the package\"}}, \"required\": [\"sender\", \"recipient\", \"weight\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "I need help in scheduling a meeting with Joe and Jane tomorrow"
+      "content": "I want to sending a package to my friend."
+    },
+    {
+      "role": "assistant",
+      "content": "{\"required_functions\": [\"generate_label\"], \"clarification\": \"Could you please provide me with the sender address, recipient address, and the weight of the package?\"}"
+    },
+    {
+      "role": "user",
+      "content": "I am not sure about the weight but it would be around 10 pounds and I live in New York"
     }
   ],
   "temperature": 0.6,
@@ -168,11 +267,74 @@ Content-Type: application/json
   "top_k": 10
 }
 
-#resp: {\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"participants\": [\"Joe\", \"Jane\"], \"start_time\": \"tomorrow\"}}]}
 
+# tools = [
+#     {
+#         "name": "account_balance",
+#         "description": "Get the account balance",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"}
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+#     {
+#         "name": "transfer_funds",
+#         "description": "Transfer funds between accounts",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "from_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer from",
+#                 },
+#                 "to_account": {
+#                     "type": "str",
+#                     "description": "The account to transfer to",
+#                 },
+#                 "amount": {"type": "int", "description": "The amount to transfer"},
+#             },
+#             "required": ["from_account", "to_account", "amount"],
+#         },
+#     },
+#     {
+#         "name": "account_transactions",
+#         "description": "Get the account transactions",
+#         "parameters": {
+#             "type": "object",
+#             "properties": {
+#                 "account_id": {"type": "str", "description": "The account ID"},
+#                 "start_date": {
+#                     "type": "str",
+#                     "description": "The start date of the transactions",
+#                 },
+#                 "end_date": {
+#                     "type": "str",
+#                     "description": "The end date of the transactions",
+#                 },
+#             },
+#             "required": ["account_id"],
+#         },
+#     },
+# ]
 
-### parameter gathering
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
+# System Prompt: "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"account_balance\", \"description\": \"Get the account balance\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"transfer_funds\", \"description\": \"Transfer funds between accounts\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_account\": {\"type\": \"str\", \"description\": \"The account to transfer from\"}, \"to_account\": {\"type\": \"str\", \"description\": \"The account to transfer to\"}, \"amount\": {\"type\": \"int\", \"description\": \"The amount to transfer\"}}, \"required\": [\"from_account\", \"to_account\", \"amount\"]}}\n{\"name\": \"account_transactions\", \"description\": \"Get the account transactions\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}, \"start_date\": {\"type\": \"str\", \"description\": \"The start date of the transactions\"}, \"end_date\": {\"type\": \"str\", \"description\": \"The end date of the transactions\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+
+### scenario: 4-turn - omitting domain specific parameter
+# tools used: account_balance, transfer_funds, account_transactions
+# expected: model should ask for account id where I am transferring funds to
+# Status: Not Approved
+# Notes: model is not asking for account id and instead making a tool call with hallucinated value and asks for confirmation. Sometimes it is asking for account id. And sometimes its asking for all required parameters even though the amount is provided.
+
+# sample response,
+# {\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Could you please confirm the following details: You want to transfer 50,000 USD from your account with ID 941123 to an account with ID 123456?\"}
+# {\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Could you please confirm the account IDs for the accounts you want to transfer from and to, as well as the amount you want to transfer?\"}
+# {\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Could you please confirm the account from which you want to transfer the funds and the account to which you want to transfer the funds?\"}
+# {\"required_functions\": [\"transfer_funds\"], \"clarification\": \"Could you please provide me with the account IDs and the amount you want to transfer?\"}
+
+POST {{archfc_endpoint}}/v1/chat/completions
 Content-Type: application/json
 
 {
@@ -180,55 +342,38 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"list\", \"description\": \"List of participants\"}, \"start_time\": {\"type\": \"string\", \"description\": \"The start time of the meeting\"}, \"duration\": {\"type\": \"string\", \"description\": \"The duration of the meeting\", \"default\": \"1 hour\"}}, \"required\": [\"participants\", \"start_time\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"account_balance\", \"description\": \"Get the account balance\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"transfer_funds\", \"description\": \"Transfer funds between accounts\", \"parameters\": {\"type\": \"object\", \"properties\": {\"from_account\": {\"type\": \"str\", \"description\": \"The account to transfer from\"}, \"to_account\": {\"type\": \"str\", \"description\": \"The account to transfer to\"}, \"amount\": {\"type\": \"int\", \"description\": \"The amount to transfer\"}}, \"required\": [\"from_account\", \"to_account\", \"amount\"]}}\n{\"name\": \"account_transactions\", \"description\": \"Get the account transactions\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"The account ID\"}, \"start_date\": {\"type\": \"str\", \"description\": \"The start date of the transactions\"}, \"end_date\": {\"type\": \"str\", \"description\": \"The end date of the transactions\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
-      "content": "I need help in scheduling a meeting"
+      "content": "I want to know my account balance"
     },
     {
       "role": "assistant",
-      "content": "Could you please provide me with the list of participants and the start time for the meeting?"
+      "content": "{\"required_functions\": [\"account_balance\"], \"clarification\": \"Could you please provide me with your account ID?\"}"
     },
     {
       "role": "user",
-      "content": "Joe and Jane and for tomorrow please"
+      "content": "account id is 941123"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"tool_calls\": [{\"name\": \"account_balance\", \"arguments\": {\"account_id\": \"941123\"}}]}"
+    },
+    {
+      "role": "user",
+      "content": "<tool_response>\n{'name': 'account_balance', 'result': '150,000 USD'}\n</tool_response>"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"response\": \"Your account balance is currently 150,000 USD.\"}"
+    },
+    {
+      "role": "user",
+      "content": "I want to transfer 50,000 USD"
     }
   ],
   "temperature": 0.6,
   "top_p": 1.0,
   "top_k": 10
 }
-
-# resp: {\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"participants\": [\"Joe\", \"Jane\"], \"start_time\": \"tomorrow\"}}]}
-
-### override default param value
-POST http://localhost:8282/v1/chat/completions HTTP/1.1
-Content-Type: application/json
-
-{
-  "model": "Arch-Function",
-  "messages": [
-    {
-      "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"list\", \"description\": \"List of participants\"}, \"start_time\": {\"type\": \"string\", \"description\": \"The start time of the meeting\"}, \"duration\": {\"type\": \"string\", \"description\": \"The duration of the meeting\", \"default\": \"1 hour\"}}, \"required\": [\"participants\", \"start_time\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
-    },
-    {
-      "role": "user",
-      "content": "I need help in scheduling a meeting"
-    },
-    {
-      "role": "assistant",
-      "content": "Could you please provide me with the list of participants and the start time for the meeting?"
-    },
-    {
-      "role": "user",
-      "content": "Joe and Jane and for tomorrow please. And the duration should be 2 hours"
-    }
-  ],
-  "temperature": 0.6,
-  "top_p": 1.0,
-  "top_k": 10
-}
-
-#resp: {\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"participants\": [\"Joe\", \"Jane\"], \"start_time\": \"tomorrow\", \"duration\": \"2 hours\"}}]}

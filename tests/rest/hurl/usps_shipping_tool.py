@@ -5,7 +5,7 @@ tools = [
         "parameters": {
             "type": "object",
             "properties": {
-                "address": {"type": "string", "description": "The address to verify"}
+                "address": {"type": "str", "description": "The address to verify"}
             },
             "required": ["address"],
         },
@@ -17,7 +17,7 @@ tools = [
             "type": "object",
             "properties": {
                 "tracking_number": {
-                    "type": "string",
+                    "type": "str",
                     "description": "The tracking number",
                 }
             },
@@ -30,13 +30,13 @@ tools = [
         "parameters": {
             "type": "object",
             "properties": {
-                "sender": {"type": "string", "description": "The address to ship from"},
+                "sender": {"type": "str", "description": "The address to ship from"},
                 "recipient": {
-                    "type": "string",
+                    "type": "str",
                     "description": "The address to ship to",
                 },
                 "weight": {
-                    "type": "number",
+                    "type": "int",
                     "description": "The weight of the package",
                 },
             },
@@ -49,13 +49,13 @@ tools = [
         "parameters": {
             "type": "object",
             "properties": {
-                "sender": {"type": "string", "description": "The address to ship from"},
+                "sender": {"type": "str", "description": "The address to ship from"},
                 "recipient": {
-                    "type": "string",
+                    "type": "str",
                     "description": "The address to ship to",
                 },
                 "weight": {
-                    "type": "number",
+                    "type": "int",
                     "description": "The weight of the package",
                 },
             },

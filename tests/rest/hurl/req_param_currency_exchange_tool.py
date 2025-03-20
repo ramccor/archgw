@@ -6,12 +6,12 @@ tools = [
             "type": "object",
             "properties": {
                 "from_currency": {
-                    "type": "string",
+                    "type": "str",
                     "description": "The currency to convert from",
                     "default": "USD",
                 },
                 "to_currency": {
-                    "type": "string",
+                    "type": "str",
                     "description": "The currency to convert to",
                 },
             },
