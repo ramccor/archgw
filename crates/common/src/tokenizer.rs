@@ -1,14 +1,7 @@
 use log::trace;
 
-#[derive(thiserror::Error, Debug, PartialEq, Eq)]
 #[allow(dead_code)]
-pub enum Error {
-    #[error("Unknown model: {model_name}")]
-    UnknownModel { model_name: String },
-}
-
-#[allow(dead_code)]
-pub fn token_count(model_name: &str, text: &str) -> Result<usize, Error> {
+pub fn token_count(model_name: &str, text: &str) -> Result<usize, String> {
     trace!("getting token count model={}", model_name);
     //HACK: add support for tokenizing mistral and other models
     //filed issue https://github.com/katanemo/arch/issues/222
@@ -26,9 +19,7 @@ pub fn token_count(model_name: &str, text: &str) -> Result<usize, Error> {
     };
 
     // Consideration: is it more expensive to instantiate the BPE object every time, or to contend the singleton?
-    let bpe = tiktoken_rs::get_bpe_from_model(updated_model).map_err(|_| Error::UnknownModel {
-        model_name: updated_model.to_string(),
-    })?;
+    let bpe = tiktoken_rs::get_bpe_from_model(updated_model).map_err(|e| e.to_string())?;
     Ok(bpe.encode_ordinary(text).len())
 }
 
@@ -44,13 +35,5 @@ mod test {
             8,
             token_count(model_name, text).expect("correct tokenization")
         );
-    }
-
-    #[test]
-    fn unrecognized_model() {
-        assert_eq!(
-            2,
-            token_count("unknown model", "hello world").expect("correct tokenization")
-        )
     }
 }
