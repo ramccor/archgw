@@ -34,7 +34,7 @@ tools = [
             "properties": {
                 "location": {
                     "type": "str",
-                    "description": "City and country e.g. Bogotá, Colombia",
+                    "description": "City and State e.g. New York, NY",
                 },
                 "units": {
                     "type": "str",
