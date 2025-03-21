@@ -38,7 +38,7 @@ Content-Type: application/json
 ### Trials: 3/10 model ask location, 3/10 say cant do the request 4/10 ask only about unit
 ### Tested By: Co Tran
 
-### Comment: [Shuguang] Bad example. User should only ask fro current temperature instead of weather forcast.
+### Comment: [Shuguang] Bad example. User should only ask for current temperature instead of weather forcast.
 
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
