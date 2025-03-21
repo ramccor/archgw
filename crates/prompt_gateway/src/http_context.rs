@@ -190,7 +190,7 @@ impl HttpContext for StreamContext {
             messages: deserialized_body.messages.clone(),
             metadata,
             stream: deserialized_body.stream,
-            model: "--".to_string(),
+            model: deserialized_body.model.clone(),
             stream_options: deserialized_body.stream_options.clone(),
             tools: Some(tool_calls),
         };
