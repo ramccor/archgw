@@ -2,11 +2,14 @@
 @access_key = EMPTY
 
 ### 1. Scenario: Turns (Single). Parameters (Single,  Required).  | ambiguous location
-### Tool Used: get_weather 
+### Tool Used: get_weather
 ### Expected behavior(s): ask clarification about location
 ### Status: Approved
 ### Trials: 10/10
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] Clarification on `unit` is not always triggered (1/10), potentially due to the bias in training data
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -15,11 +18,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Retrieves current weather for the given location.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"str\", \"description\": \"City and State e.g. New York, NY\"}, \"units\": {\"type\": \"str\", \"enum\": [\"celsius\", \"fahrenheit\"], \"description\": \"Units the temperature will be returned in.\"}}, \"required\": [\"location\", \"units\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "weather in my place" 
+      "role": "user",
+      "content": "weather in my place"
     }
   ],
   "temperature": 0.6,
@@ -34,6 +37,9 @@ Content-Type: application/json
 ### Status: Needs work
 ### Trials: 3/10 model ask location, 3/10 say cant do the request 4/10 ask only about unit
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] Bad example. User should only ask fro current temperature instead of weather forcast.
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -42,11 +48,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Retrieves current weather for the given location.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"str\", \"description\": \"City and State e.g. New York, NY\"}, \"units\": {\"type\": \"str\", \"enum\": [\"celsius\", \"fahrenheit\"], \"description\": \"Units the temperature will be returned in.\"}}, \"required\": [\"location\", \"units\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "get me weather forcast near me" 
+      "role": "user",
+      "content": "get me weather forcast near me"
     }
   ],
   "temperature": 0.6,
@@ -55,11 +61,14 @@ Content-Type: application/json
 }
 
 ### 3. Scenario: Turns (Single). Parameters (Single,  Required) | undefine stock symbol
-### Tool Used: get_stock_price 
+### Tool Used: get_stock_price
 ### Expected behavior(s): clarification on the symbol
 ### Status: Approved
 ### Trials: 9/10 ask clarification, 1/10 hallucinate choose AAPL
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] 10/10 asks clarification on stock symbol.
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -68,11 +77,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Retrieves current weather for the given location.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"str\", \"description\": \"City and State e.g. New York, NY\"}, \"units\": {\"type\": \"str\", \"enum\": [\"celsius\", \"fahrenheit\"], \"description\": \"Units the temperature will be returned in.\"}}, \"required\": [\"location\", \"units\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "how does my stock perform today" 
+      "role": "user",
+      "content": "how does my stock perform today"
     }
   ],
   "temperature": 0.1,
@@ -81,12 +90,15 @@ Content-Type: application/json
 }
 
 ### 4. Scenario: Turns (Single). Parameters (Single,  Required) | ambiguous stock
-### Tool Used: get_stock_price 
+### Tool Used: get_stock_price
 ### Expected behavior(s): clarification on the symbol
 ### Note: model doesn't ask clarification questions, hallucinate
 ### Status: Needs work
 ### Trials: 9/10 hallucinate, 1/10 ask clarification
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] 5/10 asks clarification on stock symbol and 5/10 hallcuinate.
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -95,11 +107,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"string\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_weather\", \"description\": \"Retrieves current weather for the given location.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"str\", \"description\": \"City and State e.g. New York, NY\"}, \"units\": {\"type\": \"str\", \"enum\": [\"celsius\", \"fahrenheit\"], \"description\": \"Units the temperature will be returned in.\"}}, \"required\": [\"location\", \"units\"]}}\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "how does my stock perform today" 
+      "role": "user",
+      "content": "how does my stock perform today"
     }
   ],
   "temperature": 0.6,
@@ -108,11 +120,16 @@ Content-Type: application/json
 }
 
 ### 5. Scenario: Turns (Single). Parameters (Single,  Required) | ambiguous spotify parameter
-### Tool Used: spotify_api 
+### Tool Used: spotify_api
 ### Expected behavior(s): clarification on the music type
 ### Trials: 8/10 ask clarficaition, 2/10 hallucinate
 ### Status: Approved
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] Incorrect expected behavior. User request is too ambiguous
+### to determine which functions to call. Both function can meet user requirements.
+### Should not trigger parameter gathering.
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -121,11 +138,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "Find me music" 
+      "role": "user",
+      "content": "Find me music"
     }
   ],
   "temperature": 0.6,
@@ -135,9 +152,9 @@ Content-Type: application/json
 
 
 ### 6. Scenario: Turns (Multi). Parameters (2,  Required) | ambiguous location
-### Tool Used: spotify_api 
+### Tool Used: spotify_api
 ### Expected behavior(s): clarification on the music type/ get the correct location
-### Note: 
+### Note:
 ### Trials: 10/10 get correct tool
 ### Status: Approved
 ### Tested By: Co Tran
@@ -149,19 +166,19 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "Get me new albumn " 
+      "role": "user",
+      "content": "Get me new albumn "
     },
     {
-      "role": "assistant", 
+      "role": "assistant",
       "content": "{\"required_functions\": [\"get_new_releases\"], \"clarification\": \"In which country are you interested in new album releases?\"}"
     },
     {
-      "role": "user", 
-      "content": "my location, UK " 
+      "role": "user",
+      "content": "my location, UK "
     }
   ],
   "temperature": 0.6,
@@ -172,11 +189,14 @@ Content-Type: application/json
 
 
 ### 7. Scenario:  Turns (Single). Parameters (1,  Required) | spotify | ambiguous artist
-### Tool Used: spotify_api 
+### Tool Used: spotify_api
 ### Expected behavior(s): clarification on the artist
 ### Trials: 5/10 ask clarification, 5/10 hallucinate
 ### Status: Needs work
 ### Tested By: Co Tran
+
+### Comment: [Shuguang] 9/10 hallucinate, 1/10 asks clarification
+
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
@@ -185,11 +205,11 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"int\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "Look up album by artist " 
+      "role": "user",
+      "content": "Look up album by artist "
     }
   ],
   "temperature": 0.6,
@@ -198,7 +218,7 @@ Content-Type: application/json
 }
 
 ### 8. Scenario:  Turns (Multi). Parameters (1,  Required) | spotify | ambiguous keywords
-### Tool Used: spotify_api 
+### Tool Used: spotify_api
 ### Expected behavior(s): her as the keyword
 ### Note: miss the keyword her in the parameters
 ### Trials: 8/10 wrong keyword
@@ -215,8 +235,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"get_new_releases\", \"type\": \"function\", \"function\": {\"name\": \"get_new_releases\", \"description\": \"Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player\\u2019s 'Browse' tab).\", \"parameters\": {\"type\": \"object\", \"properties\": {\"country\": {\"type\": \"str\", \"description\": \"The country where the album is released\", \"in_path\": true}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"country\"]}}}\n{\"id\": \"search_for_item\", \"type\": \"function\", \"function\": {\"name\": \"search_for_item\", \"description\": \"Get information about albums, artists, playlists, tracks, shows, episodes, or audiobooks. You can search for an item by its name, creator, or topic.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"str\", \"description\": \"Your search query, which can include keywords related to the item name, its creator, or its topic.\"}, \"type\": {\"type\": \"str\", \"description\": \"The type of the item to search for (e.g., album, artist, playlist, track, show, episode, audiobook).\", \"enum\": [\"album\", \"artist\", \"playlist\", \"track\", \"show\", \"episode\", \"audiobook\"]}, \"market\": {\"type\": \"str\", \"description\": \"A country code\", \"default\": \"US\"}, \"limit\": {\"type\": \"integer\", \"description\": \"The maximum number of results to return\", \"default\": 5}}, \"required\": [\"q\", \"type\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "Look up her" 
+      "role": "user",
+      "content": "Look up her"
     },
     {
         "role": "assistant",
@@ -224,8 +244,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "the album" 
+      "role": "user",
+      "content": "the album"
     }
   ],
   "temperature": 0.6,
@@ -234,9 +254,9 @@ Content-Type: application/json
 }
 
 ### 9. Scenario:  Turns (Single). Parameters (1,  Required) | ambiguous product
-### Tool Used: product_recommendation 
+### Tool Used: product_recommendation
 ### Expected behavior(s): clarification question
-### Trials: 10/10 
+### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -250,8 +270,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "Is my phone good?" 
+      "role": "user",
+      "content": "Is my phone good?"
     }
   ],
   "temperature": 0.6,
@@ -260,10 +280,10 @@ Content-Type: application/json
 }
 
 ### 10. Scenario: Turns (Multi). Parameters (3,  Required). transfer money | ambiguous parameter
-### Tool Used: transfer_money 
+### Tool Used: transfer_money
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: 1/30 it confirms the information again
-### Trials: 10/10 
+### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
 POST {{local_endpoint}}/v1/chat/completions HTTP/1.1
@@ -277,8 +297,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"currency_exchange\", \"description\": \"Get currency exchange rate from USD to other currencies\", \"parameters\": {\"type\": \"object\", \"properties\": {\"currency_symbol\": {\"description\": \"currency symbol to convert from USD\", \"type\": \"string\"}}, \"required\": [\"currency_symbol\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"transfer_money\", \"description\": \"Transfer money from sender account to receiver account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"ammount\": {\"description\": \"transfer ammount\", \"type\": \"number\"}, \"sender_acount\": {\"description\": \"sender account\", \"type\": \"string\"}, \"receiver_account\": {\"description\": \"receiver account\", \"type\": \"string\"}}, \"required\": [\"ammount\", \"sender_acount\", \"receiver_account\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "transfer 5000" 
+      "role": "user",
+      "content": "transfer 5000"
     },
     {
         "role": "assistant",
@@ -286,8 +306,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "my account" 
+      "role": "user",
+      "content": "my account"
     },
     {
         "role": "assistant",
@@ -295,8 +315,8 @@ Content-Type: application/json
         "tool_calls": []
       },
     {
-      "role": "user", 
-      "content": "my mom" 
+      "role": "user",
+      "content": "my mom"
     }
   ],
   "temperature": 0.6,
@@ -307,7 +327,7 @@ Content-Type: application/json
 
 
 ### 11. Scenario: Turns (Multi). Parameters (2,  Required). | ambiguous parameter
-### Tool Used: sales_opportunity 
+### Tool Used: sales_opportunity
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: it doesn't understand the correction of location
 ### Trials: 5/10 use US as location
@@ -324,8 +344,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "get me opportunity in US" 
+      "role": "user",
+      "content": "get me opportunity in US"
     },
     {
         "role": "assistant",
@@ -343,7 +363,7 @@ Content-Type: application/json
 
 
 ### 12. Scenario: Turns (Multi). Parameters (2,  Required). | ambiguous parameter
-### Tool Used: sales_opportunity 
+### Tool Used: sales_opportunity
 ### Expected behavior(s): clarification question | track correct parameters
 ### Note: model get the correct tool and paramether
 ### Trials: 10/10 use US as location
@@ -360,8 +380,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "get me opportunity in the farming industry" 
+      "role": "user",
+      "content": "get me opportunity in the farming industry"
     },
     {
         "role": "assistant",
@@ -370,8 +390,8 @@ Content-Type: application/json
     }
     ,
     {
-      "role": "user", 
-      "content": "Actually get the fishing opportunity in Wales" 
+      "role": "user",
+      "content": "Actually get the fishing opportunity in Wales"
     }
   ],
   "temperature": 0.6,
@@ -380,7 +400,7 @@ Content-Type: application/json
 }
 
 ### 12. Scenario: Turns (Multi). Parameters (2,  Required) | ambiguous intention
-### Tool Used: sales_opportunity 
+### Tool Used: sales_opportunity
 ### Expected behavior(s): cannot perform latest request
 ### Note: model response correctly because no matching tool provided
 ### Trials: 10/10
@@ -397,8 +417,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"id\": \"sales_opportunity\", \"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "get me opportunity in the farming industry" 
+      "role": "user",
+      "content": "get me opportunity in the farming industry"
     },
     {
         "role": "assistant",
@@ -407,8 +427,8 @@ Content-Type: application/json
     }
     ,
     {
-      "role": "user", 
-      "content": "actually get me the weather" 
+      "role": "user",
+      "content": "actually get me the weather"
     }
   ],
   "temperature": 0.6,
@@ -419,7 +439,7 @@ Content-Type: application/json
 ### 13. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request
 ### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
-### Note: 
+### Note:
 ### Trials: 10/10
 ### Status: Approved
 ### Tested By: Co Tran
@@ -434,16 +454,16 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "I want some recommendation" 
+      "role": "user",
+      "content": "I want some recommendation"
     },
     {
         "role": "assistant",
         "content": "{\"required_functions\": [\"product_recommendation\"], \"clarification\": \"What category of products would you like recommendations for?\"}"
     },
     {
-      "role": "user", 
-      "content": "Place iphone order" 
+      "role": "user",
+      "content": "Place iphone order"
     },
     {
         "role": "assistant",
@@ -451,8 +471,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "addres is 1600 ave SE" 
+      "role": "user",
+      "content": "addres is 1600 ave SE"
     },
     {
         "role": "assistant",
@@ -460,8 +480,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "addres is 12720 ave SE, using credit card" 
+      "role": "user",
+      "content": "addres is 12720 ave SE, using credit card"
     },
     {
         "role": "assistant",
@@ -469,8 +489,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "Yes" 
+      "role": "user",
+      "content": "Yes"
     }
   ],
   "temperature": 0.01,
@@ -499,16 +519,16 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "I want some recommendation" 
+      "role": "user",
+      "content": "I want some recommendation"
     },
     {
         "role": "assistant",
         "content": "{\"required_functions\": [\"product_recommendation\"], \"clarification\": \"What category of products would you like recommendations for?\"}"
     },
     {
-      "role": "user", 
-      "content": "Place iphone order" 
+      "role": "user",
+      "content": "Place iphone order"
     },
     {
         "role": "assistant",
@@ -516,8 +536,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "rice cooker recommendation" 
+      "role": "user",
+      "content": "rice cooker recommendation"
     }
   ],
   "temperature": 0.01,
@@ -531,7 +551,7 @@ Content-Type: application/json
 ### 15. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request
 ### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
-### Note: 
+### Note:
 ### Trials: 10/10 include 2 function calls with correct parameters (wrong id) but don't know the user intent to remove 1 function
 ### Status: Needs work
 ### Tested By: Co Tran
@@ -546,8 +566,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "ace iphone order" 
+      "role": "user",
+      "content": "ace iphone order"
     },
     {
         "role": "assistant",
@@ -555,8 +575,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "my adress is 12720 ave, US actually don't order anything. Get me iphone sale opportunity in my region" 
+      "role": "user",
+      "content": "my adress is 12720 ave, US actually don't order anything. Get me iphone sale opportunity in my region"
     }
   ],
   "temperature": 0.01,
@@ -567,7 +587,7 @@ Content-Type: application/json
 ### 16. Scenario: Turns (Multi). Parameters (2,  Required)  | ambiguous request | multiple incomplete request | change parameter
 ### Tool Used: product_recommendation,place_order
 ### Expected behavior(s): clarification question | track correct parameters
-### Note: 
+### Note:
 ### Status: Approved
 ### Trials: 10/10  correct parameters
 ### Tested By: Co Tran
@@ -582,8 +602,8 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"type\": \"function\", \"function\": {\"name\": \"product_recommendation\", \"description\": \"product recommendation\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user.\"}, \"category\": {\"type\": \"str\", \"description\": \"Product category for recommendations.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of recommended products to show.\", \"default\": 10}}, \"required\": [\"user_id\", \"category\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"place_order\", \"description\": \"Place and pay for an order for one or more products to ship to the an address.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"user_id\": {\"type\": \"str\", \"description\": \"Unique identifier for the user placing the order.\"}, \"product_ids\": {\"type\": \"array\", \"description\": \"List of product IDs to include in the order.\"}, \"shipping_address\": {\"type\": \"str\", \"description\": \"Shipping address for the order.\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method for the order.\"}}, \"required\": [\"user_id\", \"product_ids\", \"shipping_address\", \"payment_method\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"sales_opportunity\", \"description\": \"Retrieve potential sales opportunities based for a particular industry type in a region.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"region\": {\"type\": \"str\", \"description\": \"Geographical region to identify sales opportunities.\"}, \"industry\": {\"type\": \"str\", \"description\": \"Industry type.\"}, \"max_results\": {\"type\": \"int\", \"description\": \"Maximum number of sales opportunities to retrieve.\", \"default\": 20}}, \"required\": [\"region\", \"industry\"]}}}\n{\"type\": \"function\", \"function\": {\"name\": \"query_database\", \"description\": \"Perform a database query to retrieve or update information.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"query\": {\"type\": \"str\", \"description\": \"SQL query string to execute against the database.\"}, \"parameters\": {\"type\": \"array\", \"description\": \"List of parameters to safely inject into the SQL query (to prevent SQL injection).\"}, \"operation\": {\"type\": \"str\", \"description\": \"Type of operation.\"}}, \"required\": [\"query\", \"operation\"]}}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
-      "content": "place iphone order" 
+      "role": "user",
+      "content": "place iphone order"
     },
     {
         "role": "assistant",
@@ -591,8 +611,8 @@ Content-Type: application/json
         "tool_calls": []
     },
     {
-      "role": "user", 
-      "content": "my adress is 12720 ave, US " 
+      "role": "user",
+      "content": "my adress is 12720 ave, US "
     },
     {
         "role": "assistant",
@@ -600,8 +620,8 @@ Content-Type: application/json
         "tool_calls": []
       },
     {
-      "role": "user", 
-      "content": "send me rice cooker to that location, i can pay by credit card, my user id is 123 " 
+      "role": "user",
+      "content": "send me rice cooker to that location, i can pay by credit card, my user id is 123 "
     }
   ],
   "temperature": 0.01,
@@ -632,7 +652,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "Can you book me flight to Vancouver"
     },
     {
@@ -640,7 +660,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"What date will you leave and how many tickets do you need?\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "I only need 1 ticket, and leave on March 19."
     },
     {
@@ -648,7 +668,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"Please confirm the following details: You're leaving Vancouver on March 19th for 1 ticket.\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "No, I want to book flight to Vancouver, not leaving it."
     },
     {
@@ -681,7 +701,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "Can you book me flight from Ho Chi Minh to Seattle"
     },
     {
@@ -689,7 +709,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"When are you leaving and for how many people?\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "i leave on May 1st"
     },
     {
@@ -697,7 +717,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\"], \"clarification\": \"How many people are traveling?\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "for only me, can you order food for me and my girlfriend at the leaving airport?"
     },
     {
@@ -705,7 +725,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"What is the payment method for food delivery?\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "cash"
     },
     {
@@ -713,7 +733,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"Could you please specify the address for food delivery?\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "Ho Chi Minh airport"
     },
     {
@@ -721,7 +741,7 @@ Content-Type: application/json
         "content": "{\"required_functions\": [\"book_flight\", \"order_food\"], \"clarification\": \"Please confirm: I am ordering food for you and your girlfriend from the Ho Chi Minh airport. The departure date is May 1st and you are traveling alone.\"}"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "yes"
     }
   ],
@@ -753,7 +773,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "Is Seattle good for my trip next week?"
     }
   ],
@@ -783,7 +803,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "I want to get food as a gift for my girlfriend"
     }
   ],
@@ -813,7 +833,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "create an event calendar for me for my package delivery"
     }
   ],
@@ -843,7 +863,7 @@ Content-Type: application/json
       "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}\n{\"name\": \"get_weather\", \"description\": \"Determine weather in my location\", \"parameters\": {\"type\": \"object\", \"properties\": {\"location\": {\"type\": \"string\", \"description\": \"The city and state e.g. San Francisco, CA\"}, \"unit\": {\"type\": \"string\", \"enum\": [\"c\", \"f\"]}}, \"required\": [\"location\", \"unit\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
-      "role": "user", 
+      "role": "user",
       "content": "Hi, i want to schedule a meeting in a hotel"
     },
     {
@@ -852,7 +872,7 @@ Content-Type: application/json
     }
     ,
     {
-      "role": "user", 
+      "role": "user",
       "content": "Hi, 5pm in Jan 1st"
     },
     {
@@ -861,7 +881,7 @@ Content-Type: application/json
     }
     ,
     {
-      "role": "user", 
+      "role": "user",
       "content": "The White Lotus and 5 people"
     }
   ],
