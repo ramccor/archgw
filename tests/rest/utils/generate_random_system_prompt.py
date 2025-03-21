@@ -125,5 +125,6 @@ if __name__ == "__main__":
 
     print("\n" + "=" * 50 + " System Prompt " + "=" * 50)
     system_prompt = build_system_prompt(tools)
+
     # print(repr(system_prompt.encode("unicode_escape").decode()))
     print(json.dumps(system_prompt))

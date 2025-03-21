@@ -28,17 +28,21 @@ Based on your analysis, provide your response in one of the following JSON forma
 tools = [
     {
         "name": "get_weather",
-        "description": "Determine weather in my location",
+        "description": "Retrieves current weather for the given location.",
         "parameters": {
             "type": "object",
             "properties": {
                 "location": {
-                    "type": "string",
-                    "description": "The city and state e.g. San Francisco, CA",
+                    "type": "str",
+                    "description": "City and country e.g. Bogotá, Colombia",
                 },
-                "unit": {"type": "string", "enum": ["c", "f"]},
+                "units": {
+                    "type": "str",
+                    "enum": ["celsius", "fahrenheit"],
+                    "description": "Units the temperature will be returned in.",
+                },
             },
-            "required": ["location", "unit"],
+            "required": ["location", "units"],
         },
     },
     {
@@ -47,7 +51,7 @@ tools = [
         "parameters": {
             "type": "object",
             "properties": {
-                "symbol": {"type": "string", "description": "The stock symbol"}
+                "symbol": {"type": "str", "description": "The stock symbol"}
             },
             "required": ["symbol"],
         },
@@ -68,5 +72,6 @@ def build_system_prompt(tools: List[Dict[str, Any]]) -> str:
 
 if __name__ == "__main__":
     system_prompt = build_system_prompt(tools)
+
     # print(repr(system_prompt.encode("unicode_escape").decode()))
     print(json.dumps(system_prompt))
