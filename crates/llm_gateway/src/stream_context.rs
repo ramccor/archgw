@@ -309,7 +309,18 @@ impl HttpContext for StreamContext {
 
         let model_requested = deserialized_body.model.clone();
         if deserialized_body.model.is_empty() || deserialized_body.model.to_lowercase() == "none" {
-            deserialized_body.model = model_name.unwrap().to_string();
+            deserialized_body.model = match model_name {
+                Some(model_name) => model_name.clone(),
+                None => {
+                    self.send_server_error(
+                        ServerError::BadRequest {
+                            why: "No model specified in request and couldn't determine model name from arch_config".to_string(),
+                        },
+                        Some(StatusCode::BAD_REQUEST),
+                    );
+                    return Action::Continue;
+                }
+            }
         }
 
         debug!(
