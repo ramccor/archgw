@@ -101,7 +101,9 @@ impl RatelimitMap {
     ) -> Result<(), Error> {
         trace!(
             "Checking limit for provider={}, with selector={:?}, consuming tokens={:?}",
-            provider, selector, tokens_used
+            provider,
+            selector,
+            tokens_used
         );
 
         let provider_limits = match self.datastore.get(&provider) {

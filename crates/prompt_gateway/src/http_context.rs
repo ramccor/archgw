@@ -45,7 +45,8 @@ impl HttpContext for StreamContext {
                         warn!("Need single endpoint when use_agent_orchestrator is set");
                         self.send_server_error(
                             ServerError::LogicError(
-                                "Need single endpoint when use_agent_orchestrator is set".to_string(),
+                                "Need single endpoint when use_agent_orchestrator is set"
+                                    .to_string(),
                             ),
                             None,
                         );
