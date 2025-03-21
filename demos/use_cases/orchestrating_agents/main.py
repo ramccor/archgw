@@ -93,6 +93,7 @@ AGENTS = {
     "escalate_to_human": Agent(
         role="human escalation agent",
         instructions="Escalate issues to a human.",
+        # skipping model name here as arch gateway will pick the default model from the config file
     ),
     "unknown_agent": Agent(
         role="general assistant", instructions="Assist the user in general queries."
