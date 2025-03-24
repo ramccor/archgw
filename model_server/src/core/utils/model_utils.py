@@ -1,4 +1,5 @@
 import json
+import src.commons.utils as utils
 
 from openai import OpenAI
 from pydantic import BaseModel
@@ -56,7 +57,6 @@ class ArchBaseHandler:
         client: OpenAI,
         model_name: str,
         task_prompt: str,
-        tool_prompt_template: str,
         format_prompt: str,
         generation_params: Dict,
     ):
@@ -67,7 +67,6 @@ class ArchBaseHandler:
             client (OpenAI): An OpenAI client instance.
             model_name (str): Name of the model to use.
             task_prompt (str): The main task prompt for the system.
-            tool_prompt (str): A prompt to describe tools.
             format_prompt (str): A prompt specifying the desired output format.
             generation_params (Dict): Generation parameters for the model.
         """
@@ -75,7 +74,6 @@ class ArchBaseHandler:
         self.model_name = model_name
 
         self.task_prompt = task_prompt
-        self.tool_prompt_template = tool_prompt_template
         self.format_prompt = format_prompt
 
         self.generation_params = generation_params
@@ -105,13 +103,11 @@ class ArchBaseHandler:
             str: A formatted system prompt.
         """
 
+        today_date = utils.get_today_date()
         tool_text = self._convert_tools(tools)
 
         system_prompt = (
-            self.task_prompt
-            + "\n\n"
-            + self.tool_prompt_template.format(tool_text=tool_text)
-            + "\n\n"
+            self.task_prompt.format(today_date=today_date, tool_text=tool_text)
             + self.format_prompt
         )
 

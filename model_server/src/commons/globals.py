@@ -5,8 +5,6 @@ from src.core.guardrails import get_guardrail_handler
 from src.core.function_calling import (
     ArchAgentConfig,
     ArchAgentHandler,
-    ArchIntentConfig,
-    ArchIntentHandler,
     ArchFunctionConfig,
     ArchFunctionHandler,
 )
@@ -30,9 +28,6 @@ ARCH_GUARD_MODEL_ALIAS = "katanemo/Arch-Guard"
 
 # Define model handlers
 handler_map = {
-    "Arch-Intent": ArchIntentHandler(
-        ARCH_CLIENT, ARCH_INTENT_MODEL_ALIAS, ArchIntentConfig
-    ),
     "Arch-Function": ArchFunctionHandler(
         ARCH_CLIENT, ARCH_FUNCTION_MODEL_ALIAS, ArchFunctionConfig
     ),
