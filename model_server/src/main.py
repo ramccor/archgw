@@ -102,10 +102,10 @@ async def function_calling(req: ChatMessage, res: Response):
             final_response.metadata = {
                 "function_latency": str(round(latency * 1000, 3)),
             }
-            if not use_agent_orchestrator:
-                final_response.metadata["hallucination"] = str(
-                    model_handler.hallucination_state.hallucination
-                )
+            # if not use_agent_orchestrator:
+            #     final_response.metadata["hallucination"] = str(
+            #         model_handler.hallucination_state.hallucination
+            #     )
         # No intent detected
         else:
             final_response.metadata = {
@@ -114,9 +114,9 @@ async def function_calling(req: ChatMessage, res: Response):
 
         if not use_agent_orchestrator:
             final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
-            final_response.metadata["hallucination"] = str(
-                model_handler.hallucination_state.hallucination
-            )
+            # final_response.metadata["hallucination"] = str(
+            #     model_handler.hallucination_state.hallucination
+            # )
 
     except ValueError as e:
         res.statuscode = 503
