@@ -89,7 +89,7 @@ impl StreamContext {
             provider_hint,
         ));
 
-        debug!(
+        trace!(
             "request received: llm provider hint: {}, selected llm: {}, model: {}",
             self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
                 .unwrap_or_default(),
