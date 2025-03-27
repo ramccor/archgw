@@ -396,7 +396,8 @@ class ArchFunctionHandler(ArchBaseHandler):
                     model_response += chunk.choices[0].delta.content
             logger.info(f"[Agent Orchestrator]: response received: {model_response}")
         else:
-            # *********************************************************************************************\
+            # *********************************************************************************************
+            # TODO:
             # Update the following logic for hallucination check
             # 1. If the model response starts wtth `tool_calls`, continue halluciantion check:
             #    - If hallucination detected, start prompt prefilling
@@ -441,7 +442,7 @@ class ArchFunctionHandler(ArchBaseHandler):
             #     model_response = prefill_response.choices[0].message.content
 
             # *********************************************************************************************\
-            # Remove the following for loop after updating hallucination check
+            # TODO: Remove the following for loop after updating hallucination check
             # *********************************************************************************************
             for chunk in response:
                 if len(chunk.choices) > 0 and chunk.choices[0].delta.content:
@@ -450,18 +451,18 @@ class ArchFunctionHandler(ArchBaseHandler):
         # Extract tool calls from model response
         response_dict = self._parse_model_resonse(model_response)
 
+        # General model response
         if response_dict.get("response", ""):
-            # General model response
             model_message = Message(content="", tool_calls=[])
+        # Parameter gathering
         elif response_dict.get("required_functions", []):
-            # Model response for parameter gathering
             if not use_agent_orchestrator:
                 clarification = response_dict.get("clarification", "")
                 model_message = Message(content=clarification, tool_calls=[])
             else:
                 model_message = Message(content="", tool_calls=[])
+        # Function Calling
         elif response_dict.get("tool_calls", []):
-            # Response with tool calls
             if response_dict["is_valid"]:
                 if not use_agent_orchestrator:
                     verification_dict = self._verify_tool_calls(
@@ -490,12 +491,11 @@ class ArchFunctionHandler(ArchBaseHandler):
                     )
 
             else:
-                # Response with tool calls but contain errors
+                # Response with tool calls but invalid
                 model_message = Message(content="", tool_calls=[])
+        # Response not in the desired format
         else:
             logger.error(f"Invalid model response - {model_response}")
-
-            # Response with tool calls but contain errors
             model_message = Message(content="", tool_calls=[])
 
         chat_completion_response = ChatCompletionResponse(

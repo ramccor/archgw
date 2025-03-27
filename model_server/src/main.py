@@ -78,11 +78,6 @@ async def function_calling(req: ChatMessage, res: Response):
 
     use_agent_orchestrator = req.metadata.get("use_agent_orchestrator", False)
     logger.info(f"Use agent orchestrator: {use_agent_orchestrator}")
-    # if not use_agent_orchestrator:
-    #     intent_start_time = time.perf_counter()
-    #     intent_response = await handler_map["Arch-Intent"].chat_completion(req)
-    #     intent_latency = time.perf_counter() - intent_start_time
-    #     intent_detected = handler_map["Arch-Intent"].detect_intent(intent_response)
 
     try:
         handler_name = "Arch-Agent" if use_agent_orchestrator else "Arch-Function"
@@ -102,6 +97,10 @@ async def function_calling(req: ChatMessage, res: Response):
             final_response.metadata = {
                 "function_latency": str(round(latency * 1000, 3)),
             }
+
+            # *********************************************************************************************
+            # TODO: Put the following code back when hallucination check is ready
+            # *********************************************************************************************
             # if not use_agent_orchestrator:
             #     final_response.metadata["hallucination"] = str(
             #         model_handler.hallucination_state.hallucination
@@ -114,6 +113,10 @@ async def function_calling(req: ChatMessage, res: Response):
 
         if not use_agent_orchestrator:
             final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
+
+            # *********************************************************************************************
+            # TODO: Put the following code back when hallucination check is ready
+            # *********************************************************************************************
             # final_response.metadata["hallucination"] = str(
             #     model_handler.hallucination_state.hallucination
             # )
