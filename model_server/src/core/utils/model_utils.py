@@ -104,10 +104,10 @@ class ArchBaseHandler:
         """
 
         today_date = utils.get_today_date()
-        tool_text = self._convert_tools(tools)
+        tools = self._convert_tools(tools)
 
         system_prompt = (
-            self.task_prompt.format(today_date=today_date, tool_text=tool_text)
+            self.task_prompt.format(today_date=today_date, tools=tools)
             + self.format_prompt
         )
 
