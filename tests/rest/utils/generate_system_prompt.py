@@ -4,25 +4,16 @@ from typing import Any, Dict, List
 
 ARCH_FUNCTION_TOOL_PROMPT = (
     "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed."
-    "\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>{tool_text}\n</tools>"
-    "\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\n"
+    "\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{tools}\n</tools>"
+    "\n\nYour task is to decide which functions are needed and collect missing parameters if necessary."
 )
 
-ARCH_FUNCTION_FORMAT_PROMPT = """
-Based on your analysis, provide your response in one of the following JSON formats:
-1. If no functions are needed:
-```
-{"response": "Your response text here"}
-```
-2. If functions are needed but some required parameters are missing:
-```
-{"required_functions": ["func_name1", "func_name2", ...], "clarification": "Text asking for missing parameters"}
-```
-3. If functions are needed and all required parameters are available:
-```
-{"tool_calls": [{"name": "func_name1", "arguments": {"argument1": "value1", "argument2": "value2"}},... (more tool calls as required)]}
-```
-""".strip()
+ARCH_FUNCTION_FORMAT_PROMPT = (
+    "\n\nBased on your analysis, provide your response in one of the following JSON formats:"
+    '\n1. If no functions are needed:\n```json\n{"response": "Your response text here"}\n```'
+    '\n2. If functions are needed but some required parameters are missing:\n```json\n{"required_functions": ["func_name1", "func_name2", ...], "clarification": "Text asking for missing parameters"}\n```'
+    '\n3. If functions are needed and all required parameters are available:\n```json\n{"tool_calls": [{"name": "func_name1", "arguments": {"argument1": "value1", "argument2": "value2"}},... (more tool calls as required)]}\n```'
+)
 
 
 tools = [
