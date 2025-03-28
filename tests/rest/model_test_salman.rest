@@ -4,7 +4,7 @@
 
 ### Scenario: Turns (Single). Parameters (Single,  Required).
 ### Tools Used: apply_loan and check_account_balance
-### Expected output(s): "content": "{\"required_functions\": [\"check_account_balance\"], \"clarification\": \"Could you please provide me with your account identifier?\"}",
+### Expected output(s): "content": "```json\n{\"required_functions\": [\"check_account_balance\"], \"clarification\": \"Could you please provide me with your account identifier?\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -18,7 +18,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -33,7 +33,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (Single). Parameters (Three, Required).
 ### Tools Used: apply_loan and check_account_balance
-### Expected output(s): "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the loan amount, the term duration in months, and your credit score?\"}",
+### Expected output(s): "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the loan amount, the term duration in months, and your credit score?\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Needs Work
@@ -47,7 +47,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -61,7 +61,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (3). Maintain Function Context While Changing Required Parameter (1)
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s): "content": "{\"response\": \"You're welcome! If you need any more information, feel free to ask.\"}",
+### Expected output(s): "content": "```json\n{\"response\": \"You're welcome! If you need any more information, feel free to ask.\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -76,7 +76,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -84,7 +84,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AMZN\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AMZN\"}}]}\n```"
     },
     {
       "role": "user",
@@ -92,7 +92,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for AMZN is $247.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for AMZN is $247.66.\"}\n```"
     },
     {
       "role": "user",
@@ -100,7 +100,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AAPL\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AAPL\"}}]}\n```"
     },
     {
       "role": "user",
@@ -108,7 +108,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for AAPL is $196.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for AAPL is $196.66.\"}\n```"
     },
     {
       "role": "user",
@@ -123,7 +123,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (5). Maintain Function Context Change Required Parameter (1)
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"ORCL\"}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"ORCL\"}}]}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -137,7 +137,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -145,7 +145,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AMZN\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AMZN\"}}]}\n```"
     },
     {
       "role": "user",
@@ -153,7 +153,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for AMZN is $247.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for AMZN is $247.66.\"}\n```"
     },
     {
       "role": "user",
@@ -161,7 +161,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AAPL\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"AAPL\"}}]}\n```"
     },
     {
       "role": "user",
@@ -169,7 +169,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for AAPL is $196.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for AAPL is $196.66.\"}\n```"
     },
     {
       "role": "user",
@@ -177,7 +177,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"TM\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"TM\"}}]}\n```"
     },
     {
       "role": "user",
@@ -185,7 +185,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for TM is $196.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for TM is $196.66.\"}\n```"
     },
     {
       "role": "user",
@@ -193,7 +193,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"NKE\"}}]}"
+     "content": "```json\n{\"tool_calls\": [{\"name\": \"get_stock_price\", \"arguments\": {\"symbol\": \"NKE\"}}]}\n```"
     },
     {
       "role": "user",
@@ -201,7 +201,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"The current stock price for NKE is $102.66.\"}"
+      "content": "```json\n{\"response\": \"The current stock price for NKE is $102.66.\"}\n```"
     },
     {
       "role": "user",
@@ -216,7 +216,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (2). Progressing Information Disclosure. Change Required Parameter (1)
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s): "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}",
+### Expected output(s): "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -230,7 +230,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account number or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account number or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -238,7 +238,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}"
+      "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -246,7 +246,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -262,7 +262,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (5). Progressive Information Disclosure. Parameters (3, Required)
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s):  "content": "{\"response\": \"Have a great day\"}",
+### Expected output(s):  "content": "```json\n{\"response\": \"Have a great day\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -276,7 +276,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -284,7 +284,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}"
+      "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -292,7 +292,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the term duration in months and your credit score?\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the term duration in months and your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -300,7 +300,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-       "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with your credit score?\"}"
+       "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -308,7 +308,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 5000, \"term_months\": 18, \"credit_score\": 700}}]}"
+        "content": "```json\n{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 5000, \"term_months\": 18, \"credit_score\": 700}}]}\n```"
     },
     {
         "role": "user",
@@ -331,7 +331,7 @@ Content-Type: application/json
 
 ### Scenario: Turn (2). Progress Information Disclosure. Multi-function Call. Parameters (3, Required)
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 6000, \"term_months\": 18, \"credit_score\": 700}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 6000, \"term_months\": 18, \"credit_score\": 700}}]}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Rejected
@@ -345,7 +345,7 @@ Content-Type: application/json
   "messages": [
     {
       "role": "system",
-      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+      "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
       "role": "user",
@@ -353,7 +353,7 @@ Content-Type: application/json
     },
     {
      "role": "assistant",
-     "content": "{\"required_functions\": [\"apply_loan\", \"check_account_balance\"], \"clarification\": \"Could you please provide me with the amount you want to borrow, the term of the loan in months, and your credit score?\"}"
+     "content": "```json\n{\"required_functions\": [\"apply_loan\", \"check_account_balance\"], \"clarification\": \"Could you please provide me with the amount you want to borrow, the term of the loan in months, and your credit score?\"}\n```"
     },
     {
       "role": "user",
@@ -361,7 +361,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 5000, \"term_months\": 18, \"credit_score\": 700}}]}"
+        "content": "```json\n{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 5000, \"term_months\": 18, \"credit_score\": 700}}]}\n```"
     },
     {
       "role": "user",
@@ -369,7 +369,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"Status: Ok. You have sucessfully applied for the loan\"}"
+      "content": "```json\n{\"response\": \"Status: Ok. You have sucessfully applied for the loan\"}\n```"
     },
     {
       "role": "user",
@@ -383,7 +383,7 @@ Content-Type: application/json
 
 ### Scenario: Turns(3). Progressive Information Disclosure. Change Required Parameters For Single Function Call
 ### Tools Used: apply_loan, get_stock_price and check_account_balance
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 6000, \"term_months\": 18, \"credit_score\": 700}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"apply_loan\", \"arguments\": {\"amount\": 6000, \"term_months\": 18, \"credit_score\": 700}}]}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -397,7 +397,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -405,7 +405,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please provide me with the amount you want to loan, the term duration in months, and your credit score?\"}\n```"
     },
     {
         "role": "user",
@@ -413,7 +413,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Could you please confirm the term duration and your credit score?\"}\n```"
     },
     {
         "role": "user",
@@ -421,7 +421,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Please confirm the term duration and your credit score.\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Please confirm the term duration and your credit score.\"}\n```"
     },
     {
         "role": "user",
@@ -429,7 +429,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Please confirm your credit score.\"}"
+        "content": "```json\n{\"required_functions\": [\"apply_loan\"], \"clarification\": \"Please confirm your credit score.\"}\n```"
     },
     {
         "role": "user",
@@ -444,7 +444,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (1). Parameters (10, Required).
 ### Tools Used: apply_loan, get_stock_price and check_account_balance, submit_mortgage_application
-### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}",
+### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved
@@ -458,7 +458,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"str\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"str\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"int\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"int\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"str\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"str\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"str\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"int\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"int\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"str\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -472,7 +472,7 @@ Content-Type: application/json
 
 ### Scenario: Progressive Information Disclosure Ten required parameters;
 ### Tools Used: apply_loan, get_stock_price and check_account_balance, submit_mortgage_application
-### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}",
+### Expected output(s): "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your full name, the address of the property, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}\n```",
 
 ### Status: Needs Work
 ### Tested By: Salman Paracha
@@ -486,7 +486,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"str\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"str\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"int\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"int\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"str\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"get_stock_price\", \"description\": \"Get the current stock price\", \"parameters\": {\"type\": \"object\", \"properties\": {\"symbol\": {\"type\": \"str\", \"description\": \"The stock symbol\"}}, \"required\": [\"symbol\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\", \"description\": \"Loan amount in USD\"}, \"term_months\": {\"type\": \"int\", \"description\": \"Term duration in months\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check balance of a financial account\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\", \"description\": \"User's account int or identifier\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"submit_mortgage_application\", \"description\": \"Submit an application for a mortgage loan\", \"parameters\": {\"type\": \"object\", \"properties\": {\"applicant_name\": {\"type\": \"str\", \"description\": \"Full name of the applicant\"}, \"property_address\": {\"type\": \"str\", \"description\": \"Address of the property\"}, \"property_price\": {\"type\": \"int\", \"description\": \"Total price of the property\"}, \"down_payment\": {\"type\": \"int\", \"description\": \"Down payment amount\"}, \"loan_term_years\": {\"type\": \"int\", \"description\": \"Loan term in years\"}, \"interest_rate\": {\"type\": \"int\", \"description\": \"Preferred interest rate\"}, \"applicant_income\": {\"type\": \"int\", \"description\": \"Annual income of applicant\"}, \"credit_score\": {\"type\": \"int\", \"description\": \"Applicant's credit score\"}, \"employment_status\": {\"type\": \"str\", \"description\": \"Employment status (employed/self-employed/unemployed)\"}, \"existing_debt\": {\"type\": \"int\", \"description\": \"Total existing debt obligations\"}}, \"required\": [\"applicant_name\", \"property_address\", \"property_price\", \"down_payment\", \"loan_term_years\", \"interest_rate\", \"applicant_income\", \"credit_score\", \"employment_status\", \"existing_debt\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -494,7 +494,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your name, the address of the property you want to purchase, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}"
+        "content": "```json\n{\"required_functions\": [\"submit_mortgage_application\"], \"clarification\": \"Could you please provide me with your name, the address of the property you want to purchase, the total price of the property, the down payment amount, the loan term in years, the preferred interest rate, your annual income, your credit score, your employment status, and your existing debt obligations?\"}\n```"
     },
     {
         "role": "user",
@@ -508,7 +508,7 @@ Content-Type: application/json
 
 ### Scenario: Context Swtich Between Functions. Start with one function, move to another and complete request
 ### Tools Used: 15 (order_food, book_flight, schedule_meeting, reserve_hotel, rent_car, set_reminder, send_email, buy_movie_tickets, create_calendar_event, apply_loan, get_stock_price, check_account_balance, submit_mortgage_application, apply_credit_card, order_groceries)
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"order_food\", \"arguments\": {\"delivery_address\": \"13576 NE 203rd CT, Woodinville, WA 98072\", \"order_items\": [\"Cheeze pizza\"], \"payment_method\": \"Credit card\"}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"order_food\", \"arguments\": {\"delivery_address\": \"13576 NE 203rd CT, Woodinville, WA 98072\", \"order_items\": [\"Cheeze pizza\"], \"payment_method\": \"Credit card\"}}]}\n```",
 
 ### Status: Approved
 ### Tested By: Salman Paracha
@@ -522,7 +522,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight between two cities on a given date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"City of departure\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery from a restaurant.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\", \"description\": \"Name of restaurant\"}, \"order_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}, \"description\": \"Items to order\"}, \"delivery_address\": {\"type\": \"str\", \"description\": \"Delivery address\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Set up a meeting with participants at a specified date and time.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Reserve a hotel stay.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Set a personal reminder.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"body_text\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"theater_name\": {\"type\": \"str\"}, \"show_date\": {\"type\": \"str\"}, \"ticket_quantity\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_name\", \"show_date\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Create an event in the calendar.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"event_date\": {\"type\": \"str\"}, \"event_time\": {\"type\": \"str\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe to a newsletter.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"recipient_email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check account balance.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\"}, \"term_months\": {\"type\": \"int\"}, \"credit_score\": {\"type\": \"int\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report an issue to support.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a doctor's appointment.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight between two cities on a given date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"City of departure\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery from a restaurant.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\", \"description\": \"Name of restaurant\"}, \"order_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}, \"description\": \"Items to order\"}, \"delivery_address\": {\"type\": \"str\", \"description\": \"Delivery address\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Set up a meeting with participants at a specified date and time.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Reserve a hotel stay.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Set a personal reminder.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"body_text\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"theater_name\": {\"type\": \"str\"}, \"show_date\": {\"type\": \"str\"}, \"ticket_quantity\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_name\", \"show_date\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Create an event in the calendar.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"event_date\": {\"type\": \"str\"}, \"event_time\": {\"type\": \"str\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe to a newsletter.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"recipient_email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check account balance.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\"}, \"term_months\": {\"type\": \"int\"}, \"credit_score\": {\"type\": \"int\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report an issue to support.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a doctor's appointment.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -530,7 +530,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}\n```"
     },
     {
         "role": "user",
@@ -538,7 +538,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}\n```"
     },
     {
         "role": "user",
@@ -546,7 +546,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}\n```"
     },
     {
         "role": "user",
@@ -554,7 +554,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}\n```"
     },
     {
         "role": "user",
@@ -569,7 +569,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (8). Context Swtich Between Functions (start with one, switch to another, switch back and complete request)
 ### Tools Used: 15 (order_food, book_flight, schedule_meeting, reserve_hotel, rent_car, set_reminder, send_email, buy_movie_tickets, create_calendar_event, apply_loan, get_stock_price, check_account_balance, submit_mortgage_application, apply_credit_card, order_groceries)
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"order_food\", \"arguments\": {\"delivery_address\": \"13576 NE 203rd CT, Woodinville, WA 98072\", \"order_items\": [\"Cheeze pizza\"], \"payment_method\": \"Credit card\"}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"order_food\", \"arguments\": {\"delivery_address\": \"13576 NE 203rd CT, Woodinville, WA 98072\", \"order_items\": [\"Cheeze pizza\"], \"payment_method\": \"Credit card\"}}]}\n```",
 
 ### Status: Approved
 ### Tested By: Salman Paracha
@@ -583,7 +583,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight between two cities on a given date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"City of departure\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery from a restaurant.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\", \"description\": \"Name of restaurant\"}, \"order_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}, \"description\": \"Items to order\"}, \"delivery_address\": {\"type\": \"str\", \"description\": \"Delivery address\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Set up a meeting with participants at a specified date and time.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Reserve a hotel stay.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Set a personal reminder.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"body_text\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"theater_name\": {\"type\": \"str\"}, \"show_date\": {\"type\": \"str\"}, \"ticket_quantity\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_name\", \"show_date\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Create an event in the calendar.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"event_date\": {\"type\": \"str\"}, \"event_time\": {\"type\": \"str\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe to a newsletter.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"recipient_email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check account balance.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\"}, \"term_months\": {\"type\": \"int\"}, \"credit_score\": {\"type\": \"int\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report an issue to support.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a doctor's appointment.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{\"name\": \"book_flight\", \"description\": \"Book a flight between two cities on a given date.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"City of departure\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}\n{\"name\": \"order_food\", \"description\": \"Order food delivery from a restaurant.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\", \"description\": \"Name of restaurant\"}, \"order_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}, \"description\": \"Items to order\"}, \"delivery_address\": {\"type\": \"str\", \"description\": \"Delivery address\"}, \"payment_method\": {\"type\": \"str\", \"description\": \"Payment method\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}\n{\"name\": \"schedule_meeting\", \"description\": \"Set up a meeting with participants at a specified date and time.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}\n{\"name\": \"reserve_hotel\", \"description\": \"Reserve a hotel stay.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}\n{\"name\": \"rent_car\", \"description\": \"Reserve a rental car.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}\n{\"name\": \"set_reminder\", \"description\": \"Set a personal reminder.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}\n{\"name\": \"send_email\", \"description\": \"Send an email.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"body_text\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}\n{\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"theater_name\": {\"type\": \"str\"}, \"show_date\": {\"type\": \"str\"}, \"ticket_quantity\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_name\", \"show_date\", \"ticket_quantity\"]}}\n{\"name\": \"create_calendar_event\", \"description\": \"Create an event in the calendar.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"event_date\": {\"type\": \"str\"}, \"event_time\": {\"type\": \"str\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}\n{\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe to a newsletter.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"recipient_email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}\n{\"name\": \"check_account_balance\", \"description\": \"Check account balance.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"account_id\": {\"type\": \"str\"}}, \"required\": [\"account_id\"]}}\n{\"name\": \"apply_loan\", \"description\": \"Apply for a personal loan.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"amount\": {\"type\": \"int\"}, \"term_months\": {\"type\": \"int\"}, \"credit_score\": {\"type\": \"int\"}}, \"required\": [\"amount\", \"term_months\", \"credit_score\"]}}\n{\"name\": \"report_issue\", \"description\": \"Report an issue to support.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\"]}}\n{\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a doctor's appointment.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}\n{\"name\": \"send_gift\", \"description\": \"Send a gift to someone.\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -591,7 +591,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}\n```"
     },
     {
         "role": "user",
@@ -599,7 +599,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}\n```"
     },
     {
         "role": "user",
@@ -607,7 +607,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}\n```"
     },
     {
         "role": "user",
@@ -615,7 +615,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}\n```"
     },
     {
         "role": "user",
@@ -623,7 +623,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}\n```"
     },
     {
         "role": "user",
@@ -631,7 +631,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"tool_calls\": [{\"name\": \"buy_movie_tickets\", \"arguments\": {\"appointment_date\": \"2019-03-01\", \"appointment_time\": \"10:00\", \"movie_name\": \"Matrix\", \"ticket_quantity\": \"2\"}}]}"
+        "content": "```json\n{\"tool_calls\": [{\"name\": \"buy_movie_tickets\", \"arguments\": {\"appointment_date\": \"2019-03-01\", \"appointment_time\": \"10:00\", \"movie_name\": \"Matrix\", \"ticket_quantity\": \"2\"}}]}\n```"
     },
     {
       "role": "user",
@@ -639,7 +639,7 @@ Content-Type: application/json
     },
     {
       "role": "assistant",
-      "content": "{\"response\": \"Your tickets have been booked, here is your ticket id: 1234.\"}"
+      "content": "```json\n{\"response\": \"Your tickets have been booked, here is your ticket id: 1234.\"}\n```"
     },
     {
         "role": "user",
@@ -647,7 +647,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, and you are ordering some pizza from Pizza Hut.\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, and you are ordering some pizza from Pizza Hut.\"}\n```"
     },
     {
         "role": "user",
@@ -663,7 +663,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (7) Context Swtich Between Functions. Start with movies, move to food, move to meeting, complete.
 ### Tools Used: 15 (order_food, book_flight, schedule_meeting, reserve_hotel, rent_car, set_reminder, send_email, buy_movie_tickets, create_calendar_event, apply_loan, get_stock_price, check_account_balance, submit_mortgage_application, apply_credit_card, order_groceries)
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"date\": \"tomorrow\", \"participants\": [\"user\"], \"time\": \"10 am\", \"duration_minutes\": \"60\"}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"date\": \"tomorrow\", \"participants\": [\"user\"], \"time\": \"10 am\", \"duration_minutes\": \"60\"}}]}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Approved (with Temprature 0.01)
@@ -677,7 +677,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "The current date is March 19th, 2025. You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "The current date is March 19th, 2025. You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -685,7 +685,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}\n```"
     },
     {
         "role": "user",
@@ -693,7 +693,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}\n```"
     },
     {
         "role": "user",
@@ -701,7 +701,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}\n```"
     },
     {
         "role": "user",
@@ -709,7 +709,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}\n```"
     },
     {
         "role": "user",
@@ -717,7 +717,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}\n```"
     },
     {
         "role": "user",
@@ -725,7 +725,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please confirm the following details: You want to book a meeting with your manager, the date is tomorrow at 10 am, and the meeting is 60 minutes long.\"}"
+        "content": "```json\n{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please confirm the following details: You want to book a meeting with your manager, the date is tomorrow at 10 am, and the meeting is 60 minutes long.\"}\n```"
     },
     {
         "role": "user",
@@ -741,7 +741,7 @@ Content-Type: application/json
 
 ### Scenario: Turns (7) Context Swtich Between Functions. Start with movies, move to food, move to meeting, complete.
 ### Tools Used: 15 (order_food, book_flight, schedule_meeting, reserve_hotel, rent_car, set_reminder, send_email, buy_movie_tickets, create_calendar_event, apply_loan, get_stock_price, check_account_balance, submit_mortgage_application, apply_credit_card, order_groceries)
-### Expected output(s): "content": "{\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"date\": \"tomorrow\", \"participants\": [\"user\"], \"time\": \"10 am\", \"duration_minutes\": \"60\"}}]}",
+### Expected output(s): "content": "```json\n{\"tool_calls\": [{\"name\": \"schedule_meeting\", \"arguments\": {\"date\": \"tomorrow\", \"participants\": [\"user\"], \"time\": \"10 am\", \"duration_minutes\": \"60\"}}]}\n```",
 
 ### Tested By: Salman Paracha
 ### Status: Needs Work
@@ -755,7 +755,7 @@ Content-Type: application/json
   "messages": [
     {
         "role": "system",
-        "content": "The current date is March 19th, 2025. You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
+        "content": "The current date is March 19th, 2025. You are a helpful assistant designed to assist with the user query by making one or more function calls if needed.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n[{\"name\": \"book_flight\", \"description\": \"Book a flight for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"departure_city\": {\"type\": \"str\", \"description\": \"Departure city\"}, \"arrival_city\": {\"type\": \"str\", \"description\": \"Destination city\"}, \"departure_date\": {\"type\": \"str\", \"description\": \"Date of departure\"}, \"passenger_count\": {\"type\": \"int\", \"description\": \"Number of passengers\"}}, \"required\": [\"departure_city\", \"arrival_city\", \"departure_date\", \"passenger_count\"]}}, {\"name\": \"order_food\", \"description\": \"Order food delivery\", \"parameters\": {\"type\": \"object\", \"properties\": {\"restaurant_name\": {\"type\": \"str\"}, \"description\": \"Payment method\", \"food_items\": {\"type\": \"list\", \"items\": {\"type\": \"str\"}}, \"delivery_address\": {\"type\": \"str\"}, \"payment_method\": {\"type\": \"str\"}}, \"required\": [\"restaurant_name\", \"order_items\", \"delivery_address\", \"payment_method\"]}}, {\"name\": \"schedule_meeting\", \"description\": \"Schedule a business or personal meeting\", \"parameters\": {\"type\": \"object\", \"properties\": {\"participants\": {\"type\": \"array\", \"description\": \"Email addresses\"}, \"date\": {\"type\": \"str\"}, \"description\": \"Duration of the meeting in minutes\", \"time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"participants\", \"date\", \"time\"]}}, {\"name\": \"reserve_hotel\", \"description\": \"Book a hotel room\", \"parameters\": {\"type\": \"object\", \"properties\": {\"hotel_name\": {\"type\": \"str\"}, \"description\": \"Type of room\", \"check_in_date\": {\"type\": \"str\"}, \"check_out_date\": {\"type\": \"str\"}, \"room_type\": {\"type\": \"str\"}}, \"required\": [\"hotel_name\", \"check_in_date\", \"check_out_date\"]}}, {\"name\": \"rent_car\", \"description\": \"Reserve a rental car\", \"parameters\": {\"type\": \"object\", \"properties\": {\"pickup_location\": {\"type\": \"str\"}, \"description\": \"Type of car\", \"pickup_date\": {\"type\": \"str\"}, \"return_date\": {\"type\": \"str\"}, \"car_type\": {\"type\": \"str\"}}, \"required\": [\"pickup_location\", \"pickup_date\", \"return_date\"]}}, {\"name\": \"set_reminder\", \"description\": \"Create a reminder for the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"reminder_text\": {\"type\": \"str\"}, \"description\": \"Time of the reminder\", \"date\": {\"type\": \"str\"}, \"time\": {\"type\": \"str\"}}, \"required\": [\"reminder_text\", \"date\", \"time\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"description\": \"Email body\", \"subject\": {\"type\": \"str\"}, \"body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"body_text\"]}}, {\"name\": \"buy_movie_tickets\", \"description\": \"Purchase movie tickets\", \"parameters\": {\"type\": \"object\", \"properties\": {\"movie_name\": {\"type\": \"str\"}, \"description\": \"Number of tickets\", \"theater_location\": {\"type\": \"str\"}, \"show_time\": {\"type\": \"str\"}, \"number_of_tickets\": {\"type\": \"int\"}}, \"required\": [\"movie_name\", \"theater_location\", \"showtime\", \"ticket_quantity\"]}}, {\"name\": \"create_calendar_event\", \"description\": \"Add an event to user's calendar\", \"parameters\": {\"type\": \"object\", \"properties\": {\"event_title\": {\"type\": \"str\"}, \"description\": \"Date of the event\", \"event_date\": {\"type\": \"str\"}, \"start_time\": {\"type\": \"str\"}, \"duration_minutes\": {\"type\": \"int\"}}, \"required\": [\"event_title\", \"event_date\", \"event_time\"]}}, {\"name\": \"order_groceries\", \"description\": \"Order groceries online\", \"parameters\": {\"type\": \"object\", \"properties\": {\"store_name\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}, \"grocery_items\": {\"type\": \"array\", \"items\": {\"type\": \"str\"}}}, \"required\": [\"store_name\", \"delivery_address\", \"grocery_items\"]}}, {\"name\": \"send_email\", \"description\": \"Send an email on behalf of the user\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_email\": {\"type\": \"str\"}, \"subject\": {\"type\": \"str\"}, \"message_body\": {\"type\": \"str\"}}, \"required\": [\"recipient_email\", \"subject\", \"message_body\"]}}, {\"name\": \"subscribe_newsletter\", \"description\": \"Subscribe user to a newsletter\", \"parameters\": {\"type\": \"object\", \"properties\": {\"newsletter_name\": {\"type\": \"str\"}, \"email\": {\"type\": \"str\"}}, \"required\": [\"newsletter_name\", \"recipient_email\"]}}, {\"name\": \"report_issue\", \"description\": \"Report a customer support issue\", \"parameters\": {\"type\": \"object\", \"properties\": {\"issue_description\": {\"type\": \"str\"}, \"user_email\": {\"type\": \"str\"}, \"priority_level\": {\"type\": \"str\"}}, \"required\": [\"issue_description\", \"user_email\", \"priority_level\"]}}, {\"name\": \"schedule_doctor_appointment\", \"description\": \"Schedule a medical appointment\", \"parameters\": {\"type\": \"object\", \"properties\": {\"doctor_name\": {\"type\": \"str\"}, \"appointment_date\": {\"type\": \"str\"}, \"appointment_time\": {\"type\": \"str\"}}, \"required\": [\"doctor_name\", \"appointment_date\", \"appointment_time\"]}}, {\"name\": \"send_gift\", \"description\": \"Send a gift to someone\", \"parameters\": {\"type\": \"object\", \"properties\": {\"recipient_name\": {\"type\": \"str\"}, \"gift_item\": {\"type\": \"str\"}, \"delivery_address\": {\"type\": \"str\"}}, \"required\": [\"recipient_name\", \"gift_item\", \"delivery_address\"]}}]\n</tools>\n\nYour task is to decide which functions are needed and collect missing parameters if necessary.\n\nBased on your analysis, provide your response in one of the following JSON formats:\n1. If no functions are needed:\n```json\n{\"response\": \"Your response text here\"}\n```\n2. If functions are needed but some required parameters are missing:\n```json\n{\"required_functions\": [\"func_name1\", \"func_name2\", ...], \"clarification\": \"Text asking for missing parameters\"}\n```\n3. If functions are needed and all required parameters are available:\n```json\n{\"tool_calls\": [{\"name\": \"func_name1\", \"arguments\": {\"argument1\": \"value1\", \"argument2\": \"value2\"}},... (more tool calls as required)]}\n```"
     },
     {
         "role": "user",
@@ -763,7 +763,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"How many tickets are you interested in?\"}\n```"
     },
     {
         "role": "user",
@@ -771,7 +771,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the restaurant name, the food items you want to order, and the payment method?\"}\n```"
     },
     {
         "role": "user",
@@ -779,7 +779,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Could you please tell me the delivery address?\"}\n```"
     },
     {
         "role": "user",
@@ -787,7 +787,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}"
+        "content": "```json\n{\"required_functions\": [\"order_food\"], \"clarification\": \"Please confirm the following details: You want to order 13576 NE 203rd CT, Woodinville, WA 98072, a delivery address for a Pizza Hut pizza, a credit card payment method, and 1 pizza.\"}\n```"
     },
     {
         "role": "user",
@@ -795,7 +795,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}"
+        "content": "```json\n{\"required_functions\": [\"buy_movie_tickets\"], \"clarification\": \"Could you please confirm the following details: You want 2 tickets for the AMC theater, and the movie is Matrix.\"}\n```"
     },
     {
         "role": "user",
@@ -803,7 +803,7 @@ Content-Type: application/json
     },
     {
         "role": "assistant",
-        "content": "{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please confirm the following details: You want to book a meeting with your manager, the date is tomorrow at 10 am, and the meeting is 60 minutes long.\"}"
+        "content": "```json\n{\"required_functions\": [\"schedule_meeting\"], \"clarification\": \"Could you please confirm the following details: You want to book a meeting with your manager, the date is tomorrow at 10 am, and the meeting is 60 minutes long.\"}\n```"
     },
     {
         "role": "user",
