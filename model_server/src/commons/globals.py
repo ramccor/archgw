@@ -15,7 +15,7 @@ logger = get_model_server_logger()
 
 
 # Define the client
-ARCH_ENDPOINT = os.getenv("ARCH_ENDPOINT", "https://archfc.katanemo.dev/v1")
+# ARCH_ENDPOINT = os.getenv("ARCH_ENDPOINT", "https://archfc.katanemo.dev/v1")
 ARCH_ENDPOINT = os.getenv("ARCH_ENDPOINT", "http://35.225.55.128:8000/v1")
 ARCH_API_KEY = "EMPTY"
 ARCH_CLIENT = OpenAI(base_url=ARCH_ENDPOINT, api_key=ARCH_API_KEY)
