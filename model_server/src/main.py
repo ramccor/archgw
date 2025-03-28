@@ -101,10 +101,10 @@ async def function_calling(req: ChatMessage, res: Response):
             # *********************************************************************************************
             # TODO: Put the following code back when hallucination check is ready
             # *********************************************************************************************
-            # if not use_agent_orchestrator:
-            #     final_response.metadata["hallucination"] = str(
-            #         model_handler.hallucination_state.hallucination
-            #     )
+            if not use_agent_orchestrator:
+                final_response.metadata["hallucination"] = str(
+                    model_handler.hallucination_state.hallucination
+                )
         # No intent detected
         else:
             final_response.metadata = {
@@ -117,9 +117,9 @@ async def function_calling(req: ChatMessage, res: Response):
             # *********************************************************************************************
             # TODO: Put the following code back when hallucination check is ready
             # *********************************************************************************************
-            # final_response.metadata["hallucination"] = str(
-            #     model_handler.hallucination_state.hallucination
-            # )
+            final_response.metadata["hallucination"] = str(
+                model_handler.hallucination_state.hallucination
+            )
 
     except ValueError as e:
         res.statuscode = 503
