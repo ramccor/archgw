@@ -197,12 +197,12 @@ class ArchFunctionHandler(ArchBaseHandler):
 
             response_dict["response"] = model_response.get("response", "")
             response_dict["required_functions"] = model_response.get(
-                "required_functions", ""
+                "required_functions", []
             )
             response_dict["clarification"] = model_response.get("clarification", "")
 
             for tool_call in model_response.get("tool_calls", []):
-                response_dict["tool_call"].append(
+                response_dict["tool_calls"].append(
                     {
                         "id": f"call_{random.randint(1000, 10000)}",
                         "type": "function",
@@ -448,6 +448,7 @@ class ArchFunctionHandler(ArchBaseHandler):
                 if len(chunk.choices) > 0 and chunk.choices[0].delta.content:
                     model_response += chunk.choices[0].delta.content
 
+        logger.info(f"[arch-fc]: raw model response: {model_response}")
         # Extract tool calls from model response
         response_dict = self._parse_model_resonse(model_response)
 
@@ -499,10 +500,15 @@ class ArchFunctionHandler(ArchBaseHandler):
             model_message = Message(content="", tool_calls=[])
 
         chat_completion_response = ChatCompletionResponse(
-            choices=[Choice(message=model_message)], model=self.model_name
+            choices=[Choice(message=model_message)],
+            model=self.model_name,
+            metadata={"x-arch-fc-model-response": model_response},
+            role="assistant",
         )
 
-        logger.info(f"[response]: {json.dumps(chat_completion_response.model_dump())}")
+        logger.info(
+            f"[response arch-fc]: {json.dumps(chat_completion_response.model_dump())}"
+        )
 
         return chat_completion_response
 

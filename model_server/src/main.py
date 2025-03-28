@@ -87,16 +87,15 @@ async def function_calling(req: ChatMessage, res: Response):
         final_response = await model_handler.chat_completion(req)
         latency = time.perf_counter() - start_time
 
+        if not final_response.metadata:
+            final_response.metadata = {}
+
         # Parameter gathering for detected intents
         if final_response.choices[0].message.content:
-            final_response.metadata = {
-                "function_latency": str(round(latency * 1000, 3)),
-            }
+            final_response.metadata["function_latency"] = str(round(latency * 1000, 3))
         # Function Calling
         elif final_response.choices[0].message.tool_calls:
-            final_response.metadata = {
-                "function_latency": str(round(latency * 1000, 3)),
-            }
+            final_response.metadata["function_latency"] = str(round(latency * 1000, 3))
 
             # *********************************************************************************************
             # TODO: Put the following code back when hallucination check is ready
@@ -107,9 +106,7 @@ async def function_calling(req: ChatMessage, res: Response):
             #     )
         # No intent detected
         else:
-            final_response.metadata = {
-                "intent_latency": str(round(latency * 1000, 3)),
-            }
+            final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
 
         if not use_agent_orchestrator:
             final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
