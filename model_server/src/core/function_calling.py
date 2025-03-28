@@ -406,47 +406,47 @@ class ArchFunctionHandler(ArchBaseHandler):
             # *********************************************************************************************
 
             # initialize the hallucination handler, which is an iterator
+            self.hallucination_state = HallucinationState(
+                response_iterator=response, function=req.tools
+            )
 
-            # self.hallucination_state = HallucinationState(
-            #     response_iterator=response, function=req.tools
-            # )
+            has_tool_calls, has_hallucination = None, False
+            for _ in self.hallucination_state:
+                # check if the first token is <tool_call>
+                if len(self.hallucination_state.tokens) > 2 and has_tool_calls is None:
+                    content = ''.join(self.hallucination_state.tokens)
+                    if "tool_calls" in content:
+                        has_tool_calls = True
+                    else:
+                        has_tool_calls = False
+                        break
 
-            # has_tool_calls, has_hallucination = None, False
-            # for _ in self.hallucination_state:
-            #     # check if the first token is <tool_call>
-            #     if len(self.hallucination_state.tokens) > 0 and has_tool_calls is None:
-            #         if self.hallucination_state.tokens[0] == "<tool_call>":
-            #             has_tool_calls = True
-            #         else:
-            #             has_tool_calls = False
-            #             break
+                # if the model is hallucinating, start parameter gathering
+                if self.hallucination_state.hallucination is True:
+                    has_hallucination = True
+                    break
 
-            #     # if the model is hallucinating, start parameter gathering
-            #     if self.hallucination_state.hallucination is True:
-            #         has_hallucination = True
-            #         break
-
-            # if has_tool_calls:
-            #     if has_hallucination:
-            #         # start prompt prefilling if hallcuination is found in tool calls
-            #         logger.info(
-            #             f"[Hallucination]: {self.hallucination_state.error_message}"
-            #         )
-            #         prefill_response = self._engage_parameter_gathering(messages)
-            #         model_response = prefill_response.choices[0].message.content
-            #     else:
-            #         model_response = "".join(self.hallucination_state.tokens)
+            if has_tool_calls:
+                if has_hallucination:
+                    # start prompt prefilling if hallcuination is found in tool calls
+                    logger.info(
+                        f"[Hallucination]: {self.hallucination_state.error_message}"
+                    )
+                    prefill_response = self._engage_parameter_gathering(messages)
+                    model_response = prefill_response.choices[0].message.content
+                else:
+                    model_response = "".join(self.hallucination_state.tokens)
             # else:
             #     # start parameter gathering if the model is not generating tool calls
             #     prefill_response = self._engage_parameter_gathering(messages)
             #     model_response = prefill_response.choices[0].message.content
 
-            # *********************************************************************************************\
-            # TODO: Remove the following for loop after updating hallucination check
-            # *********************************************************************************************
-            for chunk in response:
-                if len(chunk.choices) > 0 and chunk.choices[0].delta.content:
-                    model_response += chunk.choices[0].delta.content
+            # # *********************************************************************************************\
+            # # TODO: Remove the following for loop after updating hallucination check
+            # # *********************************************************************************************
+            # for chunk in response:
+            #     if len(chunk.choices) > 0 and chunk.choices[0].delta.content:
+            #         model_response += chunk.choices[0].delta.content
 
         logger.info(f"[arch-fc]: raw model response: {model_response}")
         # Extract tool calls from model response
