@@ -101,7 +101,7 @@ def get_greeting_data():
     ],
 )
 async def test_function_calling(get_data_func):
-    req, intent, hallucination, parameter_gathering = get_data_func()
+    req, intent, hallucination = get_data_func()
     handler_name = "Arch-Function"
     use_agent_orchestrator = False
     model_handler: ArchFunctionHandler = handler_map[handler_name]
