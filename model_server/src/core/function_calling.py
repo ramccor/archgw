@@ -416,15 +416,14 @@ class ArchFunctionHandler(ArchBaseHandler):
             has_tool_calls, has_hallucination = None, False
             for _ in self.hallucination_state:
                 # check if the first token is <tool_call>
-                if len(self.hallucination_state.tokens) > 5 and has_tool_calls is None:
-                    content = "".join(self.hallucination_state.tokens)
-                    if "tool_calls" in content:
-                        logger.info(
-                            f"[Content]: {content}"
-                        )
-                        has_tool_calls = True
-                    else:
-                        has_tool_calls = False
+                content = "".join(self.hallucination_state.tokens)
+                if "tool_calls" in content:
+                    logger.info(
+                        f"[Content]: {content}"
+                    )
+                    has_tool_calls = True
+                else:
+                    has_tool_calls = False
 
 
                 # if the model is hallucinating, start parameter gathering
