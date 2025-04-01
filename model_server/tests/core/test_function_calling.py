@@ -39,7 +39,7 @@ get_weather_api = {
 
 def get_hallucination_data():
     # Create instances of the Message class
-    message1 = Message(role="user", content="How is the weather in?")
+    message1 = Message(role="user", content="How is the weather in days?")
 
     # Create a list of tools
     tools = [get_weather_api]
