@@ -97,9 +97,6 @@ async def function_calling(req: ChatMessage, res: Response):
         elif final_response.choices[0].message.tool_calls:
             final_response.metadata["function_latency"] = str(round(latency * 1000, 3))
 
-            # *********************************************************************************************
-            # TODO: Put the following code back when hallucination check is ready
-            # *********************************************************************************************
             if not use_agent_orchestrator:
                 final_response.metadata["hallucination"] = str(
                     model_handler.hallucination_state.hallucination
@@ -111,9 +108,6 @@ async def function_calling(req: ChatMessage, res: Response):
         if not use_agent_orchestrator:
             final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
 
-            # *********************************************************************************************
-            # TODO: Put the following code back when hallucination check is ready
-            # *********************************************************************************************
             final_response.metadata["hallucination"] = str(
                 model_handler.hallucination_state.hallucination
             )

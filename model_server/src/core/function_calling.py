@@ -369,15 +369,6 @@ class ArchFunctionHandler(ArchBaseHandler):
                     model_response += chunk.choices[0].delta.content
             logger.info(f"[Agent Orchestrator]: response received: {model_response}")
         else:
-            # *********************************************************************************************
-            # TODO:
-            # Update the following logic for hallucination check
-            # 1. If the model response starts wtth `tool_calls`, continue halluciantion check:
-            #    - If hallucination detected, start prompt prefilling
-            #    - Otherwise, continue until the end
-            # 2. Otherwise, stop it
-            # *********************************************************************************************
-
             # initialize the hallucination handler, which is an iterator
             self.hallucination_state = HallucinationState(
                 response_iterator=response, function=req.tools
@@ -416,17 +407,6 @@ class ArchFunctionHandler(ArchBaseHandler):
                 model_response = self.default_prefix + "".join(
                     self.hallucination_state.tokens
                 )
-            # else:
-            #     # start parameter gathering if the model is not generating tool calls
-            #     prefill_response = self._engage_parameter_gathering(messages)
-            #     model_response = prefill_response.choices[0].message.content
-
-            # # *********************************************************************************************\
-            # # TODO: Remove the following for loop after updating hallucination check
-            # # *********************************************************************************************
-            # for chunk in response:
-            #     if len(chunk.choices) > 0 and chunk.choices[0].delta.content:
-            #         model_response += chunk.choices[0].delta.content
 
         logger.info(f"[arch-fc]: raw model response: {model_response}")
         # Extract tool calls from model response
