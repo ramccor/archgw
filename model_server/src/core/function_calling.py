@@ -377,7 +377,7 @@ class ArchFunctionHandler(ArchBaseHandler):
             has_tool_calls, has_hallucination = None, False
             for _ in self.hallucination_state:
                 # check if moodel response starts with tool calls
-                if has_tool_calls is None:
+                if len(self.hallucination_state.tokens)>5 and has_tool_calls is None:
                     content = "".join(self.hallucination_state.tokens)
                     if "tool_calls" in content:
                         has_tool_calls = True
@@ -400,13 +400,9 @@ class ArchFunctionHandler(ArchBaseHandler):
                     stream=False,
                     extra_body=self.generation_params,
                 )
-                model_response = (
-                    self.clarify_prefix + response.choices[0].message.content
-                )
+                model_response = response.choices[0].message.content
             else:
-                model_response = self.default_prefix + "".join(
-                    self.hallucination_state.tokens
-                )
+                model_response = "".join(self.hallucination_state.tokens)
 
         # Extract tool calls from model response
         raw_model_response_json_fixed, response_dict = self._parse_model_response(

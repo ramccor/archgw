@@ -201,20 +201,20 @@ class HallucinationState:
                 r = next(self.response_iterator)
                 if hasattr(r.choices[0].delta, "content"):
                     token_content = r.choices[0].delta.content
-                    if token_content:
+                    if token_content != '':
                         try:
                             logprobs = [
                                 p.logprob
                                 for p in r.choices[0].logprobs.content[0].top_logprobs
                             ]
+                            self.append_and_check_token_hallucination(
+                                token_content, logprobs
+                            )
                         except Exception as e:
-                            raise ValueError(
-                                f"Error extracting logprobs from response: {e}"
+                            self.append_and_check_token_hallucination(
+                                token_content, [None]
                             )
                         
-                        self.append_and_check_token_hallucination(
-                            token_content, logprobs
-                        )
                         return token_content
             except StopIteration:
                 raise StopIteration
