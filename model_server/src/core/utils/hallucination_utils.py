@@ -224,7 +224,7 @@ class HallucinationState:
         Processes the current token and updates the state and mask accordingly.
         Detects hallucinations based on the token type and log probabilities.
         """
-        content = "".join(self.tokens).replace(" ", "").replace("Ġ",'')
+        content = "".join(self.tokens).replace(" ", "")
 
         # Function name extraction logic
         # If the state is function name and the token is not an end token, add to the mask
