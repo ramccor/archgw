@@ -39,7 +39,7 @@ class ArchFunctionConfig:
     )
 
     GENERATION_PARAMS = {
-        "temperature": 0.6,
+        "temperature": 0.1,
         "top_p": 1.0,
         "top_k": 10,
         "max_tokens": 1024,
