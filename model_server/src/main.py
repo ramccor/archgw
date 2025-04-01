@@ -71,7 +71,7 @@ async def models():
 @app.post("/function_calling")
 async def function_calling(req: ChatMessage, res: Response):
     logger.info("[Endpoint: /function_calling]")
-    logger.info(f"[request body]: {json.dumps(req.model_dump())}")
+    logger.info(f"[request body]: {json.dumps(req.model_dump(exclude_none=True))}")
 
     final_response: ChatCompletionResponse = None
     error_messages = None
@@ -115,9 +115,11 @@ async def function_calling(req: ChatMessage, res: Response):
     except ValueError as e:
         res.statuscode = 503
         error_messages = f"[{handler_name}] - Error in tool call extraction: {e}"
+        raise
     except StopIteration as e:
         res.statuscode = 500
         error_messages = f"[{handler_name}] - Error in hallucination check: {e}"
+        raise
     except Exception as e:
         res.status_code = 500
         error_messages = f"[{handler_name}] - Error in ChatCompletion: {e}"
@@ -133,7 +135,7 @@ async def function_calling(req: ChatMessage, res: Response):
 @app.post("/guardrails")
 async def guardrails(req: GuardRequest, res: Response, max_num_words=300):
     logger.info("[Endpoint: /guardrails] - Gateway")
-    logger.info(f"[request body]: {json.dumps(req.model_dump())}")
+    logger.info(f"[request body]: {json.dumps(req.model_dump(exclude_none=True))}")
 
     final_response: GuardResponse = None
     error_messages = None

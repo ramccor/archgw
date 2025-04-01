@@ -161,9 +161,10 @@ class ArchBaseHandler:
                     # sample response below
                     # "content": "<tool_response>\n{'name': 'get_stock_price', 'result': '$196.66'}\n</tool_response>"
                     # msg[idx-1] contains tool call = '{"tool_calls": [{"name": "currency_exchange", "arguments": {"currency_symbol": "NZD"}}]}'
-                    func_name = json.loads(messages[idx - 1].content)["tool_calls"][
-                        0
-                    ].get("name", "no_name")
+                    tool_call_msg = messages[idx - 1].content
+                    func_name = json.loads(tool_call_msg)["tool_calls"][0].get(
+                        "name", "no_name"
+                    )
                     tool_response = {
                         "name": func_name,
                         "result": content,

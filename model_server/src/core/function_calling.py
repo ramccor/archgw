@@ -154,7 +154,7 @@ class ArchFunctionHandler(ArchBaseHandler):
 
         return fixed_str
 
-    def _parse_model_resonse(self, content: str) -> Dict[str, any]:
+    def _parse_model_response(self, content: str) -> Dict[str, any]:
         """
         Extracts tool call information from a given string.
 
@@ -212,7 +212,7 @@ class ArchFunctionHandler(ArchBaseHandler):
             response_dict["is_valid"] = False
             response_dict["error_message"] = f"Fail to parse model responses: {e}"
 
-        return response_dict
+        return content, response_dict
 
     def _convert_data_type(self, value: str, target_type: str):
         # TODO: Add more conversion rules as needed
@@ -408,9 +408,13 @@ class ArchFunctionHandler(ArchBaseHandler):
                     self.hallucination_state.tokens
                 )
 
-        logger.info(f"[arch-fc]: raw model response: {model_response}")
         # Extract tool calls from model response
-        response_dict = self._parse_model_resonse(model_response)
+        raw_model_response_json_fixed, response_dict = self._parse_model_response(
+            model_response
+        )
+        logger.info(
+            f"[arch-fc]: raw model response (json fixed): {raw_model_response_json_fixed}"
+        )
 
         # General model response
         if response_dict.get("response", ""):
@@ -462,12 +466,12 @@ class ArchFunctionHandler(ArchBaseHandler):
         chat_completion_response = ChatCompletionResponse(
             choices=[Choice(message=model_message)],
             model=self.model_name,
-            metadata={"x-arch-fc-model-response": model_response},
+            metadata={"x-arch-fc-model-response": raw_model_response_json_fixed},
             role="assistant",
         )
 
         logger.info(
-            f"[response arch-fc]: {json.dumps(chat_completion_response.model_dump())}"
+            f"[response arch-fc]: {json.dumps(chat_completion_response.model_dump(exclude_none=True))}"
         )
 
         return chat_completion_response
