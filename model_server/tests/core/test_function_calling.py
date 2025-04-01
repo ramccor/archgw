@@ -110,6 +110,6 @@ async def test_function_calling(get_data_func):
     final_response = await model_handler.chat_completion(req)
     latency = time.perf_counter() - start_time
 
-    assert intent == (len(final_response.choices[0].message.tool_calls)>=1)
+    assert intent == (len(final_response.choices[0].message.tool_calls) >= 1)
 
     assert hallucination == model_handler.hallucination_state.hallucination

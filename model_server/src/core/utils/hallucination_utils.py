@@ -201,7 +201,7 @@ class HallucinationState:
                 r = next(self.response_iterator)
                 if hasattr(r.choices[0].delta, "content"):
                     token_content = r.choices[0].delta.content
-                    if token_content != '':
+                    if token_content != "":
                         try:
                             logprobs = [
                                 p.logprob
@@ -214,7 +214,7 @@ class HallucinationState:
                             self.append_and_check_token_hallucination(
                                 token_content, [None]
                             )
-                        
+
                         return token_content
             except StopIteration:
                 raise StopIteration
