@@ -192,7 +192,7 @@ class ArchFunctionHandler(ArchBaseHandler):
                     content = content[4:].strip()
 
             content = self._fix_json_string(content)
-            response_dict["raw_response"] = f"```json\n{content}```"
+            response_dict["raw_response"] = f"```json\n{content}\n```"
 
             model_response = json.loads(content)
             response_dict["response"] = model_response.get("response", "")
