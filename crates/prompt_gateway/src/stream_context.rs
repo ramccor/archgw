@@ -153,7 +153,6 @@ impl StreamContext {
             .and_then(|metadata| metadata.get(X_ARCH_FC_MODEL_RESPONSE))
             .cloned();
 
-
         if !intent_matched {
             // check if we have a default prompt target
             if let Some(default_prompt_target) = self
