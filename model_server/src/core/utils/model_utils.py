@@ -162,7 +162,9 @@ class ArchBaseHandler:
                     # "content": "<tool_response>\n{'name': 'get_stock_price', 'result': '$196.66'}\n</tool_response>"
                     # msg[idx-1] contains tool call = '{"tool_calls": [{"name": "currency_exchange", "arguments": {"currency_symbol": "NZD"}}]}'
                     tool_call_msg = messages[idx - 1].content
-                    if tool_call_msg.startswith("```") and tool_call_msg.endswith("```"):
+                    if tool_call_msg.startswith("```") and tool_call_msg.endswith(
+                        "```"
+                    ):
                         tool_call_msg = tool_call_msg.strip("```").strip()
                         if tool_call_msg.startswith("json"):
                             tool_call_msg = tool_call_msg[4:].strip()
