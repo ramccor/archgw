@@ -159,14 +159,14 @@
 <span id="id1"></span><h1>Model Serving<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#model-serving"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
 <p>Arch is a set of <cite>two</cite> self-contained processes that are designed to run alongside your application
 servers (or on a separate host connected via a network). The first process is designated to manage low-level
-networking and HTTP related comcerns, and the other process is for model serving, which helps Arch make
+networking and HTTP related concerns, and the other process is for model serving, which helps Arch make
 intelligent decisions about the incoming prompts. The model server is designed to call the purpose-built
 LLMs in Arch.</p>
 <a class="reference internal image-reference" href="../../_images/arch-system-architecture.jpg"><img alt="../../_images/arch-system-architecture.jpg" class="align-center" src="../../_images/arch-system-architecture.jpg" style="width: 40%;"/>
 </a>
 <p>Arch’ is designed to be deployed in your cloud VPC, on a on-premises host, and can work on devices that don’t
 have a GPU. Note, GPU devices are need for fast and cost-efficient use, so that Arch (model server, specifically)
-can process prompts quickly and forward control back to the applicaton host. There are three modes in which Arch
+can process prompts quickly and forward control back to the application host. There are three modes in which Arch
 can be configured to run its <strong>model server</strong> subsystem:</p>
 <section id="local-serving-cpu-moderate">
 <h2>Local Serving (CPU - Moderate)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#local-serving-cpu-moderate" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#local-serving-cpu-moderate'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
@@ -180,14 +180,14 @@ might not be available.</p>
 <section id="cloud-serving-gpu-blazing-fast">
 <h2>Cloud Serving (GPU - Blazing Fast)<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#cloud-serving-gpu-blazing-fast" x-intersect.margin.0%.0%.-70%.0%="activeSection = '#cloud-serving-gpu-blazing-fast'"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h2>
 <p>The command below instructs Arch to intelligently use GPUs locally for fast intent detection, but default to
-cloud serving for function calling and guardails scenarios to dramatically improve the speed and overall performance
+cloud serving for function calling and guardrails scenarios to dramatically improve the speed and overall performance
 of your applications.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="gp">$ </span>archgw<span class="w"> </span>up
 </span></code></pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Arch’s model serving in the cloud is priced at $0.05M/token (156x cheaper than GPT-4o) with averlage latency
+<p>Arch’s model serving in the cloud is priced at $0.05M/token (156x cheaper than GPT-4o) with average latency
 of 200ms (10x faster than GPT-4o). Please refer to our <a class="reference internal" href="../../get_started/quickstart.html#quickstart"><span class="std std-ref">Get Started</span></a> to know
 how to generate API keys for model serving</p>
 </div>
@@ -223,7 +223,7 @@ how to generate API keys for model serving</p>
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Apr 06, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Apr 13, 2025. </p>
 </div>
 </div>
 </footer>

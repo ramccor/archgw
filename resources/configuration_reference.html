@@ -154,12 +154,12 @@
 </nav>
 <div id="content" role="main">
 <section id="configuration-reference">
-<span id="configuration-refernce"></span><h1>Configuration Reference<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#configuration-reference"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
-<p>The following is a complete reference of the <code class="docutils literal notranslate"><span class="pre">arch_conifg.yml</span></code> that controls the behavior of a single instance of
+<span id="id1"></span><h1>Configuration Reference<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#configuration-reference"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
+<p>The following is a complete reference of the <code class="docutils literal notranslate"><span class="pre">arch_config.yml</span></code> that controls the behavior of a single instance of
 the Arch gateway. This where you enable capabilities like routing to upstream LLm providers, defining prompt_targets
 where prompts get routed to, apply guardrails, and enable critical agent observability features.</p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text"><a class="reference download internal" download="" href="../_downloads/ca9d3b7116524473d8adbde7cf15d167/arch_config_full_reference.yaml"><code class="xref download docutils literal notranslate"><span class="pre">Arch</span> <span class="pre">Configuration</span> <span class="pre">-</span> <span class="pre">Full</span> <span class="pre">Reference</span></code></a></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id1"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text"><a class="reference download internal" download="" href="../_downloads/ca9d3b7116524473d8adbde7cf15d167/arch_config_full_reference.yaml"><code class="xref download docutils literal notranslate"><span class="pre">Arch</span> <span class="pre">Configuration</span> <span class="pre">-</span> <span class="pre">Full</span> <span class="pre">Reference</span></code></a></span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id2"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></div>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="linenos"> 1</span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.1</span>
 </span><span id="line-2"><span class="linenos"> 2</span>
 </span><span id="line-3"><span class="linenos"> 3</span><span class="nt">listeners</span><span class="p">:</span>
@@ -210,8 +210,8 @@ where prompts get routed to, apply guardrails, and enable critical agent observa
 </span><span id="line-48"><span class="linenos">48</span>
 </span><span id="line-49"><span class="linenos">49</span><span class="c1"># provides a way to override default settings for the arch system</span>
 </span><span id="line-50"><span class="linenos">50</span><span class="nt">overrides</span><span class="p">:</span>
-</span><span id="line-51"><span class="linenos">51</span><span class="w">  </span><span class="c1"># By default Arch uses an NLI + embedding approach to match an incomming prompt to a prompt target.</span>
-</span><span id="line-52"><span class="linenos">52</span><span class="w">  </span><span class="c1"># The intent matching threshold is kept at 0.80, you can overide this behavior if you would like</span>
+</span><span id="line-51"><span class="linenos">51</span><span class="w">  </span><span class="c1"># By default Arch uses an NLI + embedding approach to match an incoming prompt to a prompt target.</span>
+</span><span id="line-52"><span class="linenos">52</span><span class="w">  </span><span class="c1"># The intent matching threshold is kept at 0.80, you can override this behavior if you would like</span>
 </span><span id="line-53"><span class="linenos">53</span><span class="w">  </span><span class="nt">prompt_target_intent_matching_threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.60</span>
 </span><span id="line-54"><span class="linenos">54</span>
 </span><span id="line-55"><span class="linenos">55</span><span class="c1"># default system prompt used by all prompt targets</span>
@@ -274,7 +274,7 @@ where prompts get routed to, apply guardrails, and enable critical agent observa
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Apr 06, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Apr 13, 2025. </p>
 </div>
 </div>
 </footer>
