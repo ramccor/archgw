@@ -64,7 +64,7 @@ def test_prompt_gateway(stream):
 
         # third..end chunk is summarization (role = assistant)
         response_json = json.loads(chunks[2])
-        assert response_json.get("model").startswith("gpt-4o-mini")
+        assert response_json.get("model").startswith("llama-3.2-3b-preview")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["delta"]
@@ -73,7 +73,7 @@ def test_prompt_gateway(stream):
 
     else:
         response_json = response.json()
-        assert response_json.get("model").startswith("gpt-4o-mini")
+        assert response_json.get("model").startswith("llama-3.2-3b-preview")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["message"]
@@ -233,7 +233,7 @@ def test_prompt_gateway_param_tool_call(stream):
 
         # third..end chunk is summarization (role = assistant)
         response_json = json.loads(chunks[2])
-        assert response_json.get("model").startswith("gpt-4o-mini")
+        assert response_json.get("model").startswith("llama-3.2-3b-preview")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["delta"]
@@ -242,7 +242,7 @@ def test_prompt_gateway_param_tool_call(stream):
 
     else:
         response_json = response.json()
-        assert response_json.get("model").startswith("gpt-4o-mini")
+        assert response_json.get("model").startswith("llama-3.2-3b-preview")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["message"]
