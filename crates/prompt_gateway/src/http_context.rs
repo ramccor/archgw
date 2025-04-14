@@ -382,7 +382,7 @@ impl HttpContext for StreamContext {
                         *metadata = Value::Object(serde_json::Map::new());
                     }
 
-                    let tool_call_message = self.generate_toll_call_message();
+                    let tool_call_message = self.generate_tool_call_message();
                     let tool_call_message_str = serde_json::to_string(&tool_call_message).unwrap();
                     metadata.as_object_mut().unwrap().insert(
                         X_ARCH_TOOL_CALL.to_string(),

@@ -626,7 +626,7 @@ impl StreamContext {
         messages
     }
 
-    pub fn generate_toll_call_message(&mut self) -> Message {
+    pub fn generate_tool_call_message(&mut self) -> Message {
         if self.arch_fc_response.is_none() {
             info!("arch_fc_response is none, generating tool call message");
             Message {
