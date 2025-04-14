@@ -77,7 +77,7 @@ def test_prompt_gateway(stream):
 
         # third..end chunk is summarization (role = assistant)
         response_json = json.loads(chunks[2])
-        assert response_json.get("model").startswith("llama-3.2-3b-preview")
+        assert response_json.get("model").startswith("gpt-4o")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["delta"]
@@ -86,7 +86,7 @@ def test_prompt_gateway(stream):
 
     else:
         response_json = response.json()
-        assert response_json.get("model").startswith("llama-3.2-3b-preview")
+        assert response_json.get("model").startswith("gpt-4o")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["message"]
@@ -252,7 +252,7 @@ def test_prompt_gateway_param_tool_call(stream):
 
         # third..end chunk is summarization (role = assistant)
         response_json = json.loads(chunks[2])
-        assert response_json.get("model").startswith("llama-3.2-3b-preview")
+        assert response_json.get("model").startswith("gpt-4o")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["delta"]
@@ -261,7 +261,7 @@ def test_prompt_gateway_param_tool_call(stream):
 
     else:
         response_json = response.json()
-        assert response_json.get("model").startswith("llama-3.2-3b-preview")
+        assert response_json.get("model").startswith("gpt-4o")
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         assert "role" in choices[0]["message"]
@@ -283,7 +283,7 @@ def test_prompt_gateway_default_target(stream):
         "messages": [
             {
                 "role": "user",
-                "content": "hello, what can you do for me?",
+                "content": "hello",
             },
         ],
         "stream": stream,
@@ -294,17 +294,20 @@ def test_prompt_gateway_default_target(stream):
         chunks = get_data_chunks(response, n=3)
         assert len(chunks) > 0
         response_json = json.loads(chunks[0])
+        print("response_json chunks[0]: ", response_json)
         assert response_json.get("model").startswith("api_server")
         assert len(response_json.get("choices", [])) > 0
         assert response_json.get("choices")[0]["delta"]["role"] == "assistant"
 
         response_json = json.loads(chunks[1])
+        print("response_json chunks[1]: ", response_json)
         choices = response_json.get("choices", [])
         assert len(choices) > 0
         content = choices[0]["delta"]["content"]
         assert content == "I can help you with weather forecast"
     else:
         response_json = response.json()
+        print("response_json: ", response_json)
         assert response_json.get("model").startswith("api_server")
         assert len(response_json.get("choices")) > 0
         assert response_json.get("choices")[0]["message"]["role"] == "assistant"
