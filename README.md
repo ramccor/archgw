@@ -277,7 +277,6 @@ $ curl --header 'Content-Type: application/json' \
   ],
 ...
 }
-
 ```
 
 You can override model selection using `x-arch-llm-provider-hint` header. For example if you want to use mistral using following curl command,
