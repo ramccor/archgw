@@ -68,7 +68,7 @@ Content-Type: application/json
     {
       "role": "assistant",
       "content": "It seems I'm missing some information. Could you provide the following details days ?",
-      "model": "Arch-Function-1.5b"
+      "model": "Arch-Function"
     },
     {
       "role": "user",
@@ -82,7 +82,7 @@ POST {{prompt_endpoint}}/v1/chat/completions HTTP/1.1
 Content-Type: application/json
 
 {
-  "model": "--",
+  "model": "None",
   "messages": [
     {
       "role": "user",
@@ -91,7 +91,7 @@ Content-Type: application/json
     {
       "role": "assistant",
       "content": "It seems I'm missing some information. Could you provide the following details days ?",
-      "model": "Arch-Function-1.5b"
+      "model": "Arch-Function"
     },
     {
       "role": "user",

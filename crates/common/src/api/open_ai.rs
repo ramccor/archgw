@@ -135,7 +135,10 @@ impl From<String> for ParameterType {
             "array" => ParameterType::List,
             "dict" => ParameterType::Dict,
             "dictionary" => ParameterType::Dict,
-            _ => ParameterType::String,
+            _ => {
+                log::warn!("Unknown parameter type: {}, assuming type str", s);
+                ParameterType::String
+            }
         }
     }
 }
@@ -186,7 +189,7 @@ pub struct ToolCall {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionCallDetail {
     pub name: String,
-    pub arguments: HashMap<String, Value>,
+    pub arguments: Option<HashMap<String, Value>>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -202,13 +205,6 @@ pub struct ToolCallState {
 pub enum ArchState {
     ToolCall(Vec<ToolCallState>),
 }
-#[derive(Deserialize, Serialize)]
-#[serde(untagged)]
-pub enum ModelServerResponse {
-    ChatCompletionsResponse(ChatCompletionsResponse),
-    ModelServerErrorResponse(ModelServerErrorResponse),
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelServerErrorResponse {
     pub result: String,

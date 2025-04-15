@@ -3,7 +3,9 @@
 </div>
 <div align="center">
 
-_Arch is an intelligent (edge and LLM) proxy designed for agentic applications - to help you protect, observe, and build agentic tasks by simply connecting (existing) APIs._
+
+_The intelligent (edge and LLM) proxy server for agentic applications._<br><br>
+Move faster by letting Arch handle the **pesky** heavy lifting in building agents: fast input clarification, agent routing, seamless integration of prompts with tools for common tasks, and unified access and observability of LLMs.
 
 [Quickstart](#Quickstart) •
 [Demos](#Demos) •
@@ -16,26 +18,32 @@ _Arch is an intelligent (edge and LLM) proxy designed for agentic applications -
 [![rust tests (prompt and llm gateway)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/rust_tests.yml)
 [![e2e tests](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/e2e_tests.yml)
 [![Build and Deploy Documentation](https://github.com/katanemo/arch/actions/workflows/static.yml/badge.svg)](https://github.com/katanemo/arch/actions/workflows/static.yml)
+
+
 </div>
 
 # Overview
-<a href="https://www.producthunt.com/posts/arch-3?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-arch&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=565761&theme=light&period=daily" alt="Arch - Build&#0032;fast&#0044;&#0032;hyper&#0045;personalized&#0032;agents&#0032;with&#0032;intelligent&#0032;infra | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+<a href="https://www.producthunt.com/posts/arch-3?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-arch&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=565761&theme=dark&period=daily&t=1742359429995" alt="Arch - Build&#0032;fast&#0044;&#0032;hyper&#0045;personalized&#0032;agents&#0032;with&#0032;intelligent&#0032;infra | Product Hunt" style="width: 188px; height: 41px;" width="188" height="41" /></a>
 
+Past the thrill of an AI demo, have you found yourself hitting these walls? You know, the all too familiar ones:
 
-Arch Gateway was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
+- You go from one BIG prompt to specialized prompts, but get stuck building **routing and handoff** code?
+- You want use new LLMs, but struggle to **quickly and safely add LLMs** without writing integration code?
+- You're bogged down with prompt engineering just to **clarify user intent and validate inputs** effectively?
+- You're wasting cycles choosing and integrating code for **observability** instead of it happening transparently?
 
->Prompts are nuanced and opaque user requests, which require the same capabilities as traditional HTTP requests including secure handling, intelligent routing, robust observability, and integration with backend (API) systems for personalization – outside core business logic.*
+And you think to yourself, can't I move faster by focusing on higher-level objectives in a language/framework agnostic way? Well, you can! **Arch Gateway** was built by the contributors of [Envoy Proxy](https://www.envoyproxy.io/) with the belief that:
 
-
-Arch is engineered with purpose-built LLMs to handle critical but pesky tasks related to the handling and processing of prompts. This includes detecting and rejecting [jailbreak](https://github.com/verazuo/jailbreak_llms) attempts, intent-based routing for improved task accuracy, mapping user request into "backend" functions, and managing the observability of prompts and LLM API calls in a centralized way.
+>Prompts are nuanced and opaque user requests, which require the same capabilities as traditional HTTP requests including secure handling, intelligent routing, robust observability, and integration with backend (API) systems to improve speed and accuracy for common agentic scenarios  – all outside core application logic.*
 
 **Core Features**:
 
-  - **Intent-based prompt routing & fast ⚡ function-calling via APIs**. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) to handle fast, cost-effective, and accurate prompt-based tasks like function/API calling, and parameter extraction from prompts to build more task-accurate agentic applications.
-  - **Prompt [Guard](https://huggingface.co/collections/katanemo/arch-guard-6702bdc08b889e4bce8f446d)**: Arch centralizes guardrails to prevent jailbreak attempts and ensure safe user interactions without writing a single line of code.
-  - **LLM Routing & Traffic Management**: Arch centralizes calls to LLMs used by your applications, offering smart retries, automatic cutover, and resilient upstream connections for continuous availability.
-  - **Observability**: Arch uses the W3C Trace Context standard to enable complete request tracing across applications, ensuring compatibility with observability tools, and provides metrics to monitor latency, token usage, and error rates, helping optimize AI application performance.
-  - **Built on [Envoy](https://envoyproxy.io)**: Arch runs alongside application servers as a separate containerized process, and builds on top of Envoy's proven HTTP management and scalability features to handle ingress and egress traffic related to prompts and LLMs.
+  - `🚦 Routing`. Engineered with purpose-built [LLMs](https://huggingface.co/collections/katanemo/arch-function-66f209a693ea8df14317ad68) for fast (<100ms) agent routing and hand-off scenarios
+  - `⚡ Tools Use`: For common agentic scenarios let Arch instantly clarify and convert prompts to tools/API calls
+  - `⛨ Guardrails`: Centrally configure and prevent harmful outcomes and ensure safe user interactions
+  - `🔗 Access to LLMs`: Centralize access and traffic to LLMs with smart retries for continuous availability
+  - `🕵 Observability`: W3C compatible request tracing and LLM metrics that instantly plugin with popular tools
+  - `🧱 Built on Envoy`: Arch runs alongside app servers as a containerized process, and builds on top of [Envoy's](https://envoyproxy.io) proven HTTP management and scalability features to handle ingress and egress traffic related to prompts and LLMs.
 
 **High-Level Sequence Diagram**:
 ![alt text](docs/source/_static/img/arch_network_diagram_high_level.png)
@@ -73,7 +81,7 @@ Arch's CLI allows you to manage and interact with the Arch gateway efficiently. 
 ```console
 $ python -m venv venv
 $ source venv/bin/activate   # On Windows, use: venv\Scripts\activate
-$ pip install archgw==0.2.1
+$ pip install archgw==0.2.6
 ```
 
 ### Build AI Agent with Arch Gateway
@@ -143,7 +151,7 @@ $ archgw up arch_config.yaml
 2024-12-05 16:56:27,979 - cli.main - INFO - Starting archgw cli version: 0.1.5
 ...
 2024-12-05 16:56:28,485 - cli.utils - INFO - Schema validation successful!
-2024-12-05 16:56:28,485 - cli.main - INFO - Starging arch model server and arch gateway
+2024-12-05 16:56:28,485 - cli.main - INFO - Starting arch model server and arch gateway
 ...
 2024-12-05 16:56:51,647 - cli.core - INFO - Container is healthy!
 
@@ -241,7 +249,7 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     # we select model from arch_config file
-    model="--",
+    model="None",
     messages=[{"role": "user", "content": "What is the capital of France?"}],
 )
 
@@ -300,6 +308,33 @@ $ curl --header 'Content-Type: application/json' \
 Arch is designed to support best-in class observability by supporting open standards. Please read our [docs](https://docs.archgw.com/guides/observability/observability.html) on observability for more details on tracing, metrics, and logs. The screenshot below is from our integration with Signoz (among others)
 
 ![alt text](docs/source/_static/img/tracing.png)
+
+## Debugging
+
+When debugging issues / errors application logs and access logs provide key information to give you more context on whats going on with the system. Arch gateway runs in info log level and following is a typical output you could see in a typical interaction between developer and arch gateway,
+
+```
+$ archgw up --service archgw --foreground
+...
+[2025-03-26 18:32:01.350][26][info] prompt_gateway: on_http_request_body: sending request to model server
+[2025-03-26 18:32:01.851][26][info] prompt_gateway: on_http_call_response: model server response received
+[2025-03-26 18:32:01.852][26][info] prompt_gateway: on_http_call_response: dispatching api call to developer endpoint: weather_forecast_service, path: /weather, method: POST
+[2025-03-26 18:32:01.882][26][info] prompt_gateway: on_http_call_response: developer api call response received: status code: 200
+[2025-03-26 18:32:01.882][26][info] prompt_gateway: on_http_call_response: sending request to upstream llm
+[2025-03-26 18:32:01.883][26][info] llm_gateway: on_http_request_body: provider: gpt-4o-mini, model requested: None, model selected: gpt-4o-mini
+[2025-03-26 18:32:02.818][26][info] llm_gateway: on_http_response_body: time to first token: 1468ms
+[2025-03-26 18:32:04.532][26][info] llm_gateway: on_http_response_body: request latency: 3183ms
+...
+```
+
+Log level can be changed to debug to get more details. To enable debug logs edit (Dockerfile)[arch/Dockerfile], change the log level `--component-log-level wasm:info` to `--component-log-level wasm:debug`. And after that you need to rebuild docker image and restart the arch gateway using following set of commands,
+
+```
+# make sure you are at the root of the repo
+$ archgw build
+# go to your service that has arch_config.yaml file and issue following command,
+$ archgw up --service archgw --foreground
+```
 
 ## Contribution
 We would love feedback on our [Roadmap](https://github.com/orgs/katanemo/projects/1) and we welcome contributions to **Arch**!

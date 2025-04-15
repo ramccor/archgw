@@ -3,9 +3,9 @@ use common::api::open_ai::{
     ChatCompletionStreamResponseServerEvents, ChatCompletionsRequest, ChatCompletionsResponse,
     Message, StreamOptions,
 };
-use common::configuration::LlmProvider;
+use common::configuration::{LlmProvider, LlmProviderType, Overrides};
 use common::consts::{
-    ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH,
+    ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
     RATELIMIT_SELECTOR_HEADER_KEY, REQUEST_ID_HEADER, TRACE_PARENT_HEADER,
 };
 use common::errors::ServerError;
@@ -15,7 +15,7 @@ use common::stats::{IncrementingMetric, RecordingMetric};
 use common::tracing::{Event, Span, TraceData, Traceparent};
 use common::{ratelimit, routing, tokenizer};
 use http::StatusCode;
-use log::{debug, trace, warn};
+use log::{debug, info, warn};
 use proxy_wasm::hostcalls::get_current_time;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
@@ -42,6 +42,7 @@ pub struct StreamContext {
     request_body_sent_time: Option<u128>,
     user_message: Option<Message>,
     traces_queue: Arc<Mutex<VecDeque<TraceData>>>,
+    overrides: Rc<Option<Overrides>>,
 }
 
 impl StreamContext {
@@ -50,10 +51,12 @@ impl StreamContext {
         metrics: Rc<Metrics>,
         llm_providers: Rc<LlmProviders>,
         traces_queue: Arc<Mutex<VecDeque<TraceData>>>,
+        overrides: Rc<Option<Overrides>>,
     ) -> Self {
         StreamContext {
             context_id,
             metrics,
+            overrides,
             ratelimit_selector: None,
             streaming_response: false,
             response_tokens: 0,
@@ -86,10 +89,34 @@ impl StreamContext {
             provider_hint,
         ));
 
+        // Check if we need to modify the path based on the provider's base_url
+        let needs_openai_prefix = self
+            .llm_provider
+            .as_ref()
+            .and_then(|provider| provider.endpoint.as_ref())
+            .map(|url| url.contains("api.groq.com"))
+            .unwrap_or(false);
+
+        if needs_openai_prefix {
+            if let Some(path) = self.get_http_request_header(":path") {
+                if path.starts_with("/v1/") {
+                    let new_path = format!("/openai{}", path);
+                    self.set_http_request_header(":path", Some(new_path.as_str()));
+                }
+            }
+        }
+
         debug!(
-            "request received: llm provider hint: {:?}, selected llm: {}",
-            self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER),
-            self.llm_provider.as_ref().unwrap().name
+            "request received: llm provider hint: {}, selected llm: {}, model: {}",
+            self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
+                .unwrap_or_default(),
+            self.llm_provider.as_ref().unwrap().name,
+            self.llm_provider
+                .as_ref()
+                .unwrap()
+                .model
+                .as_ref()
+                .unwrap_or(&String::new())
         );
     }
 
@@ -130,7 +157,7 @@ impl StreamContext {
     }
 
     fn send_server_error(&self, error: ServerError, override_status_code: Option<StatusCode>) {
-        debug!("server error occurred: {}", error);
+        warn!("server error occurred: {}", error);
         self.send_http_response(
             override_status_code
                 .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
@@ -149,11 +176,11 @@ impl StreamContext {
         // Tokenize and record token count.
         let token_count = tokenizer::token_count(model, json_string).unwrap_or(0);
 
+        debug!("Recorded input token count: {}", token_count);
         // Record the token count to metrics.
         self.metrics
             .input_sequence_length
             .record(token_count as u64);
-        trace!("Recorded input token count: {}", token_count);
 
         // Check if rate limiting needs to be applied.
         if let Some(selector) = self.ratelimit_selector.take() {
@@ -164,7 +191,7 @@ impl StreamContext {
                 NonZero::new(token_count as u32).unwrap(),
             )?;
         } else {
-            trace!("No rate limit applied for model: {}", model);
+            debug!("No rate limit applied for model: {}", model);
         }
 
         Ok(())
@@ -176,29 +203,59 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        self.select_llm_provider();
-
-        // if endpoint is not set then use provider name as routing header so envoy can resolve the cluster name
-        if self.llm_provider().endpoint.is_none() {
-            self.add_http_request_header(
-                ARCH_ROUTING_HEADER,
-                &self.llm_provider().provider_interface.to_string(),
-            );
-        } else {
-            self.add_http_request_header(ARCH_ROUTING_HEADER, &self.llm_provider().name);
+        let request_path = self.get_http_request_header(":path").unwrap_or_default();
+        if request_path == HEALTHZ_PATH {
+            self.send_http_response(200, vec![], None);
+            return Action::Continue;
         }
 
-        if let Err(error) = self.modify_auth_headers() {
-            // ensure that the provider has an endpoint if the access key is missing else return a bad request
-            if self.llm_provider.as_ref().unwrap().endpoint.is_none() {
-                self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+        let routing_header_value = self.get_http_request_header(ARCH_ROUTING_HEADER);
+
+        let use_agent_orchestrator = match self.overrides.as_ref() {
+            Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
+            None => false,
+        };
+
+        if let Some(routing_header_value) = routing_header_value.as_ref() {
+            info!("routing header already set: {}", routing_header_value);
+            self.llm_provider = Some(Rc::new(LlmProvider {
+                name: routing_header_value.to_string(),
+                provider_interface: LlmProviderType::OpenAI,
+                access_key: None,
+                endpoint: None,
+                model: None,
+                default: None,
+                stream: None,
+                port: None,
+                rate_limits: None,
+            }));
+        } else {
+            self.select_llm_provider();
+            if self.llm_provider().endpoint.is_some() {
+                self.add_http_request_header(
+                    ARCH_ROUTING_HEADER,
+                    &self.llm_provider().name.to_string(),
+                );
+            } else {
+                self.add_http_request_header(
+                    ARCH_ROUTING_HEADER,
+                    &self.llm_provider().provider_interface.to_string(),
+                );
+            }
+            if let Err(error) = self.modify_auth_headers() {
+                // ensure that the provider has an endpoint if the access key is missing else return a bad request
+                if self.llm_provider.as_ref().unwrap().endpoint.is_none() && !use_agent_orchestrator
+                {
+                    self.send_server_error(error, Some(StatusCode::BAD_REQUEST));
+                }
             }
         }
+
         self.delete_content_length_header();
         self.save_ratelimit_header();
 
-        self.is_chat_completions_request =
-            self.get_http_request_header(":path").unwrap_or_default() == CHAT_COMPLETIONS_PATH;
+        let request_path = self.get_http_request_header(":path").unwrap_or_default();
+        self.is_chat_completions_request = CHAT_COMPLETIONS_PATH.contains(&request_path.as_str());
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
@@ -207,6 +264,11 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_request_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
+        debug!(
+            "on_http_request_body [S={}] bytes={} end_stream={}",
+            self.context_id, body_size, end_of_stream
+        );
+
         // Let the client send the gateway all the data before sending to the LLM_provider.
         // TODO: consider a streaming API.
 
@@ -222,34 +284,41 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
+        let body_bytes = match self.get_http_request_body(0, body_size) {
+            Some(body_bytes) => body_bytes,
+            None => {
+                self.send_server_error(
+                    ServerError::LogicError(format!(
+                        "Failed to obtain body bytes even though body_size is {}",
+                        body_size
+                    )),
+                    None,
+                );
+                return Action::Pause;
+            }
+        };
+
         // Deserialize body into spec.
         // Currently OpenAI API.
         let mut deserialized_body: ChatCompletionsRequest =
-            match self.get_http_request_body(0, body_size) {
-                Some(body_bytes) => match serde_json::from_slice(&body_bytes) {
-                    Ok(deserialized) => deserialized,
-                    Err(e) => {
-                        self.send_server_error(
-                            ServerError::Deserialization(e),
-                            Some(StatusCode::BAD_REQUEST),
-                        );
-                        return Action::Pause;
-                    }
-                },
-                None => {
+            match serde_json::from_slice(&body_bytes) {
+                Ok(deserialized) => deserialized,
+                Err(e) => {
+                    debug!(
+                        "on_http_request_body: request body: {}",
+                        String::from_utf8_lossy(&body_bytes)
+                    );
                     self.send_server_error(
-                        ServerError::LogicError(format!(
-                            "Failed to obtain body bytes even though body_size is {}",
-                            body_size
-                        )),
-                        None,
+                        ServerError::Deserialization(e),
+                        Some(StatusCode::BAD_REQUEST),
                     );
                     return Action::Pause;
                 }
             };
 
         // remove metadata from the request body
-        deserialized_body.metadata = None;
+        //TODO: move this to prompt gateway
+        // deserialized_body.metadata = None;
         // delete model key from message array
         for message in deserialized_body.messages.iter_mut() {
             message.model = None;
@@ -262,15 +331,47 @@ impl HttpContext for StreamContext {
             .last()
             .cloned();
 
-        // override model name from the llm provider
-        deserialized_body
-            .model
-            .clone_from(&self.llm_provider.as_ref().unwrap().model);
+        let model_name = match self.llm_provider.as_ref() {
+            Some(llm_provider) => llm_provider.model.as_ref(),
+            None => None,
+        };
+
+        let use_agent_orchestrator = match self.overrides.as_ref() {
+            Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
+            None => false,
+        };
+
+        let model_requested = deserialized_body.model.clone();
+        if deserialized_body.model.is_empty() || deserialized_body.model.to_lowercase() == "none" {
+            deserialized_body.model = match model_name {
+                Some(model_name) => model_name.clone(),
+                None => {
+                    if use_agent_orchestrator {
+                        "agent_orchestrator".to_string()
+                    } else {
+                        self.send_server_error(
+                          ServerError::BadRequest {
+                              why: format!("No model specified in request and couldn't determine model name from arch_config. Model name in req: {}, arch_config, provider: {}, model: {:?}", deserialized_body.model, self.llm_provider().name, self.llm_provider().model).to_string(),
+                          },
+                          Some(StatusCode::BAD_REQUEST),
+                      );
+                        return Action::Continue;
+                    }
+                }
+            }
+        }
+
+        info!(
+            "on_http_request_body: provider: {}, model requested: {}, model selected: {}",
+            self.llm_provider().name,
+            model_requested,
+            model_name.unwrap_or(&"None".to_string()),
+        );
+
         let chat_completion_request_str = serde_json::to_string(&deserialized_body).unwrap();
 
-        trace!(
-            "arch => {:?}, body: {}",
-            deserialized_body.model,
+        debug!(
+            "on_http_request_body: request body: {}",
             chat_completion_request_str
         );
 
@@ -307,10 +408,9 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        trace!(
+        debug!(
             "on_http_response_headers [S={}] end_stream={}",
-            self.context_id,
-            _end_of_stream
+            self.context_id, _end_of_stream
         );
 
         self.set_property(
@@ -322,15 +422,18 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        trace!(
+        debug!(
             "on_http_response_body [S={}] bytes={} end_stream={}",
-            self.context_id,
-            body_size,
-            end_of_stream
+            self.context_id, body_size, end_of_stream
         );
 
+        if self.request_body_sent_time.is_none() {
+            debug!("on_http_response_body: request body not sent, not doing any processing in llm filter");
+            return Action::Continue;
+        }
+
         if !self.is_chat_completions_request {
-            debug!("non-chatcompletion request");
+            info!("on_http_response_body: non-chatcompletion request");
             return Action::Continue;
         }
 
@@ -342,7 +445,7 @@ impl HttpContext for StreamContext {
                 Ok(duration) => {
                     // Convert the duration to milliseconds
                     let duration_ms = duration.as_millis();
-                    debug!("request latency: {}ms", duration_ms);
+                    info!("on_http_response_body: request latency: {}ms", duration_ms);
                     // Record the latency to the latency histogram
                     self.metrics.request_latency.record(duration_ms as u64);
 
@@ -353,7 +456,7 @@ impl HttpContext for StreamContext {
                         // Record the time per output token
                         self.metrics.time_per_output_token.record(tpot);
 
-                        trace!(
+                        debug!(
                             "time per token: {}ms, tokens per second: {}",
                             tpot,
                             1000 / tpot
@@ -381,7 +484,7 @@ impl HttpContext for StreamContext {
                     Ok(traceparent) => {
                         let mut trace_data = common::tracing::TraceData::new();
                         let mut llm_span = Span::new(
-                            "upstream_llm_time".to_string(),
+                            "egress_traffic".to_string(),
                             Some(traceparent.trace_id),
                             Some(traceparent.parent_id),
                             self.request_body_sent_time.unwrap(),
@@ -417,10 +520,9 @@ impl HttpContext for StreamContext {
         let body = if self.streaming_response {
             let chunk_start = 0;
             let chunk_size = body_size;
-            trace!(
-                "streaming response reading, {}..{}",
-                chunk_start,
-                chunk_size
+            debug!(
+                "on_http_response_body: streaming response reading, {}..{}",
+                chunk_start, chunk_size
             );
             let streaming_chunk = match self.get_http_response_body(0, chunk_size) {
                 Some(chunk) => chunk,
@@ -442,7 +544,7 @@ impl HttpContext for StreamContext {
             }
             streaming_chunk
         } else {
-            trace!("non streaming response bytes read: 0:{}", body_size);
+            debug!("non streaming response bytes read: 0:{}", body_size);
             match self.get_http_response_body(0, body_size) {
                 Some(body) => body,
                 None => {
@@ -455,17 +557,21 @@ impl HttpContext for StreamContext {
         let body_utf8 = match String::from_utf8(body) {
             Ok(body_utf8) => body_utf8,
             Err(e) => {
-                debug!("could not convert to utf8: {}", e);
+                warn!("could not convert to utf8: {}", e);
                 return Action::Continue;
             }
         };
 
         if self.streaming_response {
+            if body_utf8 == "data: [DONE]\n" {
+                return Action::Continue;
+            }
+
             let chat_completions_chunk_response_events =
                 match ChatCompletionStreamResponseServerEvents::try_from(body_utf8.as_str()) {
                     Ok(response) => response,
                     Err(e) => {
-                        debug!(
+                        warn!(
                             "invalid streaming response: body str: {}, {:?}",
                             body_utf8, e
                         );
@@ -474,33 +580,27 @@ impl HttpContext for StreamContext {
                 };
 
             if chat_completions_chunk_response_events.events.is_empty() {
-                debug!("empty streaming response");
+                warn!(
+                    "couldn't parse any streaming events: body str: {}",
+                    body_utf8
+                );
                 return Action::Continue;
             }
 
-            let mut model = chat_completions_chunk_response_events
+            let model = chat_completions_chunk_response_events
                 .events
                 .first()
                 .unwrap()
                 .model
                 .clone();
             let tokens_str = chat_completions_chunk_response_events.to_string();
-            //HACK: add support for tokenizing mistral and other models
-            //filed issue https://github.com/katanemo/arch/issues/222
-            if !model.as_ref().unwrap().starts_with("gpt") {
-                warn!(
-                    "tiktoken_rs: unsupported model: {}, using gpt-4 to compute token count",
-                    model.as_ref().unwrap()
-                );
-            }
-            model = Some("gpt-4".to_string());
 
             let token_count =
                 match tokenizer::token_count(model.as_ref().unwrap().as_str(), tokens_str.as_str())
                 {
                     Ok(token_count) => token_count,
                     Err(e) => {
-                        debug!("could not get token count: {:?}", e);
+                        warn!("could not get token count: {:?}", e);
                         return Action::Continue;
                     }
                 };
@@ -514,7 +614,10 @@ impl HttpContext for StreamContext {
                 match current_time.duration_since(self.start_time) {
                     Ok(duration) => {
                         let duration_ms = duration.as_millis();
-                        debug!("time to first token: {}ms", duration_ms);
+                        info!(
+                            "on_http_response_body: time to first token: {}ms",
+                            duration_ms
+                        );
                         self.ttft_duration = Some(duration);
                         self.metrics.time_to_first_token.record(duration_ms as u64);
                     }
@@ -524,12 +627,12 @@ impl HttpContext for StreamContext {
                 }
             }
         } else {
-            trace!("non streaming response");
+            debug!("non streaming response");
             let chat_completions_response: ChatCompletionsResponse =
                 match serde_json::from_str(body_utf8.as_str()) {
                     Ok(de) => de,
                     Err(err) => {
-                        debug!(
+                        info!(
                             "non chat-completion compliant response received err: {}, body: {}",
                             err, body_utf8
                         );
@@ -546,11 +649,9 @@ impl HttpContext for StreamContext {
             }
         }
 
-        trace!(
+        debug!(
             "recv [S={}] total_tokens={} end_stream={}",
-            self.context_id,
-            self.response_tokens,
-            end_of_stream
+            self.context_id, self.response_tokens, end_of_stream
         );
 
         Action::Continue

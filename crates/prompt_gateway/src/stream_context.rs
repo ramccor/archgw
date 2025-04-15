@@ -2,20 +2,21 @@ use crate::metrics::Metrics;
 use crate::tools::compute_request_path_body;
 use common::api::open_ai::{
     to_server_events, ArchState, ChatCompletionStreamResponse, ChatCompletionsRequest,
-    ChatCompletionsResponse, Message, ModelServerResponse, ToolCall,
+    ChatCompletionsResponse, Message, ToolCall,
 };
-use common::configuration::{Overrides, PromptTarget, Tracing};
+use common::configuration::{Endpoint, Overrides, PromptTarget, Tracing};
 use common::consts::{
     API_REQUEST_TIMEOUT_MS, ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME,
     ARCH_UPSTREAM_HOST_HEADER, ASSISTANT_ROLE, DEFAULT_TARGET_REQUEST_TIMEOUT_MS, MESSAGES_KEY,
     REQUEST_ID_HEADER, SYSTEM_ROLE, TOOL_ROLE, TRACE_PARENT_HEADER, USER_ROLE,
+    X_ARCH_FC_MODEL_RESPONSE,
 };
 use common::errors::ServerError;
 use common::http::{CallArgs, Client};
 use common::stats::Gauge;
 use derivative::Derivative;
 use http::StatusCode;
-use log::{debug, trace, warn};
+use log::{debug, info, warn};
 use proxy_wasm::traits::*;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -46,6 +47,7 @@ pub struct StreamCallContext {
 pub struct StreamContext {
     system_prompt: Rc<Option<String>>,
     pub prompt_targets: Rc<HashMap<String, PromptTarget>>,
+    pub endpoints: Rc<Option<HashMap<String, Endpoint>>>,
     pub overrides: Rc<Option<Overrides>>,
     pub metrics: Rc<Metrics>,
     pub callouts: RefCell<HashMap<u32, StreamCallContext>>,
@@ -63,15 +65,16 @@ pub struct StreamContext {
     pub time_to_first_token: Option<u128>,
     pub traceparent: Option<String>,
     pub _tracing: Rc<Option<Tracing>>,
+    pub arch_fc_response: Option<String>,
 }
 
 impl StreamContext {
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         context_id: u32,
         metrics: Rc<Metrics>,
         system_prompt: Rc<Option<String>>,
         prompt_targets: Rc<HashMap<String, PromptTarget>>,
+        endpoints: Rc<Option<HashMap<String, Endpoint>>>,
         overrides: Rc<Option<Overrides>>,
         tracing: Rc<Option<Tracing>>,
     ) -> Self {
@@ -80,6 +83,7 @@ impl StreamContext {
             metrics,
             system_prompt,
             prompt_targets,
+            endpoints,
             callouts: RefCell::new(HashMap::new()),
             chat_completions_request: None,
             tool_calls: None,
@@ -95,6 +99,7 @@ impl StreamContext {
             _tracing: tracing,
             start_upstream_llm_request_time: 0,
             time_to_first_token: None,
+            arch_fc_response: None,
         }
     }
 
@@ -125,10 +130,10 @@ impl StreamContext {
         mut callout_context: StreamCallContext,
     ) {
         let body_str = String::from_utf8(body).unwrap();
-        debug!("model server response received");
-        trace!("response body: {}", body_str);
+        info!("on_http_call_response: model server response received");
+        debug!("response body: {}", body_str);
 
-        let model_server_response: ModelServerResponse = match serde_json::from_str(&body_str) {
+        let model_server_response: ChatCompletionsResponse = match serde_json::from_str(&body_str) {
             Ok(arch_fc_response) => arch_fc_response,
             Err(e) => {
                 warn!(
@@ -139,77 +144,122 @@ impl StreamContext {
             }
         };
 
-        let arch_fc_response = match model_server_response {
-            ModelServerResponse::ChatCompletionsResponse(response) => response,
-            ModelServerResponse::ModelServerErrorResponse(response) => {
-                debug!("archgw <= modelserver error response: {}", response.result);
-                if response.result == "No intent matched" {
-                    if let Some(default_prompt_target) = self
-                        .prompt_targets
-                        .values()
-                        .find(|pt| pt.default.unwrap_or(false))
-                    {
-                        debug!("default prompt target found, forwarding request to default prompt target");
-                        let endpoint = default_prompt_target.endpoint.clone().unwrap();
-                        let upstream_path: String = endpoint.path.unwrap_or(String::from("/"));
+        let intent_matched = check_intent_matched(&model_server_response);
+        info!("intent matched: {}", intent_matched);
 
-                        let upstream_endpoint = endpoint.name;
-                        let mut params = HashMap::new();
-                        params.insert(
-                            MESSAGES_KEY.to_string(),
-                            callout_context.request_body.messages.clone(),
-                        );
-                        let arch_messages_json = serde_json::to_string(&params).unwrap();
-                        let timeout_str = DEFAULT_TARGET_REQUEST_TIMEOUT_MS.to_string();
+        self.arch_fc_response = model_server_response
+            .metadata
+            .as_ref()
+            .and_then(|metadata| metadata.get(X_ARCH_FC_MODEL_RESPONSE))
+            .cloned();
 
-                        let mut headers = vec![
-                            (":method", "POST"),
-                            (ARCH_UPSTREAM_HOST_HEADER, &upstream_endpoint),
-                            (":path", &upstream_path),
-                            (":authority", &upstream_endpoint),
-                            ("content-type", "application/json"),
-                            ("x-envoy-max-retries", "3"),
-                            ("x-envoy-upstream-rq-timeout-ms", timeout_str.as_str()),
-                        ];
+        if !intent_matched {
+            // check if we have a default prompt target
+            if let Some(default_prompt_target) = self
+                .prompt_targets
+                .values()
+                .find(|pt| pt.default.unwrap_or(false))
+            {
+                info!("default prompt target found, forwarding request to default prompt target");
+                let endpoint = default_prompt_target.endpoint.clone().unwrap();
+                let upstream_path: String = endpoint.path.unwrap_or(String::from("/"));
 
-                        if self.request_id.is_some() {
-                            headers.push((REQUEST_ID_HEADER, self.request_id.as_ref().unwrap()));
-                        }
+                let upstream_endpoint = endpoint.name;
+                let mut params = HashMap::new();
+                params.insert(
+                    MESSAGES_KEY.to_string(),
+                    callout_context.request_body.messages.clone(),
+                );
+                let arch_messages_json = serde_json::to_string(&params).unwrap();
+                let timeout_str = DEFAULT_TARGET_REQUEST_TIMEOUT_MS.to_string();
 
-                        // if self.trace_arch_internal() && self.traceparent.is_some() {
-                        //     headers.push((TRACE_PARENT_HEADER, self.traceparent.as_ref().unwrap()));
-                        // }
+                let mut headers = vec![
+                    (":method", "POST"),
+                    (ARCH_UPSTREAM_HOST_HEADER, &upstream_endpoint),
+                    (":path", &upstream_path),
+                    (":authority", &upstream_endpoint),
+                    ("content-type", "application/json"),
+                    ("x-envoy-max-retries", "3"),
+                    ("x-envoy-upstream-rq-timeout-ms", timeout_str.as_str()),
+                ];
 
-                        let call_args = CallArgs::new(
-                            ARCH_INTERNAL_CLUSTER_NAME,
-                            &upstream_path,
-                            headers,
-                            Some(arch_messages_json.as_bytes()),
-                            vec![],
-                            Duration::from_secs(5),
-                        );
-                        callout_context.response_handler_type = ResponseHandlerType::DefaultTarget;
-                        callout_context.prompt_target_name =
-                            Some(default_prompt_target.name.clone());
+                if self.request_id.is_some() {
+                    headers.push((REQUEST_ID_HEADER, self.request_id.as_ref().unwrap()));
+                }
 
-                        if let Err(e) = self.http_call(call_args, callout_context) {
-                            warn!("error dispatching default prompt target request: {}", e);
-                            return self.send_server_error(
-                                ServerError::HttpDispatch(e),
-                                Some(StatusCode::BAD_REQUEST),
-                            );
-                        }
-                        return;
+                let call_args = CallArgs::new(
+                    ARCH_INTERNAL_CLUSTER_NAME,
+                    &upstream_path,
+                    headers,
+                    Some(arch_messages_json.as_bytes()),
+                    vec![],
+                    Duration::from_secs(5),
+                );
+                callout_context.response_handler_type = ResponseHandlerType::DefaultTarget;
+                callout_context.prompt_target_name = Some(default_prompt_target.name.clone());
+
+                if let Err(e) = self.http_call(call_args, callout_context) {
+                    warn!("error dispatching default prompt target request: {}", e);
+                    return self.send_server_error(
+                        ServerError::HttpDispatch(e),
+                        Some(StatusCode::BAD_REQUEST),
+                    );
+                }
+                return;
+            } else {
+                info!("no default prompt target found, forwarding request to upstream llm");
+                let mut messages = Vec::new();
+                // add system prompt
+                match self.system_prompt.as_ref() {
+                    None => {}
+                    Some(system_prompt) => {
+                        let system_prompt_message = Message {
+                            role: SYSTEM_ROLE.to_string(),
+                            content: Some(system_prompt.clone()),
+                            model: None,
+                            tool_calls: None,
+                            tool_call_id: None,
+                        };
+                        messages.push(system_prompt_message);
                     }
                 }
-                return self.send_server_error(
-                    ServerError::LogicError(response.result),
-                    Some(StatusCode::BAD_REQUEST),
-                );
-            }
-        };
 
-        arch_fc_response.choices[0]
+                messages.append(
+                    &mut self
+                        .filter_out_arch_messages(callout_context.request_body.messages.as_ref()),
+                );
+
+                let chat_completion_request = ChatCompletionsRequest {
+                    model: self
+                        .chat_completions_request
+                        .as_ref()
+                        .unwrap()
+                        .model
+                        .clone(),
+                    messages,
+                    tools: None,
+                    stream: callout_context.request_body.stream,
+                    stream_options: callout_context.request_body.stream_options,
+                    metadata: None,
+                };
+
+                let chat_completion_request_json =
+                    serde_json::to_string(&chat_completion_request).unwrap();
+                info!(
+                    "archgw => upstream llm request: {}",
+                    chat_completion_request_json
+                );
+                self.set_http_request_body(
+                    0,
+                    self.request_body_size,
+                    chat_completion_request_json.as_bytes(),
+                );
+                self.resume_http_request();
+                return;
+            }
+        }
+
+        model_server_response.choices[0]
             .message
             .tool_calls
             .clone_into(&mut self.tool_calls);
@@ -231,14 +281,14 @@ impl StreamContext {
             let direct_response_str = if self.streaming_response {
                 let chunks = vec![
                     ChatCompletionStreamResponse::new(
-                        None,
+                        self.arch_fc_response.clone(),
                         Some(ASSISTANT_ROLE.to_string()),
-                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        Some(ARCH_FC_MODEL_NAME.to_string()),
                         None,
                     ),
                     ChatCompletionStreamResponse::new(
                         Some(
-                            arch_fc_response.choices[0]
+                            model_server_response.choices[0]
                                 .message
                                 .content
                                 .as_ref()
@@ -246,7 +296,7 @@ impl StreamContext {
                                 .clone(),
                         ),
                         None,
-                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        Some(format!("{}-Chat", ARCH_FC_MODEL_NAME.to_owned())),
                         None,
                     ),
                 ];
@@ -268,12 +318,59 @@ impl StreamContext {
         callout_context.prompt_target_name =
             Some(self.tool_calls.as_ref().unwrap()[0].function.name.clone());
 
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.use_agent_orchestrator.unwrap_or_default() {
+                let mut metadata = HashMap::new();
+                metadata.insert("use_agent_orchestrator".to_string(), "true".to_string());
+
+                metadata.insert(
+                    "agent-name".to_string(),
+                    callout_context
+                        .prompt_target_name
+                        .as_ref()
+                        .unwrap()
+                        .to_string(),
+                );
+
+                if let Some(overrides) = self.overrides.as_ref() {
+                    if overrides.optimize_context_window.unwrap_or_default() {
+                        metadata.insert("optimize_context_window".to_string(), "true".to_string());
+                    }
+                }
+
+                if let Some(overrides) = self.overrides.as_ref() {
+                    if overrides.use_agent_orchestrator.unwrap_or_default() {
+                        metadata.insert("use_agent_orchestrator".to_string(), "true".to_string());
+                    }
+                }
+
+                let messages = self.construct_llm_messages(&callout_context);
+
+                let chat_completion_request = ChatCompletionsRequest {
+                    model: callout_context.request_body.model.clone(),
+                    messages,
+                    tools: None,
+                    stream: callout_context.request_body.stream,
+                    stream_options: callout_context.request_body.stream_options.clone(),
+                    metadata: Some(metadata),
+                };
+
+                let body_str = serde_json::to_string(&chat_completion_request).unwrap();
+                info!("sending request to llm agent: {}", body_str);
+                self.set_http_request_body(0, self.request_body_size, body_str.as_bytes());
+                self.resume_http_request();
+                return;
+            }
+        }
+
         self.schedule_api_call_request(callout_context);
     }
 
     fn schedule_api_call_request(&mut self, mut callout_context: StreamCallContext) {
+        // Construct messages early to avoid mutable borrow conflicts
+
         let tools_call_name = self.tool_calls.as_ref().unwrap()[0].function.name.clone();
-        let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap();
+        let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap().clone();
         let tool_params = &self.tool_calls.as_ref().unwrap()[0].function.arguments;
         let endpoint_details = prompt_target.endpoint.as_ref().unwrap();
         let endpoint_path: String = endpoint_details
@@ -285,7 +382,7 @@ impl StreamContext {
         let http_method = endpoint_details.method.clone().unwrap_or_default();
         let prompt_target_params = prompt_target.parameters.clone().unwrap_or_default();
 
-        let (path, body) = match compute_request_path_body(
+        let (path, api_call_body) = match compute_request_path_body(
             &endpoint_path,
             tool_params,
             &prompt_target_params,
@@ -301,6 +398,8 @@ impl StreamContext {
                 );
             }
         };
+
+        debug!("on_http_call_response: api call body {:?}", api_call_body);
 
         let timeout_str = API_REQUEST_TIMEOUT_MS.to_string();
 
@@ -335,13 +434,13 @@ impl StreamContext {
             ARCH_INTERNAL_CLUSTER_NAME,
             &path,
             headers.into_iter().collect(),
-            body.as_deref().map(|s| s.as_bytes()),
+            api_call_body.as_deref().map(|s| s.as_bytes()),
             vec![],
             Duration::from_secs(5),
         );
 
-        debug!(
-            "dispatching api call to developer endpoint: {}, path: {}, method: {}",
+        info!(
+            "on_http_call_response: dispatching api call to developer endpoint: {}, path: {}, method: {}",
             endpoint_details.name, path, http_method_str
         );
 
@@ -358,10 +457,15 @@ impl StreamContext {
         let http_status = self
             .get_http_call_response_header(":status")
             .unwrap_or(StatusCode::OK.as_str().to_string());
-        debug!(
-            "developer api call response received: status code: {}",
+        info!(
+            "on_http_call_response: developer api call response received: status code: {}",
             http_status
         );
+        let prompt_target = self
+            .prompt_targets
+            .get(callout_context.prompt_target_name.as_ref().unwrap())
+            .unwrap()
+            .clone();
         if http_status != StatusCode::OK.as_str() {
             warn!(
                 "api server responded with non 2xx status code: {}",
@@ -378,7 +482,7 @@ impl StreamContext {
             );
         }
         self.tool_call_response = Some(String::from_utf8(body).unwrap());
-        trace!(
+        debug!(
             "response body: {}",
             self.tool_call_response.as_ref().unwrap()
         );
@@ -396,6 +500,37 @@ impl StreamContext {
                 );
             }
         };
+
+        if !prompt_target.auto_llm_dispatch_on_response.unwrap_or(true) {
+            let tool_call_response = self.tool_call_response.as_ref().unwrap().clone();
+
+            let direct_response_str = if self.streaming_response {
+                let chunks = vec![
+                    ChatCompletionStreamResponse::new(
+                        None,
+                        Some(ASSISTANT_ROLE.to_string()),
+                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        None,
+                    ),
+                    ChatCompletionStreamResponse::new(
+                        Some(tool_call_response.clone()),
+                        None,
+                        Some(ARCH_FC_MODEL_NAME.to_owned()),
+                        None,
+                    ),
+                ];
+
+                to_server_events(chunks)
+            } else {
+                tool_call_response
+            };
+
+            return self.send_http_response(
+                StatusCode::OK.as_u16().into(),
+                vec![],
+                Some(direct_response_str.as_bytes()),
+            );
+        }
 
         let final_prompt = format!(
             "{}\ncontext: {}",
@@ -429,8 +564,8 @@ impl StreamContext {
                 return self.send_server_error(ServerError::Serialization(e), None);
             }
         };
-        debug!("sending request to upstream llm");
-        trace!("request body: {}", llm_request_str);
+        info!("on_http_call_response: sending request to upstream llm");
+        debug!("request body: {}", llm_request_str);
 
         self.start_upstream_llm_request_time = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -491,13 +626,24 @@ impl StreamContext {
         messages
     }
 
-    pub fn generate_toll_call_message(&mut self) -> Message {
-        Message {
-            role: ASSISTANT_ROLE.to_string(),
-            content: None,
-            model: Some(ARCH_FC_MODEL_NAME.to_string()),
-            tool_calls: self.tool_calls.clone(),
-            tool_call_id: None,
+    pub fn generate_tool_call_message(&mut self) -> Message {
+        if self.arch_fc_response.is_none() {
+            info!("arch_fc_response is none, generating tool call message");
+            Message {
+                role: ASSISTANT_ROLE.to_string(),
+                content: None,
+                model: Some(ARCH_FC_MODEL_NAME.to_string()),
+                tool_calls: self.tool_calls.clone(),
+                tool_call_id: None,
+            }
+        } else {
+            Message {
+                role: ASSISTANT_ROLE.to_string(),
+                content: self.arch_fc_response.as_ref().cloned(),
+                model: Some(ARCH_FC_MODEL_NAME.to_string()),
+                tool_calls: None,
+                tool_call_id: None,
+            }
         }
     }
 
@@ -519,10 +665,7 @@ impl StreamContext {
             .clone();
 
         // check if the default target should be dispatched to the LLM provider
-        if !prompt_target
-            .auto_llm_dispatch_on_response
-            .unwrap_or_default()
-        {
+        if !prompt_target.auto_llm_dispatch_on_response.unwrap_or(true) {
             let default_target_response_str = if self.streaming_response {
                 let chat_completion_response =
                     match serde_json::from_slice::<ChatCompletionsResponse>(&body) {
@@ -626,10 +769,27 @@ impl StreamContext {
         };
 
         let json_resp = serde_json::to_string(&chat_completion_request).unwrap();
-        debug!("archgw => (default target) llm request: {}", json_resp);
+        info!("archgw => (default target) llm request: {}", json_resp);
         self.set_http_request_body(0, self.request_body_size, json_resp.as_bytes());
         self.resume_http_request();
     }
+}
+
+fn check_intent_matched(model_server_response: &ChatCompletionsResponse) -> bool {
+    let content = model_server_response
+        .choices.first()
+        .and_then(|choice| choice.message.content.as_ref());
+
+    let content_has_value = content.is_some() && !content.unwrap().is_empty();
+
+    let tool_calls = model_server_response
+        .choices.first()
+        .and_then(|choice| choice.message.tool_calls.as_ref());
+
+    // intent was matched if content has some value or tool_calls is empty
+
+
+    content_has_value || (tool_calls.is_some() && !tool_calls.unwrap().is_empty())
 }
 
 impl Client for StreamContext {
@@ -641,5 +801,79 @@ impl Client for StreamContext {
 
     fn active_http_calls(&self) -> &Gauge {
         &self.metrics.active_http_calls
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use common::api::open_ai::{ChatCompletionsResponse, Choice, Message, ToolCall};
+
+    use crate::stream_context::check_intent_matched;
+
+    #[test]
+    fn test_intent_matched() {
+        let model_server_response = ChatCompletionsResponse {
+            choices: vec![Choice {
+                message: Message {
+                    content: Some("".to_string()),
+                    tool_calls: Some(vec![]),
+                    role: "assistant".to_string(),
+                    model: None,
+                    tool_call_id: None,
+                },
+                finish_reason: None,
+                index: None,
+            }],
+            usage: None,
+            model: "arch-fc".to_string(),
+            metadata: None,
+        };
+
+        assert!(!check_intent_matched(&model_server_response));
+
+        let model_server_response = ChatCompletionsResponse {
+            choices: vec![Choice {
+                message: Message {
+                    content: Some("hello".to_string()),
+                    tool_calls: Some(vec![]),
+                    role: "assistant".to_string(),
+                    model: None,
+                    tool_call_id: None,
+                },
+                finish_reason: None,
+                index: None,
+            }],
+            usage: None,
+            model: "arch-fc".to_string(),
+            metadata: None,
+        };
+
+        assert!(check_intent_matched(&model_server_response));
+
+        let model_server_response = ChatCompletionsResponse {
+            choices: vec![Choice {
+                message: Message {
+                    content: Some("".to_string()),
+                    tool_calls: Some(vec![ToolCall {
+                        id: "1".to_string(),
+                        function: common::api::open_ai::FunctionCallDetail {
+                            name: "test".to_string(),
+                            arguments: None,
+                        },
+                        tool_type: common::api::open_ai::ToolType::Function,
+                    }]),
+                    role: "assistant".to_string(),
+                    model: None,
+                    tool_call_id: None,
+                },
+                finish_reason: None,
+                index: None,
+            }],
+            usage: None,
+            model: "arch-fc".to_string(),
+            metadata: None,
+        };
+
+        assert!(check_intent_matched(&model_server_response));
     }
 }

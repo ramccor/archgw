@@ -4,7 +4,8 @@ import time
 import logging
 import src.commons.utils as utils
 
-from src.commons.globals import handler_map
+from src.commons.globals import ARCH_ENDPOINT, handler_map
+from src.core.function_calling import ArchFunctionHandler
 from src.core.utils.model_utils import (
     ChatMessage,
     ChatCompletionResponse,
@@ -51,6 +52,8 @@ logging.getLogger("opentelemetry.exporter.otlp.proto.grpc.exporter").setLevel(
 app = FastAPI()
 FastAPIInstrumentor().instrument_app(app)
 
+logger.info(f"using archfc endpoint: {ARCH_ENDPOINT}")
+
 
 @app.get("/healthz")
 async def healthz():
@@ -68,48 +71,59 @@ async def models():
 @app.post("/function_calling")
 async def function_calling(req: ChatMessage, res: Response):
     logger.info("[Endpoint: /function_calling]")
-    logger.info(f"[request body]: {json.dumps(req.model_dump())}")
+    logger.info(f"[request body]: {json.dumps(req.model_dump(exclude_none=True))}")
 
     final_response: ChatCompletionResponse = None
     error_messages = None
 
+    use_agent_orchestrator = req.metadata.get("use_agent_orchestrator", False)
+    logger.info(f"Use agent orchestrator: {use_agent_orchestrator}")
+
     try:
-        intent_start_time = time.perf_counter()
-        intent_response = await handler_map["Arch-Intent"].chat_completion(req)
-        intent_latency = time.perf_counter() - intent_start_time
+        handler_name = "Arch-Agent" if use_agent_orchestrator else "Arch-Function"
+        model_handler: ArchFunctionHandler = handler_map[handler_name]
 
-        if handler_map["Arch-Intent"].detect_intent(intent_response):
-            # TODO: measure agreement between intent detection and function calling
-            try:
-                function_start_time = time.perf_counter()
-                final_response = await handler_map["Arch-Function"].chat_completion(req)
-                function_latency = time.perf_counter() - function_start_time
+        start_time = time.perf_counter()
+        final_response = await model_handler.chat_completion(req)
+        latency = time.perf_counter() - start_time
 
-                final_response.metadata = {
-                    "intent_latency": str(round(intent_latency * 1000, 3)),
-                    "function_latency": str(round(function_latency * 1000, 3)),
-                    "hallucination": str(
-                        handler_map["Arch-Function"].hallucination_state.hallucination
-                    ),
-                }
-            except ValueError as e:
-                res.statuscode = 503
-                error_messages = f"[Arch-Function] - Error in tool call extraction: {e}"
-            except StopIteration as e:
-                res.statuscode = 500
-                error_messages = f"[Arch-Function] - Error in hallucination check: {e}"
-            except Exception as e:
-                res.status_code = 500
-                error_messages = f"[Arch-Function] - Error in ChatCompletion: {e}"
+        if not final_response.metadata:
+            final_response.metadata = {}
+
+        # Parameter gathering for detected intents
+        if final_response.choices[0].message.content:
+            final_response.metadata["function_latency"] = str(round(latency * 1000, 3))
+        # Function Calling
+        elif final_response.choices[0].message.tool_calls:
+            final_response.metadata["function_latency"] = str(round(latency * 1000, 3))
+
+            if not use_agent_orchestrator:
+                final_response.metadata["hallucination"] = str(
+                    model_handler.hallucination_state.hallucination
+                )
+        # No intent detected
         else:
-            intent_response.metadata = {
-                "intent_latency": str(round(intent_latency * 1000, 3)),
-            }
-            final_response = intent_response
+            final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
 
+        if not use_agent_orchestrator:
+            final_response.metadata["intent_latency"] = str(round(latency * 1000, 3))
+
+            final_response.metadata["hallucination"] = str(
+                model_handler.hallucination_state.hallucination
+            )
+
+    except ValueError as e:
+        res.statuscode = 503
+        error_messages = f"[{handler_name}] - Error in tool call extraction: {e}"
+        raise
+    except StopIteration as e:
+        res.statuscode = 500
+        error_messages = f"[{handler_name}] - Error in hallucination check: {e}"
+        raise
     except Exception as e:
         res.status_code = 500
-        error_messages = f"[Arch-Intent] - Error in ChatCompletion: {e}"
+        error_messages = f"[{handler_name}] - Error in ChatCompletion: {e}"
+        raise
 
     if error_messages is not None:
         logger.error(error_messages)
@@ -121,7 +135,7 @@ async def function_calling(req: ChatMessage, res: Response):
 @app.post("/guardrails")
 async def guardrails(req: GuardRequest, res: Response, max_num_words=300):
     logger.info("[Endpoint: /guardrails] - Gateway")
-    logger.info(f"[request body]: {json.dumps(req.model_dump())}")
+    logger.info(f"[request body]: {json.dumps(req.model_dump(exclude_none=True))}")
 
     final_response: GuardResponse = None
     error_messages = None

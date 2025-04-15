@@ -5,8 +5,9 @@ properties:
     type: string
   listeners:
     type: object
+    additionalProperties: false
     properties:
-      prompt_gateway:
+      ingress_traffic:
         type: object
         properties:
           address:
@@ -20,7 +21,7 @@ properties:
           timeout:
             type: string
         additionalProperties: false
-      llm_gateway:
+      egress_traffic:
         type: object
         properties:
           address:
@@ -31,7 +32,6 @@ properties:
             type: string
             enum:
               - openai
-              - huggingface
           timeout:
             type: string
         additionalProperties: false
@@ -62,7 +62,7 @@ properties:
       properties:
         name:
           type: string
-        # this field is deprecated, use provider_interface instead
+        # provider field is deprecated, use provider_interface instead
         provider:
           type: string
           enum:
@@ -78,7 +78,10 @@ properties:
           type: string
         default:
           type: boolean
+        # endpoint field is deprecated, use base_url instead
         endpoint:
+          type: string
+        base_url:
           type: string
         protocol:
           type: string
@@ -90,13 +93,14 @@ properties:
       additionalProperties: false
       required:
         - name
-        - model
   overrides:
     type: object
     properties:
       prompt_target_intent_matching_threshold:
         type: number
       optimize_context_window:
+        type: boolean
+      use_agent_orchestrator:
         type: boolean
   system_prompt:
     type: string
@@ -124,7 +128,10 @@ properties:
               required:
                 type: boolean
               default:
-                type: string
+                anyOf:
+                  - type: string
+                  - type: integer
+                  - type: boolean
               description:
                 type: string
               type:
@@ -132,7 +139,10 @@ properties:
               enum:
                 type: array
                 items:
-                  type: string
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: boolean
               in_path:
                 type: boolean
               format:
@@ -241,5 +251,4 @@ properties:
 additionalProperties: false
 required:
   - version
-  - listeners
   - llm_providers

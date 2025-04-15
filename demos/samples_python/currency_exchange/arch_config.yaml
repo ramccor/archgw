@@ -1,10 +1,11 @@
 version: v0.1
 
-listener:
-  address: 0.0.0.0
-  port: 10000
-  message_format: huggingface
-  connect_timeout: 0.005s
+listeners:
+  ingress_traffic:
+    address: 0.0.0.0
+    port: 10000
+    message_format: openai
+    timeout: 30s
 
 llm_providers:
   - name: gpt-4o
@@ -18,7 +19,7 @@ endpoints:
     protocol: https
 
 system_prompt: |
-  You are a helpful assistant.
+  You are a helpful assistant. Only respond to queries related to currency exchange. If there are any other questions, I can't help you.
 
 prompt_guards:
   input_guards:

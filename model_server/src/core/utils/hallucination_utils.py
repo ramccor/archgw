@@ -13,16 +13,15 @@ from src.commons.utils import get_model_server_logger
 logger = get_model_server_logger()
 
 # constants
-FUNC_NAME_START_PATTERN = ('<tool_call>\n{"name":"', "<tool_call>\n{'name':'")
+FUNC_NAME_START_PATTERN = ('{"name":"', "{'name':'")
 FUNC_NAME_END_TOKEN = ('",', "',")
-TOOL_CALL_TOKEN = "<tool_call>"
-END_TOOL_CALL_TOKEN = "</tool_call>"
+END_TOOL_CALL_TOKEN = "}}"
 
 FIRST_PARAM_NAME_START_PATTERN = ('"arguments":{"', "'arguments':{'")
-PARAMETER_NAME_END_TOKENS = ('":', ':"', "':", ":'")
-PARAMETER_NAME_START_PATTERN = (',"', ",'")
+PARAMETER_NAME_END_TOKENS = ('":', ':"', "':", ":'", '":"', "':'")
+PARAMETER_NAME_START_PATTERN = ('","', "','")
 PARAMETER_VALUE_START_PATTERN = ('":', "':")
-PARAMETER_VALUE_END_TOKEN = ('",', "}}\n", "',")
+PARAMETER_VALUE_END_TOKEN = ('",', '"}')
 
 BRACKETS = {"(": ")", "{": "}", "[": "]"}
 
@@ -37,16 +36,9 @@ class MaskToken(Enum):
 
 
 HALLUCINATION_THRESHOLD_DICT = {
-    MaskToken.TOOL_CALL.value: {
-        "entropy": 0.35,
-        "varentropy": 1.7,
-        "probability": 0.8,
-    },
-    MaskToken.PARAMETER_VALUE.value: {
-        "entropy": 0.28,
-        "varentropy": 1.2,
-        "probability": 0.8,
-    },
+    "entropy": 0.0001,
+    "varentropy": 0.0001,
+    "probability": 0.8,
 }
 
 
@@ -60,7 +52,7 @@ def check_threshold(entropy: float, varentropy: float, thd: Dict) -> bool:
         thd (dict): A dictionary containing the threshold values with keys 'entropy' and 'varentropy'.
 
     Returns:
-        bool: True if either the entropy or varentropy exceeds their respective thresholds, False otherwise.
+        bool: True if both the entropy and varentropy exceeds their respective thresholds, False otherwise.
     """
     return entropy > thd["entropy"] and varentropy > thd["varentropy"]
 
@@ -82,7 +74,7 @@ def calculate_uncertainty(log_probs: List[float]) -> Tuple[float, float]:
     token_probs = torch.exp(log_probs)
     entropy = -torch.sum(log_probs * token_probs, dim=-1) / math.log(2, math.e)
     varentropy = torch.sum(
-        token_probs * (log_probs / math.log(2, math.e)) + entropy.unsqueeze(-1) ** 2,
+        token_probs * (log_probs / math.log(2, math.e) + entropy.unsqueeze(-1)) ** 2,
         dim=-1,
     )
     return entropy.item(), varentropy.item(), token_probs[0].item()
@@ -160,6 +152,7 @@ class HallucinationState:
         self._process_function(function)
         self.open_bracket = False
         self.bracket = None
+        self.function_name = ""
         self.check_parameter_name = {}
         self.HALLUCINATION_THRESHOLD_DICT = HALLUCINATION_THRESHOLD_DICT
 
@@ -208,22 +201,20 @@ class HallucinationState:
                 r = next(self.response_iterator)
                 if hasattr(r.choices[0].delta, "content"):
                     token_content = r.choices[0].delta.content
-                    if token_content:
+                    if token_content != "":
                         try:
                             logprobs = [
                                 p.logprob
                                 for p in r.choices[0].logprobs.content[0].top_logprobs
                             ]
-                        except Exception as e:
-                            raise ValueError(
-                                f"Error extracting logprobs from response: {e}"
-                            )
-                        if token_content == END_TOOL_CALL_TOKEN:
-                            self._reset_parameters()
-                        else:
                             self.append_and_check_token_hallucination(
                                 token_content, logprobs
                             )
+                        except Exception as e:
+                            self.append_and_check_token_hallucination(
+                                token_content, [None]
+                            )
+
                         return token_content
             except StopIteration:
                 raise StopIteration
@@ -234,12 +225,12 @@ class HallucinationState:
         Detects hallucinations based on the token type and log probabilities.
         """
         content = "".join(self.tokens).replace(" ", "")
-        if self.tokens[-1] == TOOL_CALL_TOKEN:
-            self.mask.append(MaskToken.TOOL_CALL)
-            self._check_logprob()
 
         # Function name extraction logic
         # If the state is function name and the token is not an end token, add to the mask
+        if content.endswith(END_TOOL_CALL_TOKEN):
+            self._reset_parameters()
+
         if self.state == "function_name":
             if self.tokens[-1] not in FUNC_NAME_END_TOKEN:
                 self.mask.append(MaskToken.FUNCTION_NAME)
@@ -303,22 +294,30 @@ class HallucinationState:
                 self.mask.append(MaskToken.PARAMETER_VALUE)
 
                 # checking if the parameter doesn't have enum and the token is the first parameter value token
-                if (
-                    len(self.mask) > 1
-                    and self.mask[-2] != MaskToken.PARAMETER_VALUE
-                    and is_parameter_required(
-                        self.function_properties[self.function_name],
-                        self.parameter_name[-1],
+                # check if function name is in function properties
+                if self.function_name in self.function_properties:
+                    if (
+                        len(self.mask) > 1
+                        and self.mask[-2] != MaskToken.PARAMETER_VALUE
+                        and is_parameter_required(
+                            self.function_properties[self.function_name],
+                            self.parameter_name[-1],
+                        )
+                        and not is_parameter_property(
+                            self.function_properties[self.function_name],
+                            self.parameter_name[-1],
+                            "enum",
+                        )
+                    ):
+                        if self.parameter_name[-1] not in self.check_parameter_name:
+                            self._check_logprob()
+                            self.check_parameter_name[self.parameter_name[-1]] = True
+                else:
+                    self._check_logprob()
+                    self.error_message = f"Function name {self.function_name} not found in function properties"
+                    logger.warning(
+                        f"Function name {self.function_name} not found in function properties"
                     )
-                    and not is_parameter_property(
-                        self.function_properties[self.function_name],
-                        self.parameter_name[-1],
-                        "enum",
-                    )
-                ):
-                    if self.parameter_name[-1] not in self.check_parameter_name:
-                        self._check_logprob()
-                        self.check_parameter_name[self.parameter_name[-1]] = True
             else:
                 self.mask.append(MaskToken.NOT_USED)
         # if the state is parameter value and the token is an end token, change the state
@@ -351,7 +350,7 @@ class HallucinationState:
         if check_threshold(
             entropy,
             varentropy,
-            self.HALLUCINATION_THRESHOLD_DICT[self.mask[-1].value],
+            self.HALLUCINATION_THRESHOLD_DICT,
         ):
             self.hallucination = True
             self.error_message = f"token '{self.tokens[-1]}' is uncertain. Generated response:\n{''.join(self.tokens)}"

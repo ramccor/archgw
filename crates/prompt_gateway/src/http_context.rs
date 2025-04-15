@@ -4,17 +4,18 @@ use common::{
         self, ArchState, ChatCompletionStreamResponse, ChatCompletionTool, ChatCompletionsRequest,
     },
     consts::{
-        ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME, ARCH_STATE_HEADER,
+        ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME, ARCH_ROUTING_HEADER,
         ARCH_UPSTREAM_HOST_HEADER, ASSISTANT_ROLE, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
         MODEL_SERVER_NAME, MODEL_SERVER_REQUEST_TIMEOUT_MS, REQUEST_ID_HEADER, TOOL_ROLE,
-        TRACE_PARENT_HEADER, USER_ROLE,
+        TRACE_PARENT_HEADER, USER_ROLE, X_ARCH_API_RESPONSE, X_ARCH_FC_MODEL_RESPONSE,
+        X_ARCH_STATE_HEADER, X_ARCH_TOOL_CALL,
     },
     errors::ServerError,
     http::{CallArgs, Client},
     pii::obfuscate_auth_header,
 };
 use http::StatusCode;
-use log::{debug, trace, warn};
+use log::{debug, info, warn};
 use proxy_wasm::{traits::HttpContext, types::Action};
 use serde_json::Value;
 use std::{
@@ -33,15 +34,37 @@ impl HttpContext for StreamContext {
         // manipulate the body in benign ways e.g., compression.
         self.set_http_request_header("content-length", None);
 
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.use_agent_orchestrator.unwrap_or_default() {
+                // get endpoint that has agent_orchestrator set to true
+                if let Some(endpoints) = self.endpoints.as_ref() {
+                    if endpoints.len() == 1 {
+                        let (name, _) = endpoints.iter().next().unwrap();
+                        info!("Setting ARCH_PROVIDER_HINT_HEADER to {}", name);
+                        self.set_http_request_header(ARCH_ROUTING_HEADER, Some(name));
+                    } else {
+                        warn!("Need single endpoint when use_agent_orchestrator is set");
+                        self.send_server_error(
+                            ServerError::LogicError(
+                                "Need single endpoint when use_agent_orchestrator is set"
+                                    .to_string(),
+                            ),
+                            None,
+                        );
+                    }
+                }
+            }
+        }
+
         let request_path = self.get_http_request_header(":path").unwrap_or_default();
         if request_path == HEALTHZ_PATH {
             self.send_http_response(200, vec![], None);
             return Action::Continue;
         }
 
-        self.is_chat_completions_request = request_path == CHAT_COMPLETIONS_PATH;
+        self.is_chat_completions_request = CHAT_COMPLETIONS_PATH.contains(&request_path.as_str());
 
-        trace!(
+        debug!(
             "on_http_request_headers S[{}] req_headers={:?}",
             self.context_id,
             obfuscate_auth_header(&mut self.get_http_request_headers())
@@ -49,6 +72,7 @@ impl HttpContext for StreamContext {
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
+
         Action::Continue
     }
 
@@ -66,10 +90,9 @@ impl HttpContext for StreamContext {
 
         self.request_body_size = body_size;
 
-        trace!(
+        debug!(
             "on_http_request_body S[{}] body_size={}",
-            self.context_id,
-            body_size
+            self.context_id, body_size
         );
 
         let body_bytes = match self.get_http_request_body(0, body_size) {
@@ -86,7 +109,7 @@ impl HttpContext for StreamContext {
             }
         };
 
-        trace!("request body: {}", String::from_utf8_lossy(&body_bytes));
+        debug!("request body: {}", String::from_utf8_lossy(&body_bytes));
 
         // Deserialize body into spec.
         // Currently OpenAI API.
@@ -103,8 +126,8 @@ impl HttpContext for StreamContext {
 
         self.arch_state = match deserialized_body.metadata {
             Some(ref metadata) => {
-                if metadata.contains_key(ARCH_STATE_HEADER) {
-                    let arch_state_str = metadata[ARCH_STATE_HEADER].clone();
+                if metadata.contains_key(X_ARCH_STATE_HEADER) {
+                    let arch_state_str = metadata[X_ARCH_STATE_HEADER].clone();
                     let arch_state: Vec<ArchState> = serde_json::from_str(&arch_state_str).unwrap();
                     Some(arch_state)
                 } else {
@@ -152,11 +175,23 @@ impl HttpContext for StreamContext {
             }
         }
 
+        if let Some(overrides) = self.overrides.as_ref() {
+            if overrides.use_agent_orchestrator.unwrap_or_default() {
+                if metadata.is_none() {
+                    metadata = Some(HashMap::new());
+                }
+                metadata
+                    .as_mut()
+                    .unwrap()
+                    .insert("use_agent_orchestrator".to_string(), "true".to_string());
+            }
+        }
+
         let arch_fc_chat_completion_request = ChatCompletionsRequest {
             messages: deserialized_body.messages.clone(),
             metadata,
             stream: deserialized_body.stream,
-            model: "--".to_string(),
+            model: deserialized_body.model.clone(),
             stream_options: deserialized_body.stream_options.clone(),
             tools: Some(tool_calls),
         };
@@ -171,8 +206,10 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!("sending request to model server");
-        trace!("request body: {}", json_data);
+        info!("on_http_request_body: sending request to model server");
+        debug!("request body: {}", json_data);
+
+        let timeout_str = MODEL_SERVER_REQUEST_TIMEOUT_MS.to_string();
 
         let timeout_str = MODEL_SERVER_REQUEST_TIMEOUT_MS.to_string();
 
@@ -213,7 +250,7 @@ impl HttpContext for StreamContext {
         };
 
         if let Err(e) = self.http_call(call_args, call_context) {
-            debug!("http_call failed: {:?}", e);
+            warn!("http_call failed: {:?}", e);
             self.send_server_error(ServerError::HttpDispatch(e), None);
         }
 
@@ -221,7 +258,7 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        trace!(
+        debug!(
             "on_http_response_headers recv [S={}] headers={:?}",
             self.context_id,
             self.get_http_response_headers()
@@ -233,15 +270,13 @@ impl HttpContext for StreamContext {
     }
 
     fn on_http_response_body(&mut self, body_size: usize, end_of_stream: bool) -> Action {
-        trace!(
+        debug!(
             "on_http_response_body: recv [S={}] bytes={} end_stream={}",
-            self.context_id,
-            body_size,
-            end_of_stream
+            self.context_id, body_size, end_of_stream
         );
 
         if !self.is_chat_completions_request {
-            debug!("non-gpt request");
+            info!("non-gpt request");
             return Action::Continue;
         }
 
@@ -280,7 +315,7 @@ impl HttpContext for StreamContext {
 
             streaming_chunk
         } else {
-            debug!("non streaming response bytes read: 0:{}", body_size);
+            info!("non streaming response bytes read: 0:{}", body_size);
             match self.get_http_response_body(0, body_size) {
                 Some(body) => body,
                 None => {
@@ -293,21 +328,21 @@ impl HttpContext for StreamContext {
         let body_utf8 = match String::from_utf8(body) {
             Ok(body_utf8) => body_utf8,
             Err(e) => {
-                debug!("could not convert to utf8: {}", e);
+                info!("could not convert to utf8: {}", e);
                 return Action::Continue;
             }
         };
 
         if self.streaming_response {
-            trace!("streaming response");
+            debug!("streaming response");
 
             if self.tool_calls.is_some() && !self.tool_calls.as_ref().unwrap().is_empty() {
                 let chunks = vec![
                     ChatCompletionStreamResponse::new(
-                        None,
+                        self.arch_fc_response.clone(),
                         Some(ASSISTANT_ROLE.to_string()),
                         Some(ARCH_FC_MODEL_NAME.to_string()),
-                        self.tool_calls.to_owned(),
+                        None,
                     ),
                     ChatCompletionStreamResponse::new(
                         self.tool_call_response.clone(),
@@ -349,25 +384,47 @@ impl HttpContext for StreamContext {
                         *metadata = Value::Object(serde_json::Map::new());
                     }
 
-                    let fc_messages = vec![
-                        self.generate_toll_call_message(),
-                        self.generate_api_response_message(),
-                    ];
+                    let tool_call_message = self.generate_tool_call_message();
+                    let tool_call_message_str = serde_json::to_string(&tool_call_message).unwrap();
+                    metadata.as_object_mut().unwrap().insert(
+                        X_ARCH_TOOL_CALL.to_string(),
+                        serde_json::Value::String(tool_call_message_str),
+                    );
+
+                    let api_response_message = self.generate_api_response_message();
+                    let api_response_message_str =
+                        serde_json::to_string(&api_response_message).unwrap();
+                    metadata.as_object_mut().unwrap().insert(
+                        X_ARCH_API_RESPONSE.to_string(),
+                        serde_json::Value::String(api_response_message_str),
+                    );
+
+                    let fc_messages = vec![tool_call_message, api_response_message];
+
                     let fc_messages_str = serde_json::to_string(&fc_messages).unwrap();
                     let arch_state = HashMap::from([("messages".to_string(), fc_messages_str)]);
                     let arch_state_str = serde_json::to_string(&arch_state).unwrap();
                     metadata.as_object_mut().unwrap().insert(
-                        ARCH_STATE_HEADER.to_string(),
+                        X_ARCH_STATE_HEADER.to_string(),
                         serde_json::Value::String(arch_state_str),
                     );
+
+                    if let Some(arch_fc_response) = self.arch_fc_response.as_ref() {
+                        metadata.as_object_mut().unwrap().insert(
+                            X_ARCH_FC_MODEL_RESPONSE.to_string(),
+                            serde_json::Value::String(
+                                serde_json::to_string(arch_fc_response).unwrap(),
+                            ),
+                        );
+                    }
                     let data_serialized = serde_json::to_string(&data).unwrap();
-                    debug!("archgw <= developer: {}", data_serialized);
+                    info!("archgw <= developer: {}", data_serialized);
                     self.set_http_response_body(0, body_size, data_serialized.as_bytes());
                 };
             }
         }
 
-        trace!("recv [S={}] end_stream={}", self.context_id, end_of_stream);
+        debug!("recv [S={}] end_stream={}", self.context_id, end_of_stream);
 
         Action::Continue
     }

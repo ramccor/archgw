@@ -3,6 +3,7 @@ import os
 from jinja2 import Environment, FileSystemLoader
 import yaml
 from jsonschema import validate
+from urllib.parse import urlparse
 
 ENVOY_CONFIG_TEMPLATE_FILE = os.getenv(
     "ENVOY_CONFIG_TEMPLATE_FILE", "envoy.template.yaml"
@@ -47,7 +48,7 @@ def validate_and_render_schema():
         arch_config_schema = file.read()
 
     config_yaml = yaml.safe_load(arch_config)
-    config_schema_yaml = yaml.safe_load(arch_config_schema)
+    _ = yaml.safe_load(arch_config_schema)
     inferred_clusters = {}
 
     endpoints = config_yaml.get("endpoints", {})
@@ -91,6 +92,9 @@ def validate_and_render_schema():
             del llm_provider["provider"]
         updated_llm_providers.append(llm_provider)
 
+        if llm_provider.get("endpoint") and llm_provider.get("base_url"):
+            raise Exception("Please provide either endpoint or base_url, not both")
+
         if llm_provider.get("endpoint", None):
             endpoint = llm_provider["endpoint"]
             protocol = llm_provider.get("protocol", "http")
@@ -98,13 +102,39 @@ def validate_and_render_schema():
                 endpoint, protocol
             )
             llms_with_endpoint.append(llm_provider)
+        elif llm_provider.get("base_url", None):
+            base_url = llm_provider["base_url"]
+            urlparse_result = urlparse(base_url)
+            if llm_provider.get("port"):
+                raise Exception("Please provider port in base_url")
+            if urlparse_result.scheme == "" or urlparse_result.scheme not in [
+                "http",
+                "https",
+            ]:
+                raise Exception(
+                    "Please provide a valid URL with scheme (http/https) in base_url"
+                )
+            protocol = urlparse_result.scheme
+            port = urlparse_result.port
+            if port is None:
+                if protocol == "http":
+                    port = 80
+                else:
+                    port = 443
+            endpoint = urlparse_result.hostname
+            llm_provider["endpoint"] = endpoint
+            llm_provider["port"] = port
+            llm_provider["protocol"] = protocol
+            llms_with_endpoint.append(llm_provider)
 
     config_yaml["llm_providers"] = updated_llm_providers
 
     arch_config_string = yaml.dump(config_yaml)
     arch_llm_config_string = yaml.dump(config_yaml)
 
-    prompt_gateway_listener = config_yaml.get("listeners", {}).get("prompt_gateway", {})
+    prompt_gateway_listener = config_yaml.get("listeners", {}).get(
+        "ingress_traffic", {}
+    )
     if prompt_gateway_listener.get("port") == None:
         prompt_gateway_listener["port"] = 10000  # default port for prompt gateway
     if prompt_gateway_listener.get("address") == None:
@@ -112,7 +142,7 @@ def validate_and_render_schema():
     if prompt_gateway_listener.get("timeout") == None:
         prompt_gateway_listener["timeout"] = "10s"
 
-    llm_gateway_listener = config_yaml.get("listeners", {}).get("llm_gateway", {})
+    llm_gateway_listener = config_yaml.get("listeners", {}).get("egress_traffic", {})
     if llm_gateway_listener.get("port") == None:
         llm_gateway_listener["port"] = 12000  # default port for llm gateway
     if llm_gateway_listener.get("address") == None:
@@ -120,6 +150,26 @@ def validate_and_render_schema():
     if llm_gateway_listener.get("timeout") == None:
         llm_gateway_listener["timeout"] = "10s"
 
+    use_agent_orchestrator = config_yaml.get("overrides", {}).get(
+        "use_agent_orchestrator", False
+    )
+
+    agent_orchestrator = None
+    if use_agent_orchestrator:
+        print("Using agent orchestrator")
+
+        if len(endpoints) == 0:
+            raise Exception(
+                "Please provide agent orchestrator in the endpoints section in your arch_config.yaml file"
+            )
+        elif len(endpoints) > 1:
+            raise Exception(
+                "Please provide single agent orchestrator in the endpoints section in your arch_config.yaml file"
+            )
+        else:
+            agent_orchestrator = list(endpoints.keys())[0]
+
+    print("agent_orchestrator: ", agent_orchestrator)
     data = {
         "prompt_gateway_listener": prompt_gateway_listener,
         "llm_gateway_listener": llm_gateway_listener,
@@ -129,6 +179,7 @@ def validate_and_render_schema():
         "arch_llm_providers": config_yaml["llm_providers"],
         "arch_tracing": arch_tracing,
         "local_llms": llms_with_endpoint,
+        "agent_orchestrator": agent_orchestrator,
     }
 
     rendered = template.render(data)

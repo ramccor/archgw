@@ -54,13 +54,13 @@ def chat(
         if model_selector and model_selector != "":
             headers["x-arch-llm-provider-hint"] = model_selector
         client = OpenAI(
-            api_key="--",
+            api_key="None",
             base_url=CHAT_COMPLETION_ENDPOINT,
             default_headers=headers,
         )
         response = client.chat.completions.create(
             # we select model from arch_config file
-            model="--",
+            model="None",
             messages=history,
             temperature=1.0,
             stream=True,
@@ -87,6 +87,22 @@ def chat(
             )
 
             yield "", conversation, history, debug_output, model_selector
+
+    # update assistant response to have correct format
+    # arch-fc 1.1 expects following format:
+    # {
+    #     "response": "<assistant response>",
+    # }
+    # and this entire block needs to be encoded in ```json\n{json_encoded_content}\n```
+
+    if not history[-1]["model"].startswith("Arch"):
+        assistant_response = {
+            "response": history[-1]["content"],
+        }
+        history[-1]["content"] = "```json\n{}\n```".format(
+            json.dumps(assistant_response)
+        )
+    log.info("history: {}".format(json.dumps(history)))
 
 
 def main():

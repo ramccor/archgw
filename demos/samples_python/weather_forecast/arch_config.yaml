@@ -1,10 +1,11 @@
 version: "0.1-beta"
 
-listener:
-  address: 0.0.0.0
-  port: 10000
-  message_format: huggingface
-  connect_timeout: 0.005s
+listeners:
+  ingress_traffic:
+    address: 0.0.0.0
+    port: 10000
+    message_format: openai
+    timeout: 30s
 
 endpoints:
   weather_forecast_service:
@@ -16,21 +17,17 @@ overrides:
   prompt_target_intent_matching_threshold: 0.6
 
 llm_providers:
-  - name: gpt-4o-mini
-    access_key: $OPENAI_API_KEY
+  - name: groq
+    access_key: $GROQ_API_KEY
     provider_interface: openai
-    model: gpt-4o-mini
-    default: true
-
-  - name: gpt-3.5-turbo-0125
-    access_key: $OPENAI_API_KEY
-    provider_interface: openai
-    model: gpt-3.5-turbo-0125
+    model: llama-3.2-3b-preview
+    base_url: https://api.groq.com
 
   - name: gpt-4o
     access_key: $OPENAI_API_KEY
     provider_interface: openai
     model: gpt-4o
+    default: true
 
 system_prompt: |
   You are a helpful assistant.

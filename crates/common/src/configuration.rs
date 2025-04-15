@@ -25,6 +25,7 @@ pub struct Configuration {
 pub struct Overrides {
     pub prompt_target_intent_matching_threshold: Option<f64>,
     pub optimize_context_window: Option<bool>,
+    pub use_agent_orchestrator: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -159,7 +160,7 @@ pub struct LlmProvider {
     pub name: String,
     pub provider_interface: LlmProviderType,
     pub access_key: Option<String>,
-    pub model: String,
+    pub model: Option<String>,
     pub default: Option<bool>,
     pub stream: Option<bool>,
     pub endpoint: Option<String>,
@@ -324,16 +325,6 @@ mod test {
         assert_eq!(
             prompt_target.endpoint.as_ref().unwrap().path,
             Some("/agent/summary".to_string())
-        );
-
-        let error_target = config.error_target.as_ref().unwrap();
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().name,
-            "error_target_1".to_string()
-        );
-        assert_eq!(
-            error_target.endpoint.as_ref().unwrap().path,
-            Some("/error".to_string())
         );
 
         let tracing = config.tracing.as_ref().unwrap();
