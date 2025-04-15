@@ -93,12 +93,16 @@ def chat(
     # {
     #     "response": "<assistant response>",
     # }
+    # and this entire block needs to be encoded in ```json\n{json_encoded_content}\n```
 
     if not history[-1]["model"].startswith("Arch"):
         assistant_response = {
             "response": history[-1]["content"],
         }
-        history[-1]["content"] = json.dumps(assistant_response)
+        history[-1]["content"] = "```json\n{}\n```".format(
+            json.dumps(assistant_response)
+        )
+    log.info("history: {}".format(json.dumps(history)))
 
 
 def main():
