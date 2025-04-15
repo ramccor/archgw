@@ -211,8 +211,6 @@ impl HttpContext for StreamContext {
 
         let timeout_str = MODEL_SERVER_REQUEST_TIMEOUT_MS.to_string();
 
-        let timeout_str = MODEL_SERVER_REQUEST_TIMEOUT_MS.to_string();
-
         let mut headers = vec![
             (ARCH_UPSTREAM_HOST_HEADER, MODEL_SERVER_NAME),
             (":method", "POST"),
