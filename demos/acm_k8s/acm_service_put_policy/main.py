@@ -105,3 +105,25 @@ async def create_policy(req: PolicyPut, res: Response):
     logger.info(f"Response: {resp_text}")
 
     return {"status: ": resp_text}
+
+
+class DefaultTargetRequest(BaseModel):
+    messages: list = []
+
+
+@app.post("/default_target")
+async def default_target(req: DefaultTargetRequest, res: Response):
+    logger.info(f"Received messages: {req.messages}")
+    resp = {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "I can help you with k8s policy creation, getting policy details, cluster details and node details. When creating a policy please provide the policy name, namespace, and remediation action.",
+                },
+            }
+        ],
+        "model": "api_server",
+    }
+    logger.info(f"sending response: {json.dumps(resp)}")
+    return resp

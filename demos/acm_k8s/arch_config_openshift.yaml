@@ -1,8 +1,9 @@
 version: "0.1-beta"
 
 listeners:
-  prompt_gateway:
+  ingress_traffic:
     address: 0.0.0.0
+    port: 10000
     message_format: openai
     timeout: 30s
 
@@ -111,19 +112,15 @@ prompt_targets:
   - name: default_target
     default: true
     description: This is the default target for all unmatched prompts.
+    endpoint:
+      name: local_proxy_service
+      path: /default_target
+      http_method: POST
     system_prompt: |
-      You are a helpful assistant that can help answer ACM queries. Following is a list of available commands user can ask. Based on question asked, tell me which command you want to execute.
-
-      - name: listAllClusterDetails
-        description: Query your clusters for more details.
-        endpoint:
-          http_method: GET
-          name: acm_service
-          path: /apis/cluster.open-cluster-management.io/v1/managedclusters
-        system_prompt: |
-          You are a helpful assistant. You are given response in json. Only show name of the cluster and its status.
-
-    auto_llm_dispatch_on_response: true
+      You are a helpful assistant! Summarize the user's request and provide a helpful response.
+    # if it is set to false arch will send response that it received from this prompt target to the user
+    # if true arch will forward the response to the default LLM
+    auto_llm_dispatch_on_response: false
 
 tracing:
   random_sampling: 100
