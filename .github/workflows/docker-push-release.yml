@@ -30,7 +30,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=raw,value={{tag}}
+            type=raw,value={{sha}}
 
       - name: Build and Push ARM64 Image
         uses: docker/build-push-action@v5
@@ -60,7 +60,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=raw,value={{tag}}
+            type=raw,value={{sha}}
 
       - name: Build and Push AMD64 Image
         uses: docker/build-push-action@v5
@@ -88,7 +88,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=raw,value={{tag}}
+            type=raw,value={{sha}}
 
       - name: Create Multi-Arch Manifest
         run: |
