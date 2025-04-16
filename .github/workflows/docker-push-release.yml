@@ -39,7 +39,7 @@ jobs:
           file: ./arch/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}-arm64
 
   # Build AMD64 image on GitHub's AMD64 runner
   build-amd64:
