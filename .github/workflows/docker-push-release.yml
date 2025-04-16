@@ -30,7 +30,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=tag
+            type=raw,value={{tag}}
 
       - name: Build and Push ARM64 Image
         uses: docker/build-push-action@v5
@@ -39,7 +39,7 @@ jobs:
           file: ./arch/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.tags }}-arm64
+          tags: ${{ steps.meta.outputs.tags }}
 
   # Build AMD64 image on GitHub's AMD64 runner
   build-amd64:
@@ -60,7 +60,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=tag
+            type=raw,value={{tag}}
 
       - name: Build and Push AMD64 Image
         uses: docker/build-push-action@v5
@@ -88,7 +88,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=ref,event=tag
+            type=raw,value={{tag}}
 
       - name: Create Multi-Arch Manifest
         run: |
