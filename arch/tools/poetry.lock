@@ -66,13 +66,13 @@ trio = ["trio (>=0.26.1)"]
 
 [[package]]
 name = "archgw-modelserver"
-version = "0.2.6"
+version = "0.2.7"
 description = "A model server for serving models"
 optional = false
 python-versions = "<4.0,>=3.10"
 files = [
-    {file = "archgw_modelserver-0.2.6-py3-none-any.whl", hash = "sha256:7b472404734a799aa8847a8a142275bc532c964e76f3db1a6781f84abe92c290"},
-    {file = "archgw_modelserver-0.2.6.tar.gz", hash = "sha256:09186c2e2a4f61bb01366490ac1638ed67f0aa3488cdb1ec57a17c97411b9500"},
+    {file = "archgw_modelserver-0.2.7-py3-none-any.whl", hash = "sha256:23a3bfb8eb172bd729d772f2337630d9143d29fc8e399a4b52e3449cf5ea90f3"},
+    {file = "archgw_modelserver-0.2.7.tar.gz", hash = "sha256:828b848a745528ee6b552cd856356315ab7bc83a552404ec4a7d7db5b656709c"},
 ]
 
 [package.dependencies]
@@ -1081,13 +1081,13 @@ files = [
 
 [[package]]
 name = "openai"
-version = "1.74.0"
+version = "1.75.0"
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "openai-1.74.0-py3-none-any.whl", hash = "sha256:aff3e0f9fb209836382ec112778667027f4fd6ae38bdb2334bc9e173598b092a"},
-    {file = "openai-1.74.0.tar.gz", hash = "sha256:592c25b8747a7cad33a841958f5eb859a785caea9ee22b9e4f4a2ec062236526"},
+    {file = "openai-1.75.0-py3-none-any.whl", hash = "sha256:fe6f932d2ded3b429ff67cc9ad118c71327db32eb9d32dd723de3acfca337125"},
+    {file = "openai-1.75.0.tar.gz", hash = "sha256:fb3ea907efbdb1bcfd0c44507ad9c961afd7dce3147292b54505ecfd17be8fd1"},
 ]
 
 [package.dependencies]
@@ -2508,4 +2508,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "5cc1d766ed43530c15dfbde7710346e1b157be450bf4736eb4eed2b091efef47"
+content-hash = "59e54acc202d697a35636d5ec58b8865e6bc8d6797526df024ea93610198157f"

@@ -1,5 +1,8 @@
 name: Publish docker image (release)
 
+env:
+  DOCKER_IMAGE: katanemo/archgw
+
 on:
   release:
     types: [published]
@@ -23,6 +26,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value={{tag}}
 
       - name: Build and Push ARM64 Image
         uses: docker/build-push-action@v5
@@ -51,6 +56,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value={{tag}}
 
       - name: Build and Push AMD64 Image
         uses: docker/build-push-action@v5
@@ -60,7 +67,6 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}-amd64
-
 
   # Combine ARM64 and AMD64 images into a multi-arch manifest
   create-manifest:
@@ -78,10 +84,12 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_IMAGE }}
+          tags: |
+            type=raw,value={{tag}}
 
       - name: Create Multi-Arch Manifest
         run: |
           # Combine the architecture-specific images into a single manifest
           docker buildx imagetools create -t ${{ steps.meta.outputs.tags }} \
-            ${{ env.DOCKER_IMAGE }}:arm64 \
-            ${{ env.DOCKER_IMAGE }}:amd64
+            ${{ steps.meta.outputs.tags }}-arm64 \
+            ${{ steps.meta.outputs.tags }}-amd64
