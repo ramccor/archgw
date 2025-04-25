@@ -82,8 +82,20 @@ impl RootContext for FilterContext {
         self.system_prompt = Rc::new(config.system_prompt);
         self.prompt_targets = Rc::new(prompt_targets);
         self.endpoints = Rc::new(config.endpoints);
-        self.agents = Rc::new(config.agents);
-        self.tools = Rc::new(config.tools);
+        //TOOD: check to make sure that agents name is unique
+        let agents_map: HashMap<String, Agent> = config
+            .agents
+            .iter()
+            .map(|agent| (agent.name.clone(), agent.clone()))
+            .collect();
+        self.agents = Rc::new(agents_map);
+        //TODO: check to make sure that tools name is unique
+        let tools_map: HashMap<String, Tool> = config
+            .tools
+            .iter()
+            .map(|tool| (tool.name.clone(), tool.clone()))
+            .collect();
+        self.tools = Rc::new(tools_map);
 
         if let Some(prompt_guards) = config.prompt_guards {
             self.prompt_guards = Rc::new(prompt_guards)

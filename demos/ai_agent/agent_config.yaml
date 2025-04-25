@@ -1,6 +1,5 @@
 version: v0.1
 
-
 listeners:
   ingress_traffic:
     address: 0.0.0.0
@@ -20,10 +19,9 @@ endpoints:
     protocol: https
 
 tools:
-  get_exchange_rate:
-    name: get_exchange_rate
+  - name: get_exchange_rate
     description: Get the latest exchange rate for a given currency pair
-    endpoint: 
+    endpoint:
       name: frankfurther_api
       path: /v1/latest?base={currency_from}&symbols={currency_to}
     parameters:
@@ -35,16 +33,14 @@ tools:
         description: currency symbol to convert to
         type: string
         default: EUR
-  get_list_of_supported_currencies:
-    name: get_list_of_supported_currencies
+  - name: get_list_of_supported_currencies
     description: Get the list of supported currencies
-    endpoint: 
+    endpoint:
       name: frankfurther_api
       path: /v1/currencies
 
 agents:
-  currency_exchange_agent:
-    name: Currency Exchange Agent
+  - name: Currency Exchange Agent
     description: Helps with exchange rates for currencies
     default_input_modes:
       - text
@@ -59,26 +55,26 @@ agents:
         examples:
           - What is exchange rate between USD and GBP?
     capabilities:
-        streaming: true
-        push_notifications: true
+      streaming: true
+      push_notifications: true
     agent_orchestrator_model: gpt-4o
     agent_orchestrator_prompt: |
-        You are a specialized assistant for currency conversions.
-        Your sole purpose is to use the 'get_exchange_rate' tool to answer questions about currency exchange rates.
-        If the user asks about anything other than currency conversion or exchange rates,
-        politely state that you cannot help with that topic and can only assist with currency-related queries.
-        Do not attempt to answer unrelated questions or use tools for other purposes.
-        Set response status to input_required if the user needs to provide more information.
-        Set response status to error if there is an error while processing the request.
-        Set response status to completed if the request is complete.
+      You are a specialized assistant for currency conversions.
+      Your sole purpose is to use the 'get_exchange_rate' tool to answer questions about currency exchange rates.
+      If the user asks about anything other than currency conversion or exchange rates,
+      politely state that you cannot help with that topic and can only assist with currency-related queries.
+      Do not attempt to answer unrelated questions or use tools for other purposes.
+      Set response status to input_required if the user needs to provide more information.
+      Set response status to error if there is an error while processing the request.
+      Set response status to completed if the request is complete.
     tools:
       - get_exchange_rate
       - get_list_of_supported_currencies
     model: gpt-4o
     system_prompt: |
-        You are a specialized currency exchange assistant.
-        Your task is to provide the user with the exchange rate between two currencies.
-        Keep the response concise and relevant to the user's query.
+      You are a specialized currency exchange assistant.
+      Your task is to provide the user with the exchange rate between two currencies.
+      Keep the response concise and relevant to the user's query.
 tracing:
   random_sampling: 100
   trace_arch_internal: true

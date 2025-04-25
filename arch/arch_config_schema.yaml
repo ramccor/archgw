@@ -4,9 +4,13 @@ properties:
   version:
     type: string
   tools:
-    type: object
+    type: array
+    items:
+      type: object
   agents:
-    type: object
+    type: array
+    items:
+      type: object
   listeners:
     type: object
     additionalProperties: false

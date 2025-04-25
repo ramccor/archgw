@@ -19,8 +19,8 @@ pub struct Configuration {
     pub ratelimits: Option<Vec<Ratelimit>>,
     pub tracing: Option<Tracing>,
     pub mode: Option<GatewayMode>,
-    pub agents: HashMap<String, Agent>,
-    pub tools: HashMap<String, Tool>,
+    pub agents: Vec<Agent>,
+    pub tools: Vec<Tool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
