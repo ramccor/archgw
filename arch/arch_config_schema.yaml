@@ -3,6 +3,10 @@ type: object
 properties:
   version:
     type: string
+  tools:
+    type: object
+  agents:
+    type: object
   listeners:
     type: object
     additionalProperties: false

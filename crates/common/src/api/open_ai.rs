@@ -1,6 +1,5 @@
 use crate::consts::{ARCH_FC_MODEL_NAME, ASSISTANT_ROLE};
 use serde::{ser::SerializeMap, Deserialize, Serialize};
-use serde_yaml::Value;
 use std::{
     collections::{HashMap, VecDeque},
     fmt::Display,
@@ -43,6 +42,8 @@ pub struct FunctionDefinition {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct FunctionParameters {
+    #[serde(rename = "type")]
+    pub properties_type: String,
     pub properties: HashMap<String, FunctionParameter>,
 }
 
@@ -51,7 +52,7 @@ impl Serialize for FunctionParameters {
     where
         S: serde::Serializer,
     {
-        // select all requried parameters
+        // select all required parameters
         let required: Vec<&String> = self
             .properties
             .iter()
@@ -60,6 +61,7 @@ impl Serialize for FunctionParameters {
             .collect();
         let mut map = serializer.serialize_map(Some(2))?;
         map.serialize_entry("properties", &self.properties)?;
+        map.serialize_entry("type", &self.properties_type)?;
         if !required.is_empty() {
             map.serialize_entry("required", &required)?;
         }
@@ -113,7 +115,7 @@ pub enum ParameterType {
     Float,
     #[serde(rename = "bool")]
     Bool,
-    #[serde(rename = "str")]
+    #[serde(rename = "string")]
     String,
     #[serde(rename = "list")]
     List,
@@ -189,7 +191,7 @@ pub struct ToolCall {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FunctionCallDetail {
     pub name: String,
-    pub arguments: Option<HashMap<String, Value>>,
+    pub arguments: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

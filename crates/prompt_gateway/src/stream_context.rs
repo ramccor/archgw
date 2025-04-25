@@ -371,7 +371,6 @@ impl StreamContext {
 
         let tools_call_name = self.tool_calls.as_ref().unwrap()[0].function.name.clone();
         let prompt_target = self.prompt_targets.get(&tools_call_name).unwrap().clone();
-        let tool_params = &self.tool_calls.as_ref().unwrap()[0].function.arguments;
         let endpoint_details = prompt_target.endpoint.as_ref().unwrap();
         let endpoint_path: String = endpoint_details
             .path
@@ -382,9 +381,10 @@ impl StreamContext {
         let http_method = endpoint_details.method.clone().unwrap_or_default();
         let prompt_target_params = prompt_target.parameters.clone().unwrap_or_default();
 
+        //TODO: fixme: adilhafeez hack
         let (path, api_call_body) = match compute_request_path_body(
             &endpoint_path,
-            tool_params,
+            &None,
             &prompt_target_params,
             &http_method,
         ) {
@@ -777,17 +777,18 @@ impl StreamContext {
 
 fn check_intent_matched(model_server_response: &ChatCompletionsResponse) -> bool {
     let content = model_server_response
-        .choices.first()
+        .choices
+        .first()
         .and_then(|choice| choice.message.content.as_ref());
 
     let content_has_value = content.is_some() && !content.unwrap().is_empty();
 
     let tool_calls = model_server_response
-        .choices.first()
+        .choices
+        .first()
         .and_then(|choice| choice.message.tool_calls.as_ref());
 
     // intent was matched if content has some value or tool_calls is empty
-
 
     content_has_value || (tool_calls.is_some() && !tool_calls.unwrap().is_empty())
 }

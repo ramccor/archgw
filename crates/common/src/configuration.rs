@@ -19,6 +19,37 @@ pub struct Configuration {
     pub ratelimits: Option<Vec<Ratelimit>>,
     pub tracing: Option<Tracing>,
     pub mode: Option<GatewayMode>,
+    pub agents: HashMap<String, Agent>,
+    pub tools: HashMap<String, Tool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Agent {
+    pub name: String,
+    pub description: String,
+    pub default_input_modes: Option<Vec<String>>,
+    pub default_output_modes: Option<Vec<String>>,
+    pub skills: Option<Vec<Skill>>,
+    pub model: String,
+    pub agent_orchestrator_prompt: Option<String>,
+    pub system_prompt: Option<String>,
+    pub tools: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Skill {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub examples: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Tool {
+    pub name: String,
+    pub description: String,
+    pub endpoint: Option<EndpointDetails>,
+    pub parameters: Option<Vec<Parameter>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -260,7 +291,48 @@ impl From<&PromptTarget> for ChatCompletionTool {
             function: FunctionDefinition {
                 name: val.name.clone(),
                 description: val.description.clone(),
-                parameters: FunctionParameters { properties },
+                parameters: FunctionParameters {
+                    properties,
+                    properties_type: "object".to_string(),
+                },
+            },
+        }
+    }
+}
+
+// convert Tool to ChatCompletionTool
+impl From<&Tool> for ChatCompletionTool {
+    fn from(val: &Tool) -> Self {
+        let properties: HashMap<String, FunctionParameter> = match val.parameters {
+            Some(ref entities) => {
+                let mut properties: HashMap<String, FunctionParameter> = HashMap::new();
+                for entity in entities.iter() {
+                    let param = FunctionParameter {
+                        parameter_type: ParameterType::from(
+                            entity.parameter_type.clone().unwrap_or("str".to_string()),
+                        ),
+                        description: entity.description.clone(),
+                        required: entity.required,
+                        enum_values: entity.enum_values.clone(),
+                        default: entity.default.clone(),
+                        format: entity.format.clone(),
+                    };
+                    properties.insert(entity.name.clone(), param);
+                }
+                properties
+            }
+            None => HashMap::new(),
+        };
+
+        ChatCompletionTool {
+            tool_type: crate::api::open_ai::ToolType::Function,
+            function: FunctionDefinition {
+                name: val.name.clone(),
+                description: val.description.clone(),
+                parameters: FunctionParameters {
+                    properties,
+                    properties_type: "object".to_string(),
+                },
             },
         }
     }

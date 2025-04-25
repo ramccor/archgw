@@ -49,6 +49,7 @@ def docker_start_archgw_detached(
     port_mappings = [
         f"{prompt_gateway_port}:{prompt_gateway_port}",
         f"{llm_gateway_port}:{llm_gateway_port}",
+        "14000:14000",
         "9901:19901",
     ]
     port_mappings_args = [item for port in port_mappings for item in ("-p", port)]
@@ -56,7 +57,7 @@ def docker_start_archgw_detached(
     volume_mappings = [
         f"{logs_path_abs}:/var/log:rw",
         f"{arch_config_file}:/app/arch_config.yaml:ro",
-        # "/Users/adilhafeez/src/intelligent-prompt-gateway/crates/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins:ro",
+        "/Users/adilhafeez/src/intelligent-prompt-gateway/crates/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins:ro",
     ]
     volume_mappings_args = [
         item for volume in volume_mappings for item in ("-v", volume)
