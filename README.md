@@ -5,7 +5,7 @@
 
 
 _The AI-native proxy server for agentic applications._<br><br>
-Arch handles the **pesky**, low-level details like routing user prompts to the right agents or specialized Model Context Protocol (MCP) tools, providing unified access and observability to large language models (LLMs), and quickly clarifying vague user inputs. With Arch, you can build faster by focusing on the high-level logic of your agents.
+Arch handles the **pesky**, low-level details like routing user prompts to the right agents or specialized Model Context Protocol (MCP) tools, providing unified access and observability to large language models (LLMs), and quickly clarifying vague user inputs. With Arch, you build faster by focusing on the high-level logic of agents.
 
 [Quickstart](#Quickstart) •
 [Demos](#Demos) •
