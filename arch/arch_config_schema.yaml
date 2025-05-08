@@ -90,6 +90,8 @@ properties:
             - https
         http_host:
           type: string
+        usage:
+          type: string
       additionalProperties: false
       required:
         - name

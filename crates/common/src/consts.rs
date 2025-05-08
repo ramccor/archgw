@@ -27,3 +27,4 @@ pub const HALLUCINATION_TEMPLATE: &str =
     "It seems I'm missing some information. Could you provide the following details ";
 pub const OTEL_COLLECTOR_HTTP: &str = "opentelemetry_collector_http";
 pub const OTEL_POST_PATH: &str = "/v1/traces";
+pub const LLM_ROUTE_HEADER: &str = "x-arch-llm-route";

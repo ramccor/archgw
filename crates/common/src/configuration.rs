@@ -166,6 +166,7 @@ pub struct LlmProvider {
     pub endpoint: Option<String>,
     pub port: Option<u16>,
     pub rate_limits: Option<LlmRatelimit>,
+    pub usage: Option<String>,
 }
 
 impl Display for LlmProvider {

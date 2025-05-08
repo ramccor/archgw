@@ -48,6 +48,19 @@ And you think to yourself, can't I move faster by focusing on higher-level objec
 **High-Level Sequence Diagram**:
 ![alt text](docs/source/_static/img/arch_network_diagram_high_level.png)
 
+```mermaid
+sequenceDiagram
+    participant dotcom
+    participant iframe
+    participant viewscreen
+    dotcom->>iframe: loads html w/ iframe url
+    iframe->>viewscreen: request template
+    viewscreen->>iframe: html & javascript
+    iframe->>dotcom: iframe ready
+    dotcom->>iframe: set mermaid data on iframe
+    iframe->>iframe: render mermaid
+```
+
 **Jump to our [docs](https://docs.archgw.com)** to learn how you can use Arch to improve the speed, security and personalization of your GenAI apps.
 
 > [!IMPORTANT]

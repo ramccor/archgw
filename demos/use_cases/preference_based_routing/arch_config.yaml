@@ -1,0 +1,33 @@
+version: "0.1-beta"
+
+endpoints:
+  gcp_hosted_outer_llm:
+    endpoint: 34.46.85.85:8000
+    http_host: 34.46.85.85
+    # endpoint: host.docker.internal:11223
+
+listeners:
+  egress_traffic:
+    address: 0.0.0.0
+    port: 12000
+    message_format: openai
+    timeout: 30s
+
+llm_providers:
+
+  - name: gpt-4o
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4o
+    usage: |
+      complex reasoning problem, require multi step answer
+
+  - name: o4-mini
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: o4-mini
+    usage: |
+      simple requests, basic fact retrieval, easy to answer
+
+tracing:
+  random_sampling: 100

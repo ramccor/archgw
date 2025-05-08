@@ -2,6 +2,7 @@ use std::rc::Rc;
 
 use crate::{configuration, llm_providers::LlmProviders};
 use configuration::LlmProvider;
+use log::info;
 use rand::{seq::IteratorRandom, thread_rng};
 
 #[derive(Debug)]
@@ -28,6 +29,8 @@ pub fn get_llm_provider(
         // FIXME: should a non-existent name in the hint be more explicit? i.e, return a BAD_REQUEST?
         ProviderHint::Name(name) => llm_providers.get(&name),
     });
+
+    info!("selected provider: maybe_provider: {:?}", maybe_provider);
 
     if let Some(provider) = maybe_provider {
         return provider;

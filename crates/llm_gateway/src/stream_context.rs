@@ -9,9 +9,10 @@ use common::consts::{
     RATELIMIT_SELECTOR_HEADER_KEY, REQUEST_ID_HEADER, TRACE_PARENT_HEADER,
 };
 use common::errors::ServerError;
+use common::http::Client;
 use common::llm_providers::LlmProviders;
 use common::ratelimit::Header;
-use common::stats::{IncrementingMetric, RecordingMetric};
+use common::stats::{Gauge, IncrementingMetric, RecordingMetric};
 use common::tracing::{Event, Span, TraceData, Traceparent};
 use common::{ratelimit, routing, tokenizer};
 use http::StatusCode;
@@ -19,11 +20,15 @@ use log::{debug, info, warn};
 use proxy_wasm::hostcalls::get_current_time;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
-use std::collections::VecDeque;
+use std::cell::RefCell;
+use std::collections::{HashMap, VecDeque};
 use std::num::NonZero;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+#[derive(Debug)]
+pub struct CallContext {}
 
 pub struct StreamContext {
     context_id: u32,
@@ -32,7 +37,7 @@ pub struct StreamContext {
     streaming_response: bool,
     response_tokens: usize,
     is_chat_completions_request: bool,
-    llm_providers: Rc<LlmProviders>,
+    pub(crate) llm_providers: Rc<LlmProviders>,
     llm_provider: Option<Rc<LlmProvider>>,
     request_id: Option<String>,
     start_time: SystemTime,
@@ -43,6 +48,10 @@ pub struct StreamContext {
     user_message: Option<Message>,
     traces_queue: Arc<Mutex<VecDeque<TraceData>>>,
     overrides: Rc<Option<Overrides>>,
+    pub(crate) request_body: Option<String>,
+    pub(crate) request_size: Option<usize>,
+    pub(crate) chat_completion_request: Option<ChatCompletionsRequest>,
+    callouts: RefCell<HashMap<u32, CallContext>>,
 }
 
 impl StreamContext {
@@ -71,8 +80,13 @@ impl StreamContext {
             user_message: None,
             traces_queue,
             request_body_sent_time: None,
+            request_body: None,
+            request_size: None,
+            chat_completion_request: None,
+            callouts: RefCell::new(HashMap::new()),
         }
     }
+
     fn llm_provider(&self) -> &LlmProvider {
         self.llm_provider
             .as_ref()
@@ -156,7 +170,7 @@ impl StreamContext {
             });
     }
 
-    fn send_server_error(&self, error: ServerError, override_status_code: Option<StatusCode>) {
+    pub fn send_server_error(&self, error: ServerError, override_status_code: Option<StatusCode>) {
         warn!("server error occurred: {}", error);
         self.send_http_response(
             override_status_code
@@ -228,6 +242,7 @@ impl HttpContext for StreamContext {
                 stream: None,
                 port: None,
                 rate_limits: None,
+                usage: None,
             }));
         } else {
             self.select_llm_provider();
@@ -321,7 +336,7 @@ impl HttpContext for StreamContext {
         // deserialized_body.metadata = None;
         // delete model key from message array
         for message in deserialized_body.messages.iter_mut() {
-            message.model = None;
+            // message.model = None;
         }
 
         self.user_message = deserialized_body
@@ -331,42 +346,44 @@ impl HttpContext for StreamContext {
             .last()
             .cloned();
 
-        let model_name = match self.llm_provider.as_ref() {
-            Some(llm_provider) => llm_provider.model.as_ref(),
-            None => None,
-        };
+        // let model_name = match self.llm_provider.as_ref() {
+        //     Some(llm_provider) => llm_provider.model.as_ref(),
+        //     None => None,
+        // };
 
-        let use_agent_orchestrator = match self.overrides.as_ref() {
-            Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
-            None => false,
-        };
+        // let use_agent_orchestrator = match self.overrides.as_ref() {
+        //     Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
+        //     None => false,
+        // };
 
         let model_requested = deserialized_body.model.clone();
-        if deserialized_body.model.is_empty() || deserialized_body.model.to_lowercase() == "none" {
-            deserialized_body.model = match model_name {
-                Some(model_name) => model_name.clone(),
-                None => {
-                    if use_agent_orchestrator {
-                        "agent_orchestrator".to_string()
-                    } else {
-                        self.send_server_error(
-                          ServerError::BadRequest {
-                              why: format!("No model specified in request and couldn't determine model name from arch_config. Model name in req: {}, arch_config, provider: {}, model: {:?}", deserialized_body.model, self.llm_provider().name, self.llm_provider().model).to_string(),
-                          },
-                          Some(StatusCode::BAD_REQUEST),
-                      );
-                        return Action::Continue;
-                    }
-                }
-            }
-        }
+        // if deserialized_body.model.is_empty() || deserialized_body.model.to_lowercase() == "none" {
+        //     deserialized_body.model = match model_name {
+        //         Some(model_name) => model_name.clone(),
+        //         None => {
+        //             if use_agent_orchestrator {
+        //                 "agent_orchestrator".to_string()
+        //             } else {
+        //                 self.send_server_error(
+        //                   ServerError::BadRequest {
+        //                       why: format!("No model specified in request and couldn't determine model name from arch_config. Model name in req: {}, arch_config, provider: {}, model: {:?}", deserialized_body.model, self.llm_provider().name, self.llm_provider().model).to_string(),
+        //                   },
+        //                   Some(StatusCode::BAD_REQUEST),
+        //               );
+        //                 return Action::Continue;
+        //             }
+        //         }
+        //     }
+        // }
 
         info!(
-            "on_http_request_body: provider: {}, model requested: {}, model selected: {}",
+            "on_http_request_body: provider: {}, model requested: {}, model selected: {:?}",
             self.llm_provider().name,
             model_requested,
-            model_name.unwrap_or(&"None".to_string()),
+            self.llm_provider().model,
         );
+
+        deserialized_body.model = self.llm_provider().model.clone().unwrap();
 
         let chat_completion_request_str = serde_json::to_string(&deserialized_body).unwrap();
 
@@ -404,7 +421,12 @@ impl HttpContext for StreamContext {
 
         self.set_http_request_body(0, body_size, chat_completion_request_str.as_bytes());
 
-        Action::Continue
+        self.chat_completion_request = Some(deserialized_body);
+        self.request_body = Some(chat_completion_request_str);
+        self.request_size = Some(body_size);
+
+        return Action::Continue;
+        // return self.route();
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
@@ -665,4 +687,50 @@ fn current_time_ns() -> u128 {
         .as_nanos()
 }
 
-impl Context for StreamContext {}
+impl Context for StreamContext {
+    fn on_http_call_response(
+        &mut self,
+        token_id: u32,
+        _num_headers: usize,
+        body_size: usize,
+        _num_trailers: usize,
+    ) {
+        debug!(
+            "on_http_call_response [S={}] token_id={} num_headers={} body_size={} num_trailers={}",
+            self.context_id, token_id, _num_headers, body_size, _num_trailers
+        );
+
+        let _callout_data = self
+            .callouts
+            .borrow_mut()
+            .remove(&token_id)
+            .expect("invalid token_id");
+
+        let body = self
+            .get_http_call_response_body(0, body_size)
+            .unwrap_or_default();
+
+        info!(
+            "on_http_call_response: response body: {}",
+            String::from_utf8_lossy(&body)
+        );
+
+        self.set_http_request_body(
+            0,
+            self.request_size.unwrap(),
+            self.request_body.as_ref().unwrap().as_bytes(),
+        );
+    }
+}
+
+impl Client for StreamContext {
+    type CallContext = CallContext;
+
+    fn callouts(&self) -> &RefCell<HashMap<u32, Self::CallContext>> {
+        &self.callouts
+    }
+
+    fn active_http_calls(&self) -> &Gauge {
+        &self.metrics.active_http_calls
+    }
+}

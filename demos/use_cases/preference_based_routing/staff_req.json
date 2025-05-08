@@ -1,0 +1,12 @@
+{
+  "model": "cotran2/llama-1b-4-26",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is the capital of France?"
+    }
+  ],
+  "metadata": {
+    "llm_providers": "[]"
+  }
+}
