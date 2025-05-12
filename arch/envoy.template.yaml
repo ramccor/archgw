@@ -30,7 +30,7 @@ stats_config:
 static_resources:
   listeners:
 
-    - name: ingress
+    - name: arch_router
       address:
         socket_address:
           address: 0.0.0.0
@@ -51,7 +51,7 @@ static_resources:
                         envoy_grpc:
                           cluster_name: opentelemetry_collector
                         timeout: 0.250s
-                      service_name: arch_gateway
+                      service_name: arch_router
                   random_sampling:
                     value: 100
                 stat_prefix: ingress
@@ -60,7 +60,7 @@ static_resources:
                 - name: envoy.access_loggers.file
                   typed_config:
                     "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
-                    path: "/var/log/access_ingress.log"
+                    path: "/var/log/access_arch_router.log"
                 route_config:
                   name: local_routes
                   virtual_hosts:
@@ -68,16 +68,6 @@ static_resources:
                       domains:
                         - "*"
                       routes:
-                        - match:
-                            prefix: "/"
-                            headers:
-                              - name: "host"
-                                string_match:
-                                  exact: router_model_host
-                          route:
-                            auto_host_rewrite: true
-                            cluster: router_model_host
-
                         - match:
                             prefix: "/"
                           route:

@@ -3,8 +3,6 @@ use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
 
 mod filter_context;
-mod llm_routing;
-mod llm_routing_consts;
 mod metrics;
 mod stream_context;
 

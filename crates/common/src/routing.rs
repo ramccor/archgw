@@ -30,8 +30,6 @@ pub fn get_llm_provider(
         ProviderHint::Name(name) => llm_providers.get(&name),
     });
 
-    info!("selected provider: maybe_provider: {:?}", maybe_provider);
-
     if let Some(provider) = maybe_provider {
         return provider;
     }
