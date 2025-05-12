@@ -7,6 +7,11 @@ use crate::api::open_ai::{
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Routing {
+  pub model: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Configuration {
     pub version: String,
     pub endpoints: Option<HashMap<String, Endpoint>>,
@@ -19,6 +24,7 @@ pub struct Configuration {
     pub ratelimits: Option<Vec<Ratelimit>>,
     pub tracing: Option<Tracing>,
     pub mode: Option<GatewayMode>,
+    pub routing: Option<Routing>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

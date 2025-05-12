@@ -1,10 +1,7 @@
 version: "0.1-beta"
 
-endpoints:
-  gcp_hosted_outer_llm:
-    endpoint: 34.46.85.85:8000
-    http_host: 34.46.85.85
-    # endpoint: host.docker.internal:11223
+routing:
+  model: gpt-4o
 
 listeners:
   egress_traffic:

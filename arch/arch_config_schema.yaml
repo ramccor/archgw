@@ -227,6 +227,12 @@ properties:
     enum:
       - llm
       - prompt
+  routing:
+    type: object
+    properties:
+      model:
+        type: string
+      additionalProperties: false
   prompt_guards:
     type: object
     properties:
