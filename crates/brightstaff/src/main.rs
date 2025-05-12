@@ -22,8 +22,8 @@ use std::{env, fs};
 use tokio::net::TcpListener;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
-use whitestaff::handlers::chat_completions::chat_completion;
-use whitestaff::router::llm_router::RouterService;
+use brightstaff::handlers::chat_completions::chat_completion;
+use brightstaff::router::llm_router::RouterService;
 
 pub mod router;
 
@@ -31,7 +31,7 @@ const BIND_ADDRESS: &str = "0.0.0.0:9091";
 
 fn get_tracer() -> &'static BoxedTracer {
     static TRACER: OnceLock<BoxedTracer> = OnceLock::new();
-    TRACER.get_or_init(|| global::tracer("archgw/whitestaff"))
+    TRACER.get_or_init(|| global::tracer("archgw/brightstaff"))
 }
 
 // Utility function to extract the context from the incoming request headers

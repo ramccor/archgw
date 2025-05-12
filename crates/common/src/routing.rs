@@ -2,7 +2,6 @@ use std::rc::Rc;
 
 use crate::{configuration, llm_providers::LlmProviders};
 use configuration::LlmProvider;
-use log::info;
 use rand::{seq::IteratorRandom, thread_rng};
 
 #[derive(Debug)]
