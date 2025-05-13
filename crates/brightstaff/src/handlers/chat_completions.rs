@@ -4,11 +4,12 @@ use bytes::Bytes;
 use common::api::open_ai::ChatCompletionsRequest;
 use common::consts::ARCH_PROVIDER_HINT_HEADER;
 use http_body_util::combinators::BoxBody;
-use http_body_util::{BodyExt, Full};
+use http_body_util::{BodyExt, Full, StreamBody};
 use hyper::body::Body;
-use hyper::header;
+use hyper::header::{self};
 use hyper::{Request, Response, StatusCode};
-use tracing::info;
+use tokio::sync::mpsc;
+use tracing::{info, warn};
 
 use crate::router::llm_router::RouterService;
 
@@ -111,41 +112,63 @@ pub async fn chat_completion(
         }
     };
 
-    // if chat_completion_request.stream {
-    //     let mut byte_stream = llm_response.bytes_stream();
+    let response_headers = llm_response.headers().clone();
 
-    //     while let Some(item) = byte_stream.next().await {
-    //         let item = match item {
-    //             Ok(item) => item,
-    //             Err(err) => {
-    //                 let err_msg = format!("Failed to read stream: {}", err);
-    //                 let mut internal_error = Response::new(full(err_msg));
-    //                 *internal_error.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-    //                 return Ok(internal_error);
-    //             }
-    //         };
+    if chat_completion_request.stream {
+        // Create a channel to send data
+        let (tx, rx) = mpsc::channel::<Bytes>(16);
 
-    //         info!("Received chunk: {:?}", item);
-    //     }
+        // Spawn a task to send data as it becomes available
+        tokio::spawn(async move {
+            let mut byte_stream = llm_response.bytes_stream();
 
-    //     let mut ok_response = Response::new(empty());
-    //     *ok_response.status_mut() = StatusCode::OK;
+            while let Some(item) = byte_stream.next().await {
+                let item = match item {
+                    Ok(item) => item,
+                    Err(err) => {
+                        //TODO: use mpsc to send result with error to the receiver
+                        warn!("Error receiving chunk: {:?}", err);
+                        break;
+                    }
+                };
 
-    //     return Ok(ok_response);
-    // } else {
-    let body = match llm_response.text().await {
-        Ok(body) => body,
-        Err(err) => {
-            let err_msg = format!("Failed to read response: {}", err);
-            let mut internal_error = Response::new(full(err_msg));
-            *internal_error.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-            return Ok(internal_error);
+                //TODO: send error to the receiver
+                tx.send(item).await.unwrap();
+            }
+        });
+
+        use bytes::Bytes;
+        use hyper::body::Frame;
+        use hyper::Response;
+        use tokio_stream::wrappers::ReceiverStream;
+        use tokio_stream::StreamExt;
+
+        let stream = ReceiverStream::new(rx).map(|chunk| Ok::<_, hyper::Error>(Frame::data(chunk)));
+
+        let stream_body = BoxBody::new(StreamBody::new(stream));
+
+        let mut res = Response::builder();
+        let headers = res.headers_mut().unwrap();
+
+        for (header_name, header_value) in response_headers.iter() {
+            headers.insert(header_name, header_value.clone());
         }
-    };
 
-    let mut ok_response = Response::new(full(body));
-    *ok_response.status_mut() = StatusCode::OK;
+        Ok(res.body(stream_body).unwrap())
+    } else {
+        let body = match llm_response.text().await {
+            Ok(body) => body,
+            Err(err) => {
+                let err_msg = format!("Failed to read response: {}", err);
+                let mut internal_error = Response::new(full(err_msg));
+                *internal_error.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
+                return Ok(internal_error);
+            }
+        };
 
-    Ok(ok_response)
-    // }
+        let mut ok_response = Response::new(full(body));
+        *ok_response.status_mut() = StatusCode::OK;
+
+        Ok(ok_response)
+    }
 }

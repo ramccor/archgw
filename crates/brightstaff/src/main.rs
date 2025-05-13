@@ -1,3 +1,5 @@
+use brightstaff::handlers::chat_completions::chat_completion;
+use brightstaff::router::llm_router::RouterService;
 use bytes::Bytes;
 use common::configuration::Configuration;
 use common::utils::shorten_string;
@@ -22,8 +24,6 @@ use std::{env, fs};
 use tokio::net::TcpListener;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
-use brightstaff::handlers::chat_completions::chat_completion;
-use brightstaff::router::llm_router::RouterService;
 
 pub mod router;
 

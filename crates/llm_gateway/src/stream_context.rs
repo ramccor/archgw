@@ -425,7 +425,7 @@ impl HttpContext for StreamContext {
         self.request_body = Some(chat_completion_request_str);
         self.request_size = Some(body_size);
 
-        return Action::Continue;
+        Action::Continue
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
