@@ -19,14 +19,17 @@ llm_providers:
     access_key: $OPENAI_API_KEY
     model: gpt-4o
     usage: |
-      complex reasoning problem, require multi step answer
+      - complex reasoning problem
+      - require multi step answer
 
   - name: o4-mini
     provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: o4-mini
     usage: |
-      simple requests, basic fact retrieval, easy to answer
+      - simple requests like hello, hi etc.
+      - basic fact retrieval
+      - easy to answer
 
 tracing:
   random_sampling: 100
