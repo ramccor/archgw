@@ -2,6 +2,8 @@ version: "0.1-beta"
 
 routing:
   model: gpt-4o
+  # model: archgw-router
+  # model: claude-3.7
 
 listeners:
   egress_traffic:
