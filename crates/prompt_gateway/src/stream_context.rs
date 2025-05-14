@@ -103,11 +103,7 @@ impl StreamContext {
         }
     }
 
-    pub(crate) fn send_server_error(
-        &self,
-        error: ServerError,
-        override_status_code: Option<StatusCode>,
-    ) {
+    pub fn send_server_error(&self, error: ServerError, override_status_code: Option<StatusCode>) {
         self.send_http_response(
             override_status_code
                 .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)

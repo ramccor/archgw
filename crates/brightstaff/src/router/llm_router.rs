@@ -8,7 +8,7 @@ use common::{
 };
 use hyper::header;
 use thiserror::Error;
-use tracing::info;
+use tracing::{info, warn};
 
 use super::router_model::RouterModel;
 
@@ -24,8 +24,8 @@ pub enum RoutingError {
     #[error("Failed to send request: {0}")]
     RequestError(#[from] reqwest::Error),
 
-    #[error("Failed to parse JSON: {0}")]
-    JsonError(#[from] serde_json::Error),
+    #[error("Failed to parse JSON: {0}, JSON: {1}")]
+    JsonError(serde_json::Error, String),
 
     #[error("Router model error: {0}")]
     RouterModelError(#[from] super::router_model::RoutingModelError),
@@ -85,7 +85,7 @@ impl RouterService {
 
         info!(
             "router_request: {}",
-            &serde_json::to_string(&router_request).unwrap()
+            shorten_string(&serde_json::to_string(&router_request).unwrap()),
         );
 
         let mut llm_route_request_headers = header::HeaderMap::new();
@@ -116,7 +116,20 @@ impl RouterService {
 
         let body = res.text().await?;
 
-        let chat_completion_response: ChatCompletionsResponse = serde_json::from_str(&body)?;
+        let chat_completion_response: ChatCompletionsResponse = match serde_json::from_str(&body) {
+            Ok(response) => response,
+            Err(err) => {
+                warn!(
+                    "Failed to parse JSON: {}. Body: {}",
+                    err,
+                    &serde_json::to_string(&body).unwrap()
+                );
+                return Err(RoutingError::JsonError(
+                    err,
+                    format!("Failed to parse JSON: {}", body),
+                ));
+            }
+        };
 
         let selected_llm = self.router_model.parse_response(
             chat_completion_response.choices[0]
