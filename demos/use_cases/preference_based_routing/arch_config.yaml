@@ -1,9 +1,7 @@
 version: "0.1-beta"
 
 routing:
-  model: gpt-4o
-  # model: archgw-router
-  # model: claude-3.7
+  model: archgw-v1-router-model
 
 listeners:
   egress_traffic:
@@ -14,22 +12,28 @@ listeners:
 
 llm_providers:
 
+  - name: archgw-v1-router-model
+    provider_interface: openai
+    model: cotran2/llama-1b-4-26
+    base_url: http://35.192.87.187:8000/v1
+
+  - name: gpt-4o-mini
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4o-mini
+    default: true
+
   - name: gpt-4o
     provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: gpt-4o
-    usage: |
-      - complex reasoning problem
-      - require multi step answer
+    usage: Generating original content such as scripts, articles, or creative materials.
 
   - name: o4-mini
     provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: o4-mini
-    usage: |
-      - simple requests like hello, hi etc.
-      - basic fact retrieval
-      - easy to answer
+    usage: Requesting topic ideas specifically related to personal finance and budgeting.
 
 tracing:
   random_sampling: 100

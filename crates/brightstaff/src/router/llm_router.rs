@@ -85,7 +85,7 @@ impl RouterService {
 
         info!(
             "router_request: {}",
-            shorten_string(&serde_json::to_string(&router_request).unwrap())
+            &serde_json::to_string(&router_request).unwrap()
         );
 
         let mut llm_route_request_headers = header::HeaderMap::new();
