@@ -327,10 +327,10 @@ impl HttpContext for StreamContext {
         let model_requested = deserialized_body.model.clone();
 
         info!(
-            "on_http_request_body: provider: {}, model requested: {}, model selected: {:?}",
+            "on_http_request_body: provider: {}, model requested: {}, model selected: {}",
             self.llm_provider().name,
             model_requested,
-            self.llm_provider().model,
+            self.llm_provider().model.as_ref().unwrap_or(&String::new())
         );
 
         deserialized_body.model = self.llm_provider().model.clone().unwrap();

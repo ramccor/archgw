@@ -7,6 +7,7 @@ import yaml
 from cli.utils import getLogger
 from cli.consts import (
     ARCHGW_DOCKER_NAME,
+    BRIGHTSTAFF_DOCKER_NAME,
     KATANEMO_LOCAL_MODEL_LIST,
 )
 from huggingface_hub import snapshot_download
@@ -15,6 +16,7 @@ from cli.docker_cli import (
     docker_container_status,
     docker_remove_container,
     docker_start_archgw_detached,
+    docker_start_brightstaff_detached,
     docker_stop_container,
     health_check_endpoint,
     stream_gateway_logs,
@@ -109,27 +111,63 @@ def start_arch(arch_config_file, env, log_timeout=120, foreground=False):
 
     except KeyboardInterrupt:
         log.info("Keyboard interrupt received, stopping arch gateway service.")
-        stop_arch()
+        stop_docker_container()
 
 
-def stop_arch():
+def start_brightstaff(arch_config_file, env, log_timeout=120, foreground=False):
+    """
+    Start Docker Compose in detached mode and stream logs until services are healthy.
+
+    Args:
+        path (str): The path where the prompt_config.yml file is located.
+        log_timeout (int): Time in seconds to show logs before checking for healthy state.
+    """
+    log.info("Starting brightstaff")
+
+    try:
+        brightstaff_container_status = docker_container_status(BRIGHTSTAFF_DOCKER_NAME)
+        if brightstaff_container_status != "not found":
+            log.info(
+                f"brightstaff found in docker, stopping and removing it: status: {brightstaff_container_status}"
+            )
+            docker_stop_container(BRIGHTSTAFF_DOCKER_NAME)
+            docker_remove_container(BRIGHTSTAFF_DOCKER_NAME)
+
+        return_code, _, brightstaff_stderr = docker_start_brightstaff_detached(
+            arch_config_file,
+            env,
+        )
+        if return_code != 0:
+            log.info("Failed to start brightstaff: " + str(return_code))
+            log.info("stderr: " + brightstaff_stderr)
+            sys.exit(1)
+
+        if foreground:
+            stream_gateway_logs(follow=True, service="brightstaff")
+
+    except KeyboardInterrupt:
+        log.info("Keyboard interrupt received, stopping arch gateway service.")
+        stop_docker_container(service=BRIGHTSTAFF_DOCKER_NAME)
+
+
+def stop_docker_container(service=ARCHGW_DOCKER_NAME):
     """
     Shutdown all Docker Compose services by running `docker-compose down`.
 
     Args:
         path (str): The path where the docker-compose.yml file is located.
     """
-    log.info("Shutting down arch gateway service.")
+    log.info(f"Shutting down {service} service.")
 
     try:
         subprocess.run(
-            ["docker", "stop", ARCHGW_DOCKER_NAME],
+            ["docker", "stop", service],
         )
         subprocess.run(
-            ["docker", "rm", ARCHGW_DOCKER_NAME],
+            ["docker", "rm", service],
         )
 
-        log.info("Successfully shut down arch gateway service.")
+        log.info(f"Successfully shut down {service} service.")
 
     except subprocess.CalledProcessError as e:
         log.info(f"Failed to shut down services: {str(e)}")
