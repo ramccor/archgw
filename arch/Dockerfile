@@ -15,6 +15,8 @@ FROM python:3.12-slim as arch
 
 RUN apt-get update && apt-get install -y gettext-base curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /etc/envoy/proxy-wasm-plugins
+
 COPY --from=builder /arch/target/wasm32-wasip1/release/prompt_gateway.wasm /etc/envoy/proxy-wasm-plugins/prompt_gateway.wasm
 COPY --from=builder /arch/target/wasm32-wasip1/release/llm_gateway.wasm /etc/envoy/proxy-wasm-plugins/llm_gateway.wasm
 COPY --from=envoy /usr/local/bin/envoy /usr/local/bin/envoy
