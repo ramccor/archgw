@@ -15,8 +15,6 @@ FROM python:3.12-slim as arch
 
 RUN apt-get update && apt-get install -y gettext-base curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /etc/envoy/proxy-wasm-plugins
-
 COPY --from=builder /arch/target/wasm32-wasip1/release/prompt_gateway.wasm /etc/envoy/proxy-wasm-plugins/prompt_gateway.wasm
 COPY --from=builder /arch/target/wasm32-wasip1/release/llm_gateway.wasm /etc/envoy/proxy-wasm-plugins/llm_gateway.wasm
 COPY --from=envoy /usr/local/bin/envoy /usr/local/bin/envoy
@@ -31,4 +29,4 @@ RUN pip install requests
 RUN touch /var/log/envoy.log
 
 # ENTRYPOINT ["sh","-c", "python config_generator.py && envsubst < /etc/envoy/envoy.yaml > /etc/envoy.env_sub.yaml && envoy -c /etc/envoy.env_sub.yaml --log-level trace 2>&1 | tee /var/log/envoy.log"]
-ENTRYPOINT ["sh","-c", "ls -l /etc/envoy/proxy-wasm-plugins/*"]
+ENTRYPOINT ["sh","-c", "python config_generator.py && envsubst < /etc/envoy/envoy.yaml > /etc/envoy.env_sub.yaml && envoy -c /etc/envoy.env_sub.yaml --component-log-level wasm:debug 2>&1 | tee /var/log/envoy.log"]
