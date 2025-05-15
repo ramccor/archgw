@@ -1,6 +1,9 @@
 #!/bin/bash
 set -eu
 
+echo "docker images"
+docker images
+
 # for demo in currency_exchange hr_agent
 for demo in samples_python/currency_exchange use_cases/preference_based_routing
 do
