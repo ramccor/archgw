@@ -6,6 +6,7 @@ import sys
 import yaml
 from cli.utils import getLogger
 from cli.consts import (
+    ARCHGW_DOCKER_IMAGE,
     ARCHGW_DOCKER_NAME,
     BRIGHTSTAFF_DOCKER_NAME,
     KATANEMO_LOCAL_MODEL_LIST,
@@ -57,7 +58,9 @@ def start_arch(arch_config_file, env, log_timeout=120, foreground=False):
         path (str): The path where the prompt_config.yml file is located.
         log_timeout (int): Time in seconds to show logs before checking for healthy state.
     """
-    log.info("Starting arch gateway")
+    log.info(
+        f"Starting arch gateway, image name: {ARCHGW_DOCKER_NAME}, tag: {ARCHGW_DOCKER_IMAGE}"
+    )
 
     try:
         archgw_container_status = docker_container_status(ARCHGW_DOCKER_NAME)
