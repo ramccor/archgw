@@ -94,10 +94,15 @@ def start_arch(arch_config_file, env, log_timeout=120, foreground=False):
             current_time = time.time()
             elapsed_time = current_time - start_time
 
+            if archgw_status == "exited":
+                log.info("archgw container exited unexpectedly.")
+                stream_gateway_logs(follow=False)
+                sys.exit(1)
+
             # Check if timeout is reached
             if elapsed_time > log_timeout:
                 log.info(f"stopping log monitoring after {log_timeout} seconds.")
-                break
+                sys.exit(1)
 
             if prompt_gateway_health_check_status or llm_gateway_health_check_status:
                 log.info("archgw is running and is healthy!")
