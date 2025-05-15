@@ -8,36 +8,24 @@ use tracing::info;
 use super::router_model::{RouterModel, RoutingModelError};
 
 pub const ARCH_ROUTER_V1_SYSTEM_PROMPT: &str = r#"
-You are an advanced Routing Assistant designed to select the optimal route based on user requests.
-Your task is to analyze conversations and match them to the most appropriate predefined route.
-Review the available routes config:
-
-# ROUTES CONFIG START
+You are a helpful assistant designed to find the best suited route.
+You are provided with route description within <routes></routes> XML tags:
+<routes>
 {routes}
-# ROUTES CONFIG END
+</routes>
 
-Examine the following conversation between a user and an assistant:
+Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
+1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
+2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
+3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
 
-# CONVERSATION START
+Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
+{"route": "route_name"}
+
+
+<conversation>
 {conversation}
-# CONVERSATION END
-
-Your goal is to identify the most appropriate route that matches the user's LATEST intent. Follow these steps:
-
-1. Carefully read and analyze the provided conversation, focusing on the user's latest request and the conversation scenario.
-2. Check if the user's request and scenario matches any of the routes in the routing configuration (focus on the description).
-3. Find the route that best matches.
-4. Use context clues from the entire conversation to determine the best fit.
-5. Return the best match possible. You only response the name of the route that best matches the user's request, use the exact name in the routes config.
-6. If no route relatively close to matches the user's latest intent or user last message is thank you or greeting, return an empty route ''.
-
-# OUTPUT FORMAT
-Your final output must follow this JSON format:
-{
-  "route": "route_name" # The matched route name, or empty string '' if no match
-}
-
-Based on your analysis, provide only the JSON object as your final output with no additional text, explanations, or whitespace.
+</conversation>
 "#;
 
 pub type Result<T> = std::result::Result<T, RoutingModelError>;
@@ -154,39 +142,27 @@ mod tests {
     #[test]
     fn test_system_prompt_format() {
         let expected_prompt = r#"
-You are an advanced Routing Assistant designed to select the optimal route based on user requests.
-Your task is to analyze conversations and match them to the most appropriate predefined route.
-Review the available routes config:
-
-# ROUTES CONFIG START
+You are a helpful assistant designed to find the best suited route.
+You are provided with route description within <routes></routes> XML tags:
+<routes>
 route1: description1
 route2: description2
-# ROUTES CONFIG END
+</routes>
 
-Examine the following conversation between a user and an assistant:
+Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
+1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
+2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
+3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
 
-# CONVERSATION START
+Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
+{"route": "route_name"}
+
+
+<conversation>
 user: "Hello, I want to book a flight."
 assistant: "Sure, where would you like to go?"
 user: "seattle"
-# CONVERSATION END
-
-Your goal is to identify the most appropriate route that matches the user's LATEST intent. Follow these steps:
-
-1. Carefully read and analyze the provided conversation, focusing on the user's latest request and the conversation scenario.
-2. Check if the user's request and scenario matches any of the routes in the routing configuration (focus on the description).
-3. Find the route that best matches.
-4. Use context clues from the entire conversation to determine the best fit.
-5. Return the best match possible. You only response the name of the route that best matches the user's request, use the exact name in the routes config.
-6. If no route relatively close to matches the user's latest intent or user last message is thank you or greeting, return an empty route ''.
-
-# OUTPUT FORMAT
-Your final output must follow this JSON format:
-{
-  "route": "route_name" # The matched route name, or empty string '' if no match
-}
-
-Based on your analysis, provide only the JSON object as your final output with no additional text, explanations, or whitespace.
+</conversation>
 "#;
 
         let routes_yaml = "route1: description1\nroute2: description2";
@@ -219,6 +195,8 @@ Based on your analysis, provide only the JSON object as your final output with n
         let req = router.generate_request(&messages);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
+
+        println!("Prompt: {}", prompt);
 
         assert_eq!(expected_prompt, prompt);
     }
