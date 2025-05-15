@@ -1,0 +1,20 @@
+# build filter using rust toolchain
+FROM rust:1.82.0 as builder
+WORKDIR /arch
+COPY crates .
+
+RUN cd brightstaff && cargo build --release
+
+# copy built filter into envoy image
+FROM docker.io/envoyproxy/envoy:v1.32-latest as envoy
+
+#Build config generator, so that we have a single build image for both Rust and Python
+FROM python:3.12-slim as arch
+
+RUN apt-get update && apt-get install -y gettext-base curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /arch/target/release/brightstaff /app/brightstaff
+
+WORKDIR /app
+
+ENTRYPOINT ["sh","-c", "./brightstaff 2>&1 | tee /var/log/brightstaff.log"]
