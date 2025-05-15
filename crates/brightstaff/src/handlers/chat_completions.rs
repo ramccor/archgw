@@ -37,14 +37,6 @@ pub async fn chat_completion(
 
     let mut request_headers = request.headers().clone();
 
-    info!(
-        "Request headers: {}",
-        request_headers
-            .iter()
-            .map(|(k, v)| format!("{}: {}", k, v.to_str().unwrap_or_default()))
-            .collect::<Vec<String>>()
-            .join(", ")
-    );
     let chat_request_bytes = request.collect().await?.to_bytes();
     let chat_completion_request: ChatCompletionsRequest =
         match serde_json::from_slice(&chat_request_bytes) {
@@ -58,7 +50,7 @@ pub async fn chat_completion(
         };
 
     info!(
-        "Received request: {}",
+        "request body: {}",
         &serde_json::to_string(&chat_completion_request).unwrap()
     );
 
