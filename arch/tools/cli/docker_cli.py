@@ -82,8 +82,6 @@ def docker_start_archgw_detached(
         ARCHGW_DOCKER_IMAGE,
     ]
 
-    log.info("options: " + str(options))
-
     result = subprocess.run(options, capture_output=True, text=True, check=False)
     return result.returncode, result.stdout, result.stderr
 

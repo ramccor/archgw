@@ -294,17 +294,18 @@ def up(file, path, service, foreground):
 def down(service):
     """Stops Arch."""
 
-    if service not in [SERVICE_NAME_ARCHGW, SERVICE_NAME_MODEL_SERVER, SERVICE_ALL]:
-        log.info(f"Error: Invalid service {service}. Exiting")
-        sys.exit(1)
+    verify_service_name(service)
 
     if service == SERVICE_NAME_MODEL_SERVER:
         stop_arch_modelserver()
     elif service == SERVICE_NAME_ARCHGW:
         stop_docker_container()
+    elif service == SERVICE_NAME_BRIGHTSTAFF:
+        stop_docker_container(SERVICE_NAME_BRIGHTSTAFF)
     else:
         stop_arch_modelserver()
-        stop_docker_container()
+        stop_docker_container(SERVICE_NAME_ARCHGW)
+        stop_docker_container(SERVICE_NAME_BRIGHTSTAFF)
 
 
 @click.command()
