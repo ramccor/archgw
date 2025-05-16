@@ -14,7 +14,6 @@ from cli.utils import (
 )
 from cli.core import (
     start_arch_modelserver,
-    start_brightstaff,
     stop_arch_modelserver,
     start_arch,
     stop_docker_container,
@@ -22,10 +21,8 @@ from cli.core import (
 )
 from cli.consts import (
     ARCHGW_DOCKER_IMAGE,
-    BRIGHTSTAFF_DOCKER_IMAGE,
     KATANEMO_DOCKERHUB_REPO,
     SERVICE_NAME_ARCHGW,
-    SERVICE_NAME_BRIGHTSTAFF,
     SERVICE_NAME_MODEL_SERVER,
     SERVICE_ALL,
 )
@@ -43,7 +40,6 @@ logo = r"""
 
 # Command to build archgw and model_server Docker images
 ARCHGW_DOCKERFILE = "./arch/Dockerfile"
-BRIGHTSTAFF_DOCKERFILE = "./arch/Dockerfile.brightstaff"
 MODEL_SERVER_BUILD_FILE = "./model_server/pyproject.toml"
 
 
@@ -60,7 +56,6 @@ def verify_service_name(service):
     if service not in [
         SERVICE_NAME_ARCHGW,
         SERVICE_NAME_MODEL_SERVER,
-        SERVICE_NAME_BRIGHTSTAFF,
         SERVICE_ALL,
     ]:
         print(f"Error: Invalid service {service}. Exiting")
@@ -124,35 +119,6 @@ def build(service):
 
     click.echo("archgw image built successfully.")
 
-    if service == SERVICE_NAME_BRIGHTSTAFF or service == SERVICE_ALL:
-        if os.path.exists(BRIGHTSTAFF_DOCKERFILE):
-            click.echo("Building brightstaff image...")
-            try:
-                subprocess.run(
-                    [
-                        "docker",
-                        "build",
-                        "-f",
-                        BRIGHTSTAFF_DOCKERFILE,
-                        "-t",
-                        f"{KATANEMO_DOCKERHUB_REPO}:brightstaff_latest",
-                        "-t",
-                        f"{BRIGHTSTAFF_DOCKER_IMAGE}",
-                        ".",
-                        "--add-host=host.docker.internal:host-gateway",
-                    ],
-                    check=True,
-                )
-                click.echo("brightstaff image built successfully.")
-            except subprocess.CalledProcessError as e:
-                click.echo(f"Error building brightstaff image: {e}")
-                sys.exit(1)
-        else:
-            click.echo("Error: Dockerfile not found in /arch")
-            sys.exit(1)
-
-    click.echo("brightstaff image built successfully.")
-
     """Install the model server dependencies using Poetry."""
     if service == SERVICE_NAME_MODEL_SERVER or service == SERVICE_ALL:
         # Check if pyproject.toml exists
@@ -199,7 +165,7 @@ def up(file, path, service, foreground):
         sys.exit(1)
 
     if service == SERVICE_NAME_MODEL_SERVER:
-        log.info("Download archgw models from HuggingFace...")
+        log.info("Download models from HuggingFace...")
         download_models_from_hf()
         start_arch_modelserver(foreground)
         return
@@ -229,8 +195,6 @@ def up(file, path, service, foreground):
         log.info(f"Validation stderr: {validation_stderr}")
         sys.exit(1)
 
-    log.info("Starting arch model server and arch gateway")
-
     # Set the ARCH_CONFIG_FILE environment variable
     env_stage = {
         "OTEL_TRACING_HTTP_ENDPOINT": "http://host.docker.internal:4318/v1/traces",
@@ -253,7 +217,6 @@ def up(file, path, service, foreground):
         else:
             app_env_file = os.path.abspath(os.path.join(path, ".env"))
 
-        print(f"app_env_file: {app_env_file}")
         if not os.path.exists(
             app_env_file
         ):  # check to see if the environment variables in the current environment or not
@@ -276,13 +239,10 @@ def up(file, path, service, foreground):
 
     if service == SERVICE_NAME_ARCHGW:
         start_arch(arch_config_file, env, foreground=foreground)
-    if service == SERVICE_NAME_BRIGHTSTAFF:
-        start_brightstaff(arch_config_file, env, foreground=foreground)
     else:
         download_models_from_hf()
         start_arch_modelserver(foreground)
         start_arch(arch_config_file, env, foreground=foreground)
-        start_brightstaff(arch_config_file, env, foreground=foreground)
 
 
 @click.command()
@@ -300,12 +260,9 @@ def down(service):
         stop_arch_modelserver()
     elif service == SERVICE_NAME_ARCHGW:
         stop_docker_container()
-    elif service == SERVICE_NAME_BRIGHTSTAFF:
-        stop_docker_container(SERVICE_NAME_BRIGHTSTAFF)
     else:
         stop_arch_modelserver()
         stop_docker_container(SERVICE_NAME_ARCHGW)
-        stop_docker_container(SERVICE_NAME_BRIGHTSTAFF)
 
 
 @click.command()

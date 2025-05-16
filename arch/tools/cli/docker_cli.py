@@ -6,8 +6,6 @@ import requests
 from cli.consts import (
     ARCHGW_DOCKER_IMAGE,
     ARCHGW_DOCKER_NAME,
-    BRIGHTSTAFF_DOCKER_IMAGE,
-    BRIGHTSTAFF_DOCKER_NAME,
 )
 from cli.utils import getLogger
 
@@ -60,7 +58,8 @@ def docker_start_archgw_detached(
     port_mappings_args = [item for port in port_mappings for item in ("-p", port)]
 
     volume_mappings = [
-        f"{logs_path_abs}:/var/log:rw",
+        # TODO: fix log path
+        # f"{logs_path_abs}:/var/log:rw",
         f"{arch_config_file}:/app/arch_config.yaml:ro",
         # "/Users/adilhafeez/src/intelligent-prompt-gateway/crates/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins:ro",
     ]
@@ -80,48 +79,6 @@ def docker_start_archgw_detached(
         "--add-host",
         "host.docker.internal:host-gateway",
         ARCHGW_DOCKER_IMAGE,
-    ]
-
-    result = subprocess.run(options, capture_output=True, text=True, check=False)
-    return result.returncode, result.stdout, result.stderr
-
-
-def docker_start_brightstaff_detached(
-    arch_config_file: str,
-    env: dict,
-) -> str:
-    env_args = [item for key, value in env.items() for item in ["-e", f"{key}={value}"]]
-
-    port_mappings = [
-        "9091:9091",
-    ]
-    port_mappings_args = [item for port in port_mappings for item in ("-p", port)]
-
-    volume_mappings = [
-        f"{arch_config_file}:/app/arch_config.yaml:ro",
-    ]
-    volume_mappings_args = [
-        item for volume in volume_mappings for item in ("-v", volume)
-    ]
-
-    llm_provider_endpoint = env.get(
-        "LLM_PROVIDER_ENDPOINT", "http://host.docker.internal:12000/v1/chat/completions"
-    )
-
-    options = [
-        "docker",
-        "run",
-        "-d",
-        "--name",
-        BRIGHTSTAFF_DOCKER_NAME,
-        *port_mappings_args,
-        *volume_mappings_args,
-        *env_args,
-        "-e",
-        f"LLM_PROVIDER_ENDPOINT={llm_provider_endpoint}",
-        "--add-host",
-        "host.docker.internal:host-gateway",
-        BRIGHTSTAFF_DOCKER_IMAGE,
     ]
 
     result = subprocess.run(options, capture_output=True, text=True, check=False)

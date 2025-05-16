@@ -6,14 +6,9 @@ KATANEMO_LOCAL_MODEL_LIST = [
     "katanemo/Arch-Guard",
 ]
 SERVICE_NAME_ARCHGW = "archgw"
-SERVICE_NAME_BRIGHTSTAFF = "brightstaff"
 SERVICE_NAME_MODEL_SERVER = "model_server"
 SERVICE_ALL = "all"
 MODEL_SERVER_LOG_FILE = "~/archgw_logs/modelserver.log"
 ACCESS_LOG_FILES = "~/archgw_logs/access*"
 ARCHGW_DOCKER_NAME = "archgw"
-BRIGHTSTAFF_DOCKER_NAME = "brightstaff"
 ARCHGW_DOCKER_IMAGE = os.getenv("ARCHGW_DOCKER_IMAGE", "katanemo/archgw:0.2.8")
-BRIGHTSTAFF_DOCKER_IMAGE = os.getenv(
-    "BRIGHTSTAFF_DOCKER_IMAGE", "katanemo/archgw:brightstaff_0.2.8"
-)
