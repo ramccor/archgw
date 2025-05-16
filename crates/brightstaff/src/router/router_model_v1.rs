@@ -198,3 +198,46 @@ user: "seattle"
         assert_eq!(expected_prompt, prompt);
     }
 }
+
+#[test]
+fn test_parse_response() {
+    let router = RouterModelV1::new(
+        "route1: description1\nroute2: description2".to_string(),
+        "test-model".to_string(),
+    );
+
+    // Case 1: Valid JSON with non-empty route
+    let input = r#"{"route": "route1"}"#;
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, Some("route1".to_string()));
+
+    // Case 2: Valid JSON with empty route
+    let input = r#"{"route": ""}"#;
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, None);
+
+    // Case 3: Valid JSON with null route
+    let input = r#"{"route": null}"#;
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, None);
+
+    // Case 4: JSON missing route field
+    let input = r#"{}"#;
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, None);
+
+    // Case 5: Malformed JSON
+    let input = r#"{"route": "route1""#; // missing closing }
+    let result = router.parse_response(input);
+    assert!(result.is_err());
+
+    // Case 6: Single quotes and \n in JSON
+    let input = "{'route': 'route2'}\\n";
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, Some("route2".to_string()));
+
+    // Case 7: Code block marker
+    let input = "```json\n{\"route\": \"route1\"}\n```";
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, Some("route1".to_string()));
+}
