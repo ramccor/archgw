@@ -50,7 +50,7 @@ impl RouterService {
             .iter()
             .map(|provider| {
                 format!(
-                    "- name: {}()\n  description: {}",
+                    "- name: {}\n  description: {}",
                     provider.name,
                     provider.usage.as_ref().unwrap_or(&"".to_string())
                 )

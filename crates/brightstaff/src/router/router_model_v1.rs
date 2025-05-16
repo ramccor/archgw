@@ -89,16 +89,13 @@ impl RouterModel for RouterModelV1 {
         );
         let router_response: LlmRouterResponse = serde_json::from_str(router_resp_fixed.as_str())?;
 
-        let selecter_llm = router_response
-            .route
-            .map(|route| route.strip_suffix("()").unwrap_or_default().to_string())
-            .unwrap();
+        let selected_llm = router_response.route.unwrap_or_default().to_string();
 
-        if selecter_llm.is_empty() {
+        if selected_llm.is_empty() {
             return Ok(None);
         }
 
-        Ok(Some(selecter_llm))
+        Ok(Some(selected_llm))
     }
 }
 

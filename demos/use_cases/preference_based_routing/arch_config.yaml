@@ -1,7 +1,7 @@
 version: "0.1-beta"
 
 routing:
-  model: archgw-v1-router-model
+  model: gpt-4o
 
 listeners:
   egress_traffic:
