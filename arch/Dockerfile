@@ -4,8 +4,8 @@ RUN rustup -v target add wasm32-wasip1
 WORKDIR /arch
 COPY crates .
 
-RUN cd prompt_gateway && cargo build --release --target wasm32-wasip1
-RUN cd llm_gateway && cargo build --release --target wasm32-wasip1
+RUN cargo build --release --target wasm32-wasip1 -p prompt_gateway -p llm_gateway
+RUN cargo build --release --target wasm32-wasip1 -p brightstaff
 
 # copy built filter into envoy image
 FROM docker.io/envoyproxy/envoy:v1.32-latest as envoy
