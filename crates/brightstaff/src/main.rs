@@ -31,7 +31,7 @@ const BIND_ADDRESS: &str = "0.0.0.0:9091";
 
 fn get_tracer() -> &'static BoxedTracer {
     static TRACER: OnceLock<BoxedTracer> = OnceLock::new();
-    TRACER.get_or_init(|| global::tracer("archgw/brightstaff"))
+    TRACER.get_or_init(|| global::tracer("archgw/router"))
 }
 
 // Utility function to extract the context from the incoming request headers
@@ -122,7 +122,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             info!("parent_cx: {:?}", parent_cx);
             let tracer = get_tracer();
             let _span = tracer
-                .span_builder("router_service")
+                .span_builder("request")
                 .with_kind(SpanKind::Server)
                 .start_with_context(tracer, &parent_cx);
             let llm_provider_endpoint = llm_provider_endpoint.clone();
