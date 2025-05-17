@@ -1,4 +1,4 @@
-# build filter using rust toolchain
+# build docker iamge for arch gateway
 FROM rust:1.82.0 as builder
 RUN rustup -v target add wasm32-wasip1
 WORKDIR /arch
