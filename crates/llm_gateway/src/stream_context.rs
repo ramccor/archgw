@@ -339,24 +339,22 @@ impl HttpContext for StreamContext {
         };
 
         let model_requested = deserialized_body.model.clone();
-        if deserialized_body.model.is_empty() || deserialized_body.model.to_lowercase() == "none" {
-            deserialized_body.model = match model_name {
-                Some(model_name) => model_name.clone(),
-                None => {
-                    if use_agent_orchestrator {
-                        "agent_orchestrator".to_string()
-                    } else {
-                        self.send_server_error(
-                          ServerError::BadRequest {
-                              why: format!("No model specified in request and couldn't determine model name from arch_config. Model name in req: {}, arch_config, provider: {}, model: {:?}", deserialized_body.model, self.llm_provider().name, self.llm_provider().model).to_string(),
-                          },
-                          Some(StatusCode::BAD_REQUEST),
-                      );
-                        return Action::Continue;
-                    }
+        deserialized_body.model = match model_name {
+            Some(model_name) => model_name.clone(),
+            None => {
+                if use_agent_orchestrator {
+                    "agent_orchestrator".to_string()
+                } else {
+                    self.send_server_error(
+                      ServerError::BadRequest {
+                          why: format!("No model specified in request and couldn't determine model name from arch_config. Model name in req: {}, arch_config, provider: {}, model: {:?}", deserialized_body.model, self.llm_provider().name, self.llm_provider().model).to_string(),
+                      },
+                      Some(StatusCode::BAD_REQUEST),
+                  );
+                    return Action::Continue;
                 }
             }
-        }
+        };
 
         info!(
             "on_http_request_body: provider: {}, model requested: {}, model selected: {}",
