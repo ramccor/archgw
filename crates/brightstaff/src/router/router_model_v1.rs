@@ -82,6 +82,9 @@ impl RouterModel for RouterModelV1 {
     }
 
     fn parse_response(&self, content: &str) -> Result<Option<String>> {
+        if content.is_empty() {
+            return Ok(None);
+        }
         let router_resp_fixed = fix_json_response(content);
         info!(
             "router response (fixed): {}",
@@ -223,6 +226,11 @@ fn test_parse_response() {
 
     // Case 4: JSON missing route field
     let input = r#"{}"#;
+    let result = router.parse_response(input).unwrap();
+    assert_eq!(result, None);
+
+    // Case 4.1: empty string
+    let input = r#""#;
     let result = router.parse_response(input).unwrap();
     assert_eq!(result, None);
 

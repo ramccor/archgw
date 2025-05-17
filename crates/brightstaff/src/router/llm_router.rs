@@ -17,6 +17,7 @@ pub struct RouterService {
     client: reqwest::Client,
     router_model: Arc<dyn RouterModel>,
     routing_model_name: String,
+    llm_usage_defined: bool,
 }
 
 #[derive(Debug, Error)]
@@ -73,6 +74,7 @@ impl RouterService {
             client: reqwest::Client::new(),
             router_model,
             routing_model_name,
+            llm_usage_defined: !providers_with_usage.is_empty(),
         }
     }
 
@@ -81,6 +83,11 @@ impl RouterService {
         messages: &[Message],
         trace_parent: Option<String>,
     ) -> Result<Option<String>> {
+
+        if !self.llm_usage_defined {
+            return Ok(None);
+        }
+
         let router_request = self.router_model.generate_request(messages);
 
         info!(

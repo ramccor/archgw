@@ -1,4 +1,4 @@
-use brightstaff::handlers::chat_completions::chat_completion;
+use brightstaff::handlers::chat_completions::chat_completions;
 use brightstaff::router::llm_router::RouterService;
 use bytes::Bytes;
 use common::configuration::Configuration;
@@ -89,16 +89,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     );
 
     let llm_provider_endpoint = env::var("LLM_PROVIDER_ENDPOINT")
-        .unwrap_or_else(|_| "http://localhost:12000/v1/chat/completions".to_string());
+        .unwrap_or_else(|_| "http://localhost:12001/v1/chat/completions".to_string());
 
     info!("llm provider endpoint: {}", llm_provider_endpoint);
     info!("Listening on http://{}", bind_address);
     let listener = TcpListener::bind(bind_address).await?;
 
+
+    // if routing is null then return gpt-4o as model name
+    let model = arch_config.routing.as_ref().map_or_else(
+        || "gpt-4o".to_string(),
+        |routing| routing.model.clone(),
+    );
+
     let router_service: Arc<RouterService> = Arc::new(RouterService::new(
         arch_config.llm_providers.clone(),
         llm_provider_endpoint.clone(),
-        arch_config.routing.as_ref().unwrap().model.clone(),
+        model,
     ));
 
     loop {
@@ -123,7 +130,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             async move {
                 match (req.method(), req.uri().path()) {
                     (&Method::POST, "/v1/chat/completions") => {
-                        chat_completion(req, router_service, llm_provider_endpoint)
+                        chat_completions(req, router_service, llm_provider_endpoint)
                             .with_context(parent_cx)
                             .await
                     }

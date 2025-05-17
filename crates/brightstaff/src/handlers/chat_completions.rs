@@ -5,7 +5,6 @@ use common::api::open_ai::ChatCompletionsRequest;
 use common::consts::ARCH_PROVIDER_HINT_HEADER;
 use http_body_util::combinators::BoxBody;
 use http_body_util::{BodyExt, Full, StreamBody};
-use hyper::body::Body;
 use hyper::body::Frame;
 use hyper::header::{self};
 use hyper::{Request, Response, StatusCode};
@@ -22,18 +21,11 @@ fn full<T: Into<Bytes>>(chunk: T) -> BoxBody<Bytes, hyper::Error> {
         .boxed()
 }
 
-pub async fn chat_completion(
+pub async fn chat_completions(
     request: Request<hyper::body::Incoming>,
     router_service: Arc<RouterService>,
     llm_provider_endpoint: String,
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
-    let max = request.body().size_hint().upper().unwrap_or(u64::MAX);
-    if max > 1024 * 1024 {
-        let error_msg = format!("Request body too large: {} bytes", max);
-        let mut too_large = Response::new(full(error_msg));
-        *too_large.status_mut() = StatusCode::PAYLOAD_TOO_LARGE;
-        return Ok(too_large);
-    }
 
     let mut request_headers = request.headers().clone();
 
