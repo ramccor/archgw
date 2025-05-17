@@ -1,4 +1,4 @@
-POST http://localhost:9090/v1/chat/completions
+POST http://localhost:12000/v1/chat/completions
 Content-Type: application/json
 
 {
