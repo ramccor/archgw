@@ -16,7 +16,7 @@ hyper = { version = "1.6.0", features = ["full"] }
 hyper-util = "0.1.11"
 opentelemetry = "0.29.1"
 opentelemetry-http = "0.29.0"
-opentelemetry-otlp = "0.29.0"
+opentelemetry-otlp = {version="0.29.0", features=["trace", "tonic", "grpc-tonic"]}
 opentelemetry-stdout = "0.29.0"
 opentelemetry_sdk = "0.29.0"
 pretty_assertions = "1.4.1"

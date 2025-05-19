@@ -3,6 +3,7 @@ use std::sync::Arc;
 use bytes::Bytes;
 use common::api::open_ai::ChatCompletionsRequest;
 use common::consts::ARCH_PROVIDER_HINT_HEADER;
+use common::utils::shorten_string;
 use http_body_util::combinators::BoxBody;
 use http_body_util::{BodyExt, Full, StreamBody};
 use hyper::body::Frame;
@@ -26,7 +27,6 @@ pub async fn chat_completions(
     router_service: Arc<RouterService>,
     llm_provider_endpoint: String,
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
-
     let mut request_headers = request.headers().clone();
 
     let chat_request_bytes = request.collect().await?.to_bytes();
@@ -42,8 +42,8 @@ pub async fn chat_completions(
         };
 
     info!(
-        "request body: {}",
-        &serde_json::to_string(&chat_completion_request).unwrap()
+        "request body received: {}",
+        shorten_string(&serde_json::to_string(&chat_completion_request).unwrap())
     );
 
     let trace_parent = request_headers
@@ -108,7 +108,7 @@ pub async fn chat_completions(
     }
 
     if chat_completion_request.stream {
-        // Create a channel to send data
+        // channel to create async stream
         let (tx, rx) = mpsc::channel::<Bytes>(16);
 
         // Spawn a task to send data as it becomes available

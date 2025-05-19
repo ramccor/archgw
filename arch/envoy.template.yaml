@@ -29,7 +29,6 @@ stats_config:
       - 180000
 static_resources:
   listeners:
-
     - name: ingress_traffic
       address:
         socket_address:
