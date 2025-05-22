@@ -14,13 +14,13 @@ llm_providers:
 
   - name: archgw-v1-router-model
     provider_interface: openai
-    model: cotran2/llama-1b-4-26
-    base_url: http://35.192.87.187:8000/v1
+    model: cotran2/llama-4-epoch
+    base_url: http://34.46.85.85:8000/v1
 
-  - name: gpt-4o-mini
+  - name: gpt-4o
     provider_interface: openai
     access_key: $OPENAI_API_KEY
-    model: gpt-4o-mini
+    model: gpt-4o
     default: true
 
   - name: gpt-4o
@@ -34,6 +34,18 @@ llm_providers:
     access_key: $OPENAI_API_KEY
     model: o4-mini
     usage: Requesting topic ideas specifically related to personal finance and budgeting.
+
+  - name: code_generation
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4.1
+    usage: Generating new code snippets, functions, or boilerplate based on user prompts or requirements
+
+  - name: code_understanding
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4.1
+    usage: understand and explain existing code snippets, functions, or libraries
 
 tracing:
   random_sampling: 100

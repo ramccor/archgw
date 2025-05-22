@@ -2,6 +2,7 @@ use crate::stream_context::{ResponseHandlerType, StreamCallContext, StreamContex
 use common::{
     api::open_ai::{
         self, ArchState, ChatCompletionStreamResponse, ChatCompletionTool, ChatCompletionsRequest,
+        ContentType,
     },
     consts::{
         ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME, ARCH_ROUTING_HEADER,
@@ -237,22 +238,32 @@ impl HttpContext for StreamContext {
             Duration::from_secs(5),
         );
 
-        let call_context = StreamCallContext {
-            response_handler_type: ResponseHandlerType::ArchFC,
-            user_message: self.user_prompt.as_ref().unwrap().content.clone(),
-            prompt_target_name: None,
-            request_body: self.chat_completions_request.as_ref().unwrap().clone(),
-            similarity_scores: None,
-            upstream_cluster: Some(ARCH_INTERNAL_CLUSTER_NAME.to_string()),
-            upstream_cluster_path: Some("/function_calling".to_string()),
-        };
+        if let Some(ContentType::Text(content)) =
+            self.user_prompt.as_ref().unwrap().content.as_ref()
+        {
+            let call_context = StreamCallContext {
+                response_handler_type: ResponseHandlerType::ArchFC,
+                user_message: Some(content.clone()),
+                prompt_target_name: None,
+                request_body: self.chat_completions_request.as_ref().unwrap().clone(),
+                similarity_scores: None,
+                upstream_cluster: Some(ARCH_INTERNAL_CLUSTER_NAME.to_string()),
+                upstream_cluster_path: Some("/function_calling".to_string()),
+            };
 
-        if let Err(e) = self.http_call(call_args, call_context) {
-            warn!("http_call failed: {:?}", e);
-            self.send_server_error(ServerError::HttpDispatch(e), None);
+            if let Err(e) = self.http_call(call_args, call_context) {
+                warn!("http_call failed: {:?}", e);
+                self.send_server_error(ServerError::HttpDispatch(e), None);
+            }
+        } else {
+            warn!("No content in the last user prompt");
+            self.send_server_error(
+                ServerError::LogicError("No content in the last user prompt".to_string()),
+                None,
+            );
         }
-
         Action::Pause
+
     }
 
     fn on_http_response_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {

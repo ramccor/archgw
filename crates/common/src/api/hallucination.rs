@@ -6,6 +6,8 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
+use super::open_ai::ContentType;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HallucinationClassificationRequest {
     pub prompt: String,
@@ -21,7 +23,7 @@ pub struct HallucinationClassificationResponse {
 
 pub fn extract_messages_for_hallucination(messages: &[Message]) -> Vec<String> {
     let mut arch_assistant = false;
-    let mut user_messages = Vec::new();
+    let mut user_messages: Vec<String> = Vec::new();
     if messages.len() >= 2 {
         let latest_assistant_message = &messages[messages.len() - 2];
         if let Some(model) = latest_assistant_message.model.as_ref() {
@@ -34,7 +36,7 @@ pub fn extract_messages_for_hallucination(messages: &[Message]) -> Vec<String> {
         for message in messages.iter().rev() {
             if let Some(model) = message.model.as_ref() {
                 if !model.starts_with(ARCH_MODEL_PREFIX) {
-                    if let Some(content) = &message.content {
+                    if let Some(ContentType::Text(content)) = &message.content {
                         if !content.starts_with(HALLUCINATION_TEMPLATE) {
                             break;
                         }
@@ -42,13 +44,13 @@ pub fn extract_messages_for_hallucination(messages: &[Message]) -> Vec<String> {
                 }
             }
             if message.role == USER_ROLE {
-                if let Some(content) = &message.content {
+                if let Some(ContentType::Text(content)) = &message.content {
                     user_messages.push(content.clone());
                 }
             }
         }
     } else if let Some(message) = messages.last() {
-        if let Some(content) = &message.content {
+        if let Some(ContentType::Text(content)) = &message.content {
             user_messages.push(content.clone());
         }
     }
