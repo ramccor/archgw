@@ -21,13 +21,8 @@ llm_providers:
     provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: gpt-4o
-    default: true
-
-  - name: gpt-4o
-    provider_interface: openai
-    access_key: $OPENAI_API_KEY
-    model: gpt-4o
     usage: Generating original content such as scripts, articles, or creative materials.
+    default: true
 
   - name: o4-mini
     provider_interface: openai
