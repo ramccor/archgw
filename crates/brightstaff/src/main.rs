@@ -85,6 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let listener = TcpListener::bind(bind_address).await?;
 
     // if routing is null then return gpt-4o as model name
+    //TODO: fail if routing is null
     let model = arch_config
         .routing
         .as_ref()
