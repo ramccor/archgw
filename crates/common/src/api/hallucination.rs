@@ -36,22 +36,22 @@ pub fn extract_messages_for_hallucination(messages: &[Message]) -> Vec<String> {
         for message in messages.iter().rev() {
             if let Some(model) = message.model.as_ref() {
                 if !model.starts_with(ARCH_MODEL_PREFIX) {
-                    if let Some(ContentType::Text(content)) = &message.content {
-                        if !content.starts_with(HALLUCINATION_TEMPLATE) {
+                    if let Some(content) = &message.content {
+                        if !content.to_string().starts_with(HALLUCINATION_TEMPLATE) {
                             break;
                         }
                     }
                 }
             }
             if message.role == USER_ROLE {
-                if let Some(ContentType::Text(content)) = &message.content {
-                    user_messages.push(content.clone());
+                if let Some(content) = &message.content {
+                    user_messages.push(content.to_string());
                 }
             }
         }
     } else if let Some(message) = messages.last() {
-        if let Some(ContentType::Text(content)) = &message.content {
-            user_messages.push(content.clone());
+        if let Some(content) = &message.content {
+            user_messages.push(content.to_string());
         }
     }
     user_messages.reverse(); // Reverse to maintain the original order

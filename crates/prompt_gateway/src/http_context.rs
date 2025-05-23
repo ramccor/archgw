@@ -2,7 +2,6 @@ use crate::stream_context::{ResponseHandlerType, StreamCallContext, StreamContex
 use common::{
     api::open_ai::{
         self, ArchState, ChatCompletionStreamResponse, ChatCompletionTool, ChatCompletionsRequest,
-        ContentType,
     },
     consts::{
         ARCH_FC_MODEL_NAME, ARCH_INTERNAL_CLUSTER_NAME, ARCH_ROUTING_HEADER,
@@ -238,12 +237,12 @@ impl HttpContext for StreamContext {
             Duration::from_secs(5),
         );
 
-        if let Some(ContentType::Text(content)) =
+        if let Some(content) =
             self.user_prompt.as_ref().unwrap().content.as_ref()
         {
             let call_context = StreamCallContext {
                 response_handler_type: ResponseHandlerType::ArchFC,
-                user_message: Some(content.clone()),
+                user_message: Some(content.to_string()),
                 prompt_target_name: None,
                 request_body: self.chat_completions_request.as_ref().unwrap().clone(),
                 similarity_scores: None,
