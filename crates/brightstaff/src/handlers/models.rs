@@ -2,7 +2,6 @@ use bytes::Bytes;
 use common::api::open_ai::Models;
 use common::configuration::LlmProvider;
 use http_body_util::{combinators::BoxBody, BodyExt, Full};
-use hyper::body::Body;
 use hyper::{Response, StatusCode};
 use serde_json;
 use std::sync::Arc;
@@ -12,11 +11,6 @@ pub async fn list_models(
 ) -> Response<BoxBody<Bytes, hyper::Error>> {
     let prov = llm_providers.clone();
     let providers = (*prov).clone();
-    let providers = providers
-        .iter()
-        .filter(|provider| provider.name == "gpt-4o-mini")
-        .cloned()
-        .collect::<Vec<_>>();
     let openai_models = Models::from(providers);
 
     match serde_json::to_string(&openai_models) {
