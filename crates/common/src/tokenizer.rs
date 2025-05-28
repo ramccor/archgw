@@ -1,18 +1,5 @@
 use log::debug;
 
-pub trait Tokenizer {
-    /// Returns the number of tokens in the given text.
-    fn token_count(&self, text: &str, model_name: &str) -> Result<usize, String>;
-}
-
-pub struct TiktokenTokenizer {}
-
-impl Tokenizer for TiktokenTokenizer {
-    fn token_count(&self, text: &str, model_name: &str) -> Result<usize, String> {
-        token_count(model_name, text)
-    }
-}
-
 #[allow(dead_code)]
 pub fn token_count(model_name: &str, text: &str) -> Result<usize, String> {
     debug!("getting token count model={}", model_name);

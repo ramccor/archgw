@@ -4,7 +4,6 @@ use common::{
     api::open_ai::{ChatCompletionsResponse, ContentType, Message},
     configuration::LlmProvider,
     consts::ARCH_PROVIDER_HINT_HEADER,
-    tokenizer::TiktokenTokenizer,
 };
 use hyper::header;
 use thiserror::Error;
@@ -70,7 +69,6 @@ impl RouterService {
             llm_providers_with_usage_yaml.clone(),
             routing_model_name.clone(),
             router_model_v1::MAX_TOKEN_LEN,
-            Box::new(TiktokenTokenizer {}),
         ));
 
         RouterService {
