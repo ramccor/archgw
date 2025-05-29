@@ -25,7 +25,7 @@ do
   echo "starting docker containers"
   docker compose up -d 2>&1 > /dev/null
   echo "starting hurl tests"
-  if ! hurl -v hurl_tests/*.hurl; then
+  if ! hurl hurl_tests/*.hurl; then
     echo "Hurl tests failed for $demo"
     echo "docker logs for archgw:"
     docker logs archgw
