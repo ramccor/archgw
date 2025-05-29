@@ -1,5 +1,8 @@
 name: e2e demo tests currency conversion
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
