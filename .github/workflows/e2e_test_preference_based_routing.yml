@@ -1,5 +1,8 @@
 name: e2e demo preference based routing tests
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
