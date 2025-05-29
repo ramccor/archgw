@@ -1,11 +1,20 @@
 #!/bin/bash
 set -eu
 
-echo "docker images"
-docker images
+# load demo name from arguments
+if [ $# -eq 0 ]; then
+  echo "No demo names provided. Please provide demo names as arguments."
+  # print usage
+  echo "Usage: $0 <demo_name1> <demo_name2> ..."
+  exit 1
+fi
 
-# for demo in currency_exchange hr_agent
-for demo in samples_python/currency_exchange use_cases/preference_based_routing
+# extract demo names from arguments
+DEMOS="$@"
+
+echo "Running tests for demos: $DEMOS"
+
+for demo in $DEMOS
 do
   echo "******************************************"
   echo "Running tests for $demo ..."

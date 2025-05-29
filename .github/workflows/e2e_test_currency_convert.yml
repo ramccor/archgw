@@ -1,4 +1,4 @@
-name: e2e demo tests
+name: e2e demo tests currency conversion
 
 on:
   push:
@@ -51,4 +51,4 @@ jobs:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           source venv/bin/activate
-          cd demos/shared/test_runner && sh run_demo_tests.sh
+          cd demos/shared/test_runner && sh run_demo_tests.sh samples_python/currency_exchange
