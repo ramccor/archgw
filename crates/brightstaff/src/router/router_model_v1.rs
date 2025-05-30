@@ -608,20 +608,21 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         // expects conversation to look like this
 
-// [
-//   {
-//     "role": "user",
-//     "content": "What's the weather like in Tokyo?"
-//   },
-//   {
-//     "role": "assistant",
-//     "content": "The current weather in Tokyo is 22°C and sunny."
-//   },
-//   {
-//     "role": "user",
-//     "content": "What about in New York?"
-//   }
-// ]
+        // [
+        //   {
+        //     "role": "user",
+        //     "content": "What's the weather like in Tokyo?"
+        //   },
+        //   {
+        //     "role": "assistant",
+        //     "content": "The current weather in Tokyo is 22°C and sunny."
+        //   },
+        //   {
+        //     "role": "user",
+        //     "content": "What about in New York?"
+        //   }
+        // ]
+
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
         let req = router.generate_request(&conversation);
