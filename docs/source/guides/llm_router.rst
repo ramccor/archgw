@@ -158,5 +158,3 @@ Best practice
 
 .. - **❌ System Prompt Dependency:**
 ..   Arch-Router routes based solely on the user’s conversation history. It does not use or rely on system prompts for routing decisions.
-
-Remember, working with LLMs is part science, part art. Don't be afraid to experiment and iterate to find what works best for your specific use case.
