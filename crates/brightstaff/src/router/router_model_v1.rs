@@ -1,5 +1,6 @@
 use common::{
     api::open_ai::{ChatCompletionsRequest, ContentType, Message},
+    configuration::LlmRoute,
     consts::{SYSTEM_ROLE, USER_ROLE},
 };
 use serde::{Deserialize, Serialize};
@@ -15,36 +16,33 @@ You are provided with route description within <routes></routes> XML tags:
 {routes}
 </routes>
 
-Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
-1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
-2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
-3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
-
-Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
-{"route": "route_name"}
-
-
 <conversation>
 {conversation}
 </conversation>
+
+Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
+
+Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
+{"route": "route_name"}
 "#;
 
 pub type Result<T> = std::result::Result<T, RoutingModelError>;
 pub struct RouterModelV1 {
-    llm_providers_with_usage_yaml: String,
+    llm_route_json_str: String,
     routing_model: String,
     max_token_length: usize,
 }
 impl RouterModelV1 {
-    pub fn new(
-        llm_providers_with_usage_yaml: String,
-        routing_model: String,
-        max_token_length: usize,
-    ) -> Self {
+    pub fn new(llm_routes: Vec<LlmRoute>, routing_model: String, max_token_length: usize) -> Self {
+        let llm_route_json_str =
+            serde_json::to_string(&llm_routes).unwrap_or_else(|_| "[]".to_string());
         RouterModelV1 {
-            llm_providers_with_usage_yaml,
             routing_model,
             max_token_length,
+            llm_route_json_str,
         }
     }
 }
@@ -117,20 +115,17 @@ impl RouterModel for RouterModelV1 {
 
         // Reverse the selected messages to maintain the conversation order
 
-        let selected_conversation_list_str = selected_messages_list_reversed
+        let selected_conversation_list = selected_messages_list_reversed
             .iter()
             .rev()
-            .map(|m| {
-                let content_json_str = serde_json::to_string(&m.content).unwrap_or_default();
-                format!("{}: {}", m.role, content_json_str)
-            })
-            .collect::<Vec<String>>();
+            .map(|message| (*message).clone())
+            .collect::<Vec<Message>>();
 
         let messages_content = ARCH_ROUTER_V1_SYSTEM_PROMPT
-            .replace("{routes}", &self.llm_providers_with_usage_yaml)
+            .replace("{routes}", &self.llm_route_json_str)
             .replace(
                 "{conversation}",
-                selected_conversation_list_str.join("\n").as_str(),
+                &serde_json::to_string(&selected_conversation_list).unwrap_or_default(),
             );
 
         ChatCompletionsRequest {
@@ -215,60 +210,53 @@ mod tests {
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
 <routes>
-route1: description1
-route2: description2
+[{"name":"Image generation","description":"generating image"},{"name":"image conversion","description":"convert images to provided format"},{"name":"image search","description":"search image"},{"name":"Audio Processing","description":"Analyzing and interpreting audio input including speech, music, and environmental sounds"},{"name":"Speech Recognition","description":"Converting spoken language into written text"}]
 </routes>
 
+<conversation>
+[{"role":"user","content":"hi"},{"role":"assistant","content":"Hello! How can I assist you today?"},{"role":"user","content":"given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"}]
+</conversation>
+
 Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
-1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
-2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
-3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
 
 Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
 {"route": "route_name"}
-
-
-<conversation>
-user: "Hello, I want to book a flight."
-assistant: "Sure, where would you like to go?"
-user: "seattle"
-</conversation>
 "#;
-
-        let routes_yaml = "route1: description1\nroute2: description2";
+        let routes_str = r#"
+          [
+              {"name": "Image generation", "description": "generating image"},
+              {"name": "image conversion", "description": "convert images to provided format"},
+              {"name": "image search", "description": "search image"},
+              {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+              {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+          ]
+        "#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
         let routing_model = "test-model".to_string();
-        let router = RouterModelV1::new(routes_yaml.to_string(), routing_model.clone(), usize::MAX);
+        let router = RouterModelV1::new(llm_routes, routing_model.clone(), usize::MAX);
 
-        let messages = vec![
-            Message {
-                role: "system".to_string(),
-                content: Some(ContentType::Text(
-                    "You are a helpful assistant.".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text(
-                    "Hello, I want to book a flight.".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text(
-                    "Sure, where would you like to go?".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("seattle".to_string())),
-                ..Default::default()
-            },
-        ];
+        let conversation_str = r#"
+                    [
+                        {
+                            "role": "user",
+                            "content": "hi"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "Hello! How can I assist you today?"
+                        },
+                        {
+                            "role": "user",
+                            "content": "given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"
+                        }
+                    ]
+        "#;
+        let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&messages);
+        let req = router.generate_request(&conversation);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -282,68 +270,55 @@ user: "seattle"
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
 <routes>
-route1: description1
-route2: description2
+[{"name":"Image generation","description":"generating image"},{"name":"image conversion","description":"convert images to provided format"},{"name":"image search","description":"search image"},{"name":"Audio Processing","description":"Analyzing and interpreting audio input including speech, music, and environmental sounds"},{"name":"Speech Recognition","description":"Converting spoken language into written text"}]
 </routes>
 
+<conversation>
+[{"role":"user","content":"given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"}]
+</conversation>
+
 Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
-1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
-2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
-3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
 
 Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
 {"route": "route_name"}
-
-
-<conversation>
-user: "I want to book a flight."
-assistant: "Sure, where would you like to go?"
-user: "seattle"
-</conversation>
 "#;
 
-        let routes_yaml = "route1: description1\nroute2: description2";
+        let routes_str = r#"
+          [
+              {"name": "Image generation", "description": "generating image"},
+              {"name": "image conversion", "description": "convert images to provided format"},
+              {"name": "image search", "description": "search image"},
+              {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+              {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+          ]
+        "#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
         let routing_model = "test-model".to_string();
-        let router = RouterModelV1::new(routes_yaml.to_string(), routing_model.clone(), 223);
+        let router = RouterModelV1::new(llm_routes, routing_model.clone(), 235);
 
-        let messages = vec![
-            Message {
-                role: "system".to_string(),
-                content: Some(ContentType::Text(
-                    "You are a helpful assistant.".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("Hi".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text("Hello! How can I assist you".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("I want to book a flight.".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text(
-                    "Sure, where would you like to go?".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("seattle".to_string())),
-                ..Default::default()
-            },
-        ];
+        let conversation_str = r#"
+                    [
+                        {
+                            "role": "user",
+                            "content": "hi"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "Hello! How can I assist you today?"
+                        },
+                        {
+                            "role": "user",
+                            "content": "given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"
+                        }
+                    ]
+        "#;
 
-        let req = router.generate_request(&messages);
+        let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
+
+        let req = router.generate_request(&conversation);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -357,69 +332,55 @@ user: "seattle"
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
 <routes>
-route1: description1
-route2: description2
+[{"name":"Image generation","description":"generating image"},{"name":"image conversion","description":"convert images to provided format"},{"name":"image search","description":"search image"},{"name":"Audio Processing","description":"Analyzing and interpreting audio input including speech, music, and environmental sounds"},{"name":"Speech Recognition","description":"Converting spoken language into written text"}]
 </routes>
 
+<conversation>
+[{"role":"user","content":"given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson and this is a very long message that exceeds the max token length of the routing model, so it should be truncated and only the last user message should be included in the conversation for routing."}]
+</conversation>
+
 Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
-1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
-2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
-3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
 
 Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
 {"route": "route_name"}
-
-
-<conversation>
-user: "Seatte, WA. But I also need to know about the weather there, and if there are any good restaurants nearby, and what the best time to visit is, and also if there are any events happening in the city."
-</conversation>
 "#;
 
-        let routes_yaml = "route1: description1\nroute2: description2";
+        let routes_str = r#"
+          [
+              {"name": "Image generation", "description": "generating image"},
+              {"name": "image conversion", "description": "convert images to provided format"},
+              {"name": "image search", "description": "search image"},
+              {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+              {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+          ]
+        "#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
         let routing_model = "test-model".to_string();
-        let router = RouterModelV1::new(routes_yaml.to_string(), routing_model.clone(), 210);
+        let router = RouterModelV1::new(llm_routes, routing_model.clone(), 200);
 
-        let messages = vec![
-            Message {
-                role: "system".to_string(),
-                content: Some(ContentType::Text(
-                    "You are a helpful assistant.".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("Hi".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text("Hello! How can I assist you".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("I want to book a flight.".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text(
-                    "Sure, where would you like to go?".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("Seatte, WA. But I also need to know about the weather there, \
-                                                 and if there are any good restaurants nearby, and what the \
-                                                 best time to visit is, and also if there are any events \
-                                                 happening in the city.".to_string())),
-                ..Default::default()
-            },
-        ];
+        let conversation_str = r#"
+                    [
+                        {
+                            "role": "user",
+                            "content": "hi"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "Hello! How can I assist you today?"
+                        },
+                        {
+                            "role": "user",
+                            "content": "given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson and this is a very long message that exceeds the max token length of the routing model, so it should be truncated and only the last user message should be included in the conversation for routing."
+                        }
+                    ]
+        "#;
 
-        let req = router.generate_request(&messages);
+        let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
+
+        let req = router.generate_request(&conversation);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -433,68 +394,63 @@ user: "Seatte, WA. But I also need to know about the weather there, and if there
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
 <routes>
-route1: description1
-route2: description2
+[{"name":"Image generation","description":"generating image"},{"name":"image conversion","description":"convert images to provided format"},{"name":"image search","description":"search image"},{"name":"Audio Processing","description":"Analyzing and interpreting audio input including speech, music, and environmental sounds"},{"name":"Speech Recognition","description":"Converting spoken language into written text"}]
 </routes>
 
+<conversation>
+[{"role":"user","content":"given the image In style of Andy Warhol"},{"role":"assistant","content":"ok here is the image"},{"role":"user","content":"pls give me another image about Bart and Lisa"}]
+</conversation>
+
 Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
-1. If the latest intent from user is irrelevant, response with empty route {"route": ""}.
-2. If the user request is full fill and user thank or ending the conversation , response with empty route {"route": ""}.
-3. Understand user latest intent and find the best match route in <routes></routes> xml tags.
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
 
 Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
 {"route": "route_name"}
-
-
-<conversation>
-user: "I want to book a flight."
-assistant: "Sure, where would you like to go?"
-user: "seattle"
-</conversation>
 "#;
 
-        let routes_yaml = "route1: description1\nroute2: description2";
+        let routes_str = r#"
+          [
+              {"name": "Image generation", "description": "generating image"},
+              {"name": "image conversion", "description": "convert images to provided format"},
+              {"name": "image search", "description": "search image"},
+              {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+              {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+          ]
+        "#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
         let routing_model = "test-model".to_string();
-        let router = RouterModelV1::new(routes_yaml.to_string(), routing_model.clone(), 220);
+        let router = RouterModelV1::new(llm_routes, routing_model.clone(), 230);
 
-        let messages = vec![
-            Message {
-                role: "system".to_string(),
-                content: Some(ContentType::Text(
-                    "You are a helpful assistant.".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("Hi".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text("Hello! How can I assist you".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("I want to book a flight.".to_string())),
-                ..Default::default()
-            },
-            Message {
-                role: "assistant".to_string(),
-                content: Some(ContentType::Text(
-                    "Sure, where would you like to go?".to_string(),
-                )),
-                ..Default::default()
-            },
-            Message {
-                role: "user".to_string(),
-                content: Some(ContentType::Text("seattle".to_string())),
-                ..Default::default()
-            },
-        ];
+        let conversation_str = r#"
+                    [
+                        {
+                            "role": "user",
+                            "content": "hi"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "Hello! How can I assist you today?"
+                        },
+                        {
+                            "role": "user",
+                            "content": "given the image In style of Andy Warhol"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "ok here is the image"
+                        },
+                        {
+                            "role": "user",
+                            "content": "pls give me another image about Bart and Lisa"
+                        }
+                    ]
+        "#;
 
-        let req = router.generate_request(&messages);
+        let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
+
+        let req = router.generate_request(&conversation);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -503,11 +459,18 @@ user: "seattle"
 
     #[test]
     fn test_parse_response() {
-        let router = RouterModelV1::new(
-            "route1: description1\nroute2: description2".to_string(),
-            "test-model".to_string(),
-            2000,
-        );
+        let routes_str = r#"
+[
+    {"name": "Image generation", "description": "generating image"},
+    {"name": "image conversion", "description": "convert images to provided format"},
+    {"name": "image search", "description": "search image"},
+    {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+    {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+]
+"#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
+
+        let router = RouterModelV1::new(llm_routes, "test-model".to_string(), 2000);
 
         // Case 1: Valid JSON with non-empty route
         let input = r#"{"route": "route1"}"#;
