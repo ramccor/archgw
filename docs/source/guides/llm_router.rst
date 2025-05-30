@@ -59,7 +59,7 @@ Below is an example to show how to set up a prompt target for the Arch Router:
 
 - **Step 2: Define the listeners in the `listeners` section**. This is where you specify the address and port for incoming traffic, as well as the message format (e.g., OpenAI).
 
-- **Step 3: Define the LLM providers in the `llm_providers` section**. This is where you specify the routing model, the OpenAI models, and any other models you want to use for specific tasks (e.g., code generation, code understanding).
+- **Step 3: Define the LLM providers in the `llm_providers` section**. This is where you specify the routing model, and any other models you want to use for specific tasks and their route usage descriptions (e.g., code generation, code understanding).
 
 .. Note::
   Make sure you define a model for default usage, such as `gpt-4o`, which will be used when no specific route is matched for an user prompt.
@@ -119,43 +119,44 @@ Here are common scenarios where Arch-Router excels:
 
 Best practice
 -------------------------
-- **✅ Consistent Naming:**  Route names should align with their descriptions.
+- **💡Consistent Naming:**  Route names should align with their descriptions.
 
   - ❌ Bad:
-    ```json
-    {"name": "math", "description": "handle solving, understanding quadratic equations"}
     ```
-  - ✅ Better:
-    ```json
-    {"name": "quadratic_equation", "description": "solving and explaining quadratic equations"}
+    {"name": "math", "description": "handle solving quadratic equations"}
+    ```
+  - ✅ Good:
+    ```
+    {"name": "quadratic_equation", "description": "solving quadratic equations"}
     ```
 
-- **✅ Use Nouns:**
-  Preference-based routing benefits from noun-based descriptions, which provide better semantic coverage.
-
-- **✅ Be Specific:**  Avoid vague or overly broad route definitions.
+- **💡 Clear Usage Description:**  Make your route names and descriptions specific, unambiguous, and minimizing overlap between routes. The Router performs better when it can clearly distinguish between different types of requests.
 
   - ❌ Bad:
-    ```json
-    {"name": "math", "description": "math"}
     ```
-  - ✅ Better:
-    ```json
-    {"name": "math_concepts", "description": "solving math problems and explaining core math concepts"}
+    {"name": "math", "description": "anything closely related to mathematics"}
+    ```
+  - ✅ Good:
+    ```
+    {"name": "math", "description": "solving, explaining math problems, concepts"}
     ```
 
-Unsupported Features
--------------------------
+- **💡Nouns Descriptor:** Preference-based routers perform better with noun-centric descriptors, as they offer more stable and semantically rich signals for matching.
 
-The following features are **not supported** by the Arch-Router model:
+- **💡Domain Inclusion:** for best user experience, you should always include domain route. This help the router fall back to domain when action is not
 
-- **❌ Multi-Modality:**
-  The model is not trained to process raw image or audio inputs. While it can handle textual queries *about* these modalities (e.g., "generate an image of a cat"), it cannot interpret encoded multimedia data directly.
+.. Unsupported Features
+.. -------------------------
 
-- **❌ Function Calling:**
-  This model is designed for **semantic preference matching**, not exact intent classification or tool execution. For structured function invocation, use models in the **Arch-Function-Calling** collection.
+.. The following features are **not supported** by the Arch-Router model:
 
-- **❌ System Prompt Dependency:**
-  Arch-Router routes based solely on the user’s conversation history. It does not use or rely on system prompts for routing decisions.
+.. - **❌ Multi-Modality:**
+..   The model is not trained to process raw image or audio inputs. While it can handle textual queries *about* these modalities (e.g., "generate an image of a cat"), it cannot interpret encoded multimedia data directly.
+
+.. - **❌ Function Calling:**
+..   This model is designed for **semantic preference matching**, not exact intent classification or tool execution. For structured function invocation, use models in the **Arch-Function-Calling** collection.
+
+.. - **❌ System Prompt Dependency:**
+..   Arch-Router routes based solely on the user’s conversation history. It does not use or rely on system prompts for routing decisions.
 
 Remember, working with LLMs is part science, part art. Don't be afraid to experiment and iterate to find what works best for your specific use case.
