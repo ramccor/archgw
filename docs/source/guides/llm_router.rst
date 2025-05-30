@@ -11,8 +11,8 @@ For **preference-based routing**, instead of predicting raw model quality, it ro
 
 Arch Router
 -----------
- is a powerful feature in Arch that allows your application to dynamically change the response LLM based on user prompts.
-Arch-Router matches user prompts to high-level task categories specified by developers (e.g., FAQ answer, creative writing, code generation), and routes each query to the corresponding model or pipeline. 
+Arch Router is a powerful feature in Arch that allows your application to dynamically change the response LLM based on user prompts.
+Arch Router matches user prompts to high-level task categories specified by developers (e.g., FAQ answer, creative writing, code generation), and routes each query to the corresponding model or pipeline. 
 This developer-first approach makes routing decisions more transparent and adaptable, reflecting the practical definitions of quality that matter in production environments.
 
 
