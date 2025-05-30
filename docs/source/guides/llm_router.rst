@@ -127,7 +127,7 @@ Best practice
     {"name": "math_concepts", "description": "solving math problems and explaining core math concepts"}
     ```
 
-What we don't support
+Unsupported Features
 -------------------------
 
 The following features are **not supported** by the Arch-Router model:
