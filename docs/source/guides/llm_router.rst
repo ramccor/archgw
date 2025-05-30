@@ -32,7 +32,7 @@ Arch-Router-1.5B
 The `Arch-Router-1.5B <https://huggingface.co/katanemo/Arch-Router-1.5B>`_ is a routing architecture that aligns model selection with developer-defined task descriptors.
 In summary, the Arch-Router collection demonstrates:
 
-- **State-of-the-art performance** in preference routing - model performs equal or better than all close-source model in routing task (white paper incoming soon)
+- **State-of-the-art performance** in preference routing - model performs equal or better than all closed-source models in routing tasks (white paper incoming soon)
 - **High generalization**, the model is able to understand vast domains, even in ambiguous or subjective routes like complex and simple.
 - Optimized **low-latency, high-throughput performance**, making it suitable for real-time, production environments.
 
