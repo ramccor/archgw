@@ -1,14 +1,17 @@
-.. _router:
+.. _llm_router:
 
-What is LLM Routing and specifically preference-based Routing
--------------------------
+LLM Routing
+==============================================================
 
-LLM Router systems are designed to direct incoming queries to the most appropriate model or processing pipeline. The core challenge stems from the complexity of natural language, the wide spectrum of incoming requests, and the ambiguity of tasks definitions. 
-Traditional performance-based routing focus select the language model most likely to deliver high-quality responses for each query while staying within cost and latency constraints.
-For preference-based routing, instead of predicting raw model quality, it routes incoming query to the option that best aligns with human preferences provided by end users in terms of a route usage config which define the routing logic and the model to use for each task category.
-================
 
-**Arch Router** is a powerful feature in Arch that allows your application to dynamically change the response LLM based on user prompts.
+LLM Router systems are designed to direct incoming queries to the most appropriate model or processing pipeline. The core challenge stems from the complexity of natural language, the wide spectrum of incoming requests, and the ambiguity of task definitions. 
+Traditional **performance-based** routing focus on selecting the language model most likely to deliver high-quality responses for each query while staying within cost and latency constraints.
+For **preference-based routing**, instead of predicting raw model quality, it routes incoming query to the option that best aligns with human preferences provided by end users in terms of a route usage config which defines the routing logic and selects the model for each task category.
+
+
+Arch Router
+-----------
+ is a powerful feature in Arch that allows your application to dynamically change the response LLM based on user prompts.
 Arch-Router matches user prompts to high-level task categories specified by developers (e.g., FAQ answer, creative writing, code generation), and routes each query to the corresponding model or pipeline. 
 This developer-first approach makes routing decisions more transparent and adaptable, reflecting the practical definitions of quality that matter in production environments.
 
@@ -24,9 +27,9 @@ Routing Workflow
 
     After the route has been detected, the Arch Router selects the appropriate model or pipeline to handle the request. 
 
-Arch-Router
+Arch-Router-1.5B
 -------------------------
-The `Arch-Router <https://huggingface.co/katanemo/Arch-Router-1.5B>`_ is a routing architecture that aligns model selection with developer-defined task descriptors.
+The `Arch-Router-1.5B <https://huggingface.co/katanemo/Arch-Router-1.5B>`_ is a routing architecture that aligns model selection with developer-defined task descriptors.
 In summary, the Arch-Router collection demonstrates:
 
 - **State-of-the-art performance** in preference routing - model performs equal or better than all close-source model in routing task (white paper incoming soon)
@@ -34,23 +37,22 @@ In summary, the Arch-Router collection demonstrates:
 - Optimized **low-latency, high-throughput performance**, making it suitable for real-time, production environments.
 
 
-Implementing Route Config
+Writing Route Config
 -----------------------------
 
-
- Configure Prompt Targets
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To implement the Arch Router, you need to define a prompt target configuration that specifies the routing model and the LLM providers. This configuration will allow Arch Gateway to route incoming prompts to the appropriate model based on the defined routes.
+
 There is a sample configuration below that demonstrates how to set up a prompt target for the Arch Router:
+
 - Define the routing model in the `routing` section. You can use the `archgw-v1-router-model` as the katanemo routing model or any other routing model you prefer.
 - Define the listeners in the `listeners` section. This is where you specify the address and port for incoming traffic, as well as the message format (e.g., OpenAI).
 - Define the LLM providers in the `llm_providers` section. This is where you specify the routing model, the OpenAI models, and any other models you want to use for specific tasks (e.g., code generation, code understanding).
 - Make sure you define a model for default usage, such as `gpt-4o`, which will be used when no specific route is matched for an user prompt.
 
-.. code-block:: yaml
-    :caption: Prompt Target Example Configuration
 
-    version: "0.1-beta"
+.. code-block:: yaml
+    :caption: Route Config Example
+
 
     routing:
     model: archgw-v1-router-model
@@ -63,7 +65,6 @@ There is a sample configuration below that demonstrates how to set up a prompt t
         timeout: 30s
 
     llm_providers:
-
     - name: archgw-v1-router-model
         provider_interface: openai
         model: katanemo/Arch-Router-1.5B
@@ -87,14 +88,12 @@ There is a sample configuration below that demonstrates how to set up a prompt t
         model: gpt-4.1
         usage: understand and explain existing code snippets, functions, or libraries
 
-    tracing:
-    random_sampling: 100
 
 
 .. Note::
-    For a complete refernce of attributes that you can configure in a prompt target, see :ref:`here <defining_prompt_target_parameters>`.
+    For a complete reference of attributes that you can configure in a prompt target, see :ref:`here <defining_prompt_target_parameters>`.
 
-Route config guide 
+Route description guide 
 -------------------------
 
 The model is trained to perform routing on the following Domain-Action Taxonomy: a two-tier hierarchical structure that separates:
@@ -102,8 +101,9 @@ The model is trained to perform routing on the following Domain-Action Taxonomy:
   - **Action preference (fine-grain)**: Specifies the precise task or operation within a given domain, such as appointment booking in healthcare, stock analysis in finance, or bug fixing in coding.
 
 Best practice
-- **✅ Consistent Naming:**  
-  Route names should align with their descriptions.
+-------------------------
+- **✅ Consistent Naming:**  Route names should align with their descriptions.
+
   - ❌ Bad:  
     ```json
     {"name": "math", "description": "handle solving, understanding quadratic equations"}
@@ -116,8 +116,8 @@ Best practice
 - **✅ Use Nouns:**  
   Preference-based routing benefits from noun-based descriptions, which provide better semantic coverage.
 
-- **✅ Be Specific:**  
-  Avoid vague or overly broad route definitions.
+- **✅ Be Specific:**  Avoid vague or overly broad route definitions.
+
   - ❌ Bad:  
     ```json
     {"name": "math", "description": "math"}
@@ -126,6 +126,7 @@ Best practice
     ```json
     {"name": "math_concepts", "description": "solving math problems and explaining core math concepts"}
     ```
+
 What we don't support
 -------------------------
 
