@@ -19,7 +19,7 @@
 <link href="../../_static/favicon.ico" rel="icon"/>
 <link href="../../search.html" rel="search" title="Search"/>
 <link href="tracing.html" rel="next" title="Tracing"/>
-<link href="../function_calling.html" rel="prev" title="Function Calling"/>
+<link href="../llm_router.html" rel="prev" title="LLM Routing"/>
 <script>
     <!-- Prevent Flash of wrong theme -->
       const userPreference = localStorage.getItem('darkMode');
@@ -116,6 +116,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../prompt_guard.html">Prompt Guard</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../agent_routing.html">Agent Routing and Hand Off</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../function_calling.html">Function Calling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_router.html">LLM Routing</a></li>
 <li class="toctree-l1 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="current reference internal expandable" href="#">Observability<button @click.prevent.stop="expanded = !expanded" type="button"><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-show="expanded">
 <li class="toctree-l2"><a class="reference internal" href="tracing.html">Tracing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="monitoring.html">Monitoring</a></li>
@@ -185,11 +186,11 @@
 </section>
 </div><div class="flex justify-between items-center pt-6 mt-12 border-t border-border gap-4">
 <div class="mr-auto">
-<a class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input hover:bg-accent hover:text-accent-foreground py-2 px-4" href="../function_calling.html">
+<a class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input hover:bg-accent hover:text-accent-foreground py-2 px-4" href="../llm_router.html">
 <svg class="mr-2 h-4 w-4" fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
 <polyline points="15 18 9 12 15 6"></polyline>
 </svg>
-        Function Calling
+        LLM Routing
       </a>
 </div>
 <div class="ml-auto">
