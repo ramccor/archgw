@@ -3,51 +3,66 @@
 LLM Routing
 ==============================================================
 
-
-LLM Router systems are designed to direct incoming queries to the most appropriate model or processing pipeline. The core challenge stems from the complexity of natural language, the wide spectrum of incoming requests, and the ambiguity of task definitions.
-Traditional **performance-based** routing focus on selecting the language model most likely to deliver high-quality responses for each query while staying within cost and latency constraints.
-For **preference-based routing**, instead of predicting raw model quality, it routes incoming query to the option that best aligns with human preferences provided by end users in terms of a route usage config which defines the routing logic and selects the model for each task category.
-
-
-Arch Router
------------
-Arch Router is a powerful feature in Arch that allows your application to dynamically change the response LLM based on user prompts.
-Arch Router matches user prompts to high-level task categories specified by developers (e.g., FAQ answer, creative writing, code generation), and routes each query to the corresponding model or pipeline. 
-This developer-first approach makes routing decisions more transparent and adaptable, reflecting the practical definitions of quality that matter in production environments.
+LLM Router is an intelligent routing system that automatically selects the most appropriate large language model (LLM) for each user request based on the intent, domain, and complexity of the prompt. This enables optimal performance, cost efficiency, and response quality by matching requests with the most suitable model from your available LLM fleet.
 
 
 Routing Workflow
 -------------------------
 
-#. **Prompt Parsing**
+#. **Prompt Analysis**
 
-    When a user submits a prompt, Arch analyzes it to determine the most relevant route matching to the context.
+    When a user submits a prompt, the Router analyzes it to determine the domain (subject matter) or action (type of operation requested).
+
+#. **Model Selection**
+
+    Based on the analyzed intent and your configured routing preferences, the Router selects the most appropriate model from your available LLM fleet.
+
+#. **Request Forwarding**
+
+    Once the optimal model is identified, our gateway forwards the original prompt to the selected LLM endpoint. The routing decision is transparent and can be logged for monitoring and optimization purposes.
 
 #. **Response Handling**
 
-    After the route has been detected, the Arch Router selects the appropriate model or pipeline to handle the request.
+    After the selected model processes the request, the response is returned through the gateway. The gateway can optionally add routing metadata or performance metrics to help you understand and optimize your routing decisions.
 
-Arch-Router-1.5B
+Arch-Router
 -------------------------
-The `Arch-Router-1.5B <https://huggingface.co/katanemo/Arch-Router-1.5B>`_ is a routing architecture that aligns model selection with developer-defined task descriptors.
-In summary, the Arch-Router collection demonstrates:
+The `Arch-Router <https://huggingface.co/katanemo/Arch-Router-1.5B>`_ is a state-of-the-art **preference-based routing model** specifically designed for intelligent LLM selection. This model delivers production-ready performance with low latency and high accuracy.
 
-- **State-of-the-art performance** in preference routing - model performs equal or better than all closed-source models in routing tasks (white paper incoming soon)
-- **High generalization**, the model is able to understand vast domains, even in ambiguous or subjective routes like complex and simple.
-- Optimized **low-latency, high-throughput performance**, making it suitable for real-time, production environments.
+To support effective routing, Arch-Router introduces two key concepts:
+
+- **Domain** – the high-level thematic category or subject matter of a request (e.g., legal, healthcare, programming).
+
+- **Action** – the specific type of operation the user wants performed (e.g., summarization, code generation, booking appointment, translation).
+
+Both domain and action configs are associated with preferred models or model variants. At inference time, Arch-Router analyzes the incoming prompt to infer its domain and action using semantic similarity, task indicators, and contextual cues. It then applies the user-defined routing preferences to select the model best suited to handle the request.
+
+In summary, Arch-Router demonstrates:
+
+- **Structured Preference Routing**: Aligns prompt request with model strengths using explicit domain–action mappings.
+
+- **Transparent and Controllable**: Makes routing decisions transparent and configurable, empowering users to customize system behavior.
+
+- **Flexible and Adaptive**: Supports evolving user needs, model updates, and new domains/actions without retraining the router.
+
+- **Production-Ready Performance**: Optimized for low-latency, high-throughput applications in multi-model environments.
 
 
-Writing Route Config
+Implementing LLM Routing
 -----------------------------
 
-To implement the Arch Router, you need to define a prompt target configuration that specifies the routing model and the LLM providers. This configuration will allow Arch Gateway to route incoming prompts to the appropriate model based on the defined routes.
+To configure LLM routing in our gateway, you need to define a prompt target configuration that specifies the routing model and the LLM providers. This configuration will allow Arch Gateway to route incoming prompts to the appropriate model based on the defined routes.
 
-There is a sample configuration below that demonstrates how to set up a prompt target for the Arch Router:
+Below is an example to show how to set up a prompt target for the Arch Router:
 
-- Define the routing model in the `routing` section. You can use the `archgw-v1-router-model` as the katanemo routing model or any other routing model you prefer.
-- Define the listeners in the `listeners` section. This is where you specify the address and port for incoming traffic, as well as the message format (e.g., OpenAI).
-- Define the LLM providers in the `llm_providers` section. This is where you specify the routing model, the OpenAI models, and any other models you want to use for specific tasks (e.g., code generation, code understanding).
-- Make sure you define a model for default usage, such as `gpt-4o`, which will be used when no specific route is matched for an user prompt.
+- **Step 1: Define the routing model in the `routing` section**. You can use the `archgw-v1-router-model` as the katanemo routing model or any other routing model you prefer.
+
+- **Step 2: Define the listeners in the `listeners` section**. This is where you specify the address and port for incoming traffic, as well as the message format (e.g., OpenAI).
+
+- **Step 3: Define the LLM providers in the `llm_providers` section**. This is where you specify the routing model, the OpenAI models, and any other models you want to use for specific tasks (e.g., code generation, code understanding).
+
+.. Note::
+  Make sure you define a model for default usage, such as `gpt-4o`, which will be used when no specific route is matched for an user prompt.
 
 
 .. code-block:: yaml
@@ -89,16 +104,18 @@ There is a sample configuration below that demonstrates how to set up a prompt t
         usage: understand and explain existing code snippets, functions, or libraries
 
 
-
-.. Note::
-    For a complete reference of attributes that you can configure in a prompt target, see :ref:`here <defining_prompt_target_parameters>`.
-
-Route description guide
+Example Use Cases
 -------------------------
+Here are common scenarios where Arch-Router excels:
 
-The model is trained to perform routing on the following Domain-Action Taxonomy: a two-tier hierarchical structure that separates:
-  - **Domains preference (coarse-grain)**: Refers to the high-level category or subject area of the user request, such as healthcare, finance, or coding.
-  - **Action preference (fine-grain)**: Specifies the precise task or operation within a given domain, such as appointment booking in healthcare, stock analysis in finance, or bug fixing in coding.
+- **Coding Tasks**: Distinguish between code generation requests ("write a Python function"), debugging needs ("fix this error"), and code optimization ("make this faster"), routing each to appropriately specialized models.
+
+- **Content Processing Workflows**: Classify requests as summarization ("summarize this document"), translation ("translate to Spanish"), or analysis ("what are the key themes"), enabling targeted model selection.
+
+- **Multi-Domain Applications**: Accurately identify whether requests fall into legal, healthcare, technical, or general domains, even when the subject matter isn't explicitly stated in the prompt.
+
+- **Conversational Routing**: Track conversation context to identify when topics shift between domains or when the type of assistance needed changes mid-conversation.
+
 
 Best practice
 -------------------------
