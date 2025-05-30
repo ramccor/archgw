@@ -154,7 +154,7 @@ pub async fn chat_completions(
             }
         }
     } else {
-        let body = match llm_response.text().await {
+        let body_raw = match llm_response.bytes().await {
             Ok(body) => body,
             Err(err) => {
                 let err_msg = format!("Failed to read response: {}", err);
@@ -164,7 +164,7 @@ pub async fn chat_completions(
             }
         };
 
-        match response.body(full(body)) {
+        match response.body(full(body_raw)) {
             Ok(response) => Ok(response),
             Err(err) => {
                 let err_msg = format!("Failed to create response: {}", err);

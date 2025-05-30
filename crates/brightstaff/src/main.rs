@@ -89,6 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
         let llm_providers = llm_providers.clone();
         let service = service_fn(move |req| {
+            info!("main.rs: request headers: {:?}", req.headers());
             let router_service = Arc::clone(&router_service);
             let parent_cx = extract_context_from_request(&req);
             let llm_provider_endpoint = llm_provider_endpoint.clone();
