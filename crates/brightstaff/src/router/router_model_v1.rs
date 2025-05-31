@@ -535,7 +535,6 @@ Based on your analysis, provide your response in the following JSON formats if y
         assert_eq!(expected_prompt, prompt.to_string());
     }
 
-
     #[test]
     fn test_skip_tool_call() {
         let expected_prompt = r#"
