@@ -13,9 +13,14 @@ listeners:
 llm_providers:
 
   - name: arch-router
-    access_key: $ARCH_API_KEY
+    access_key: $OPENAI_API_KEY
     provider_interface: arch
     model: Arch-Router
+
+  - name: gpt-4o-mini
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4o-mini
 
   - name: gpt-4o
     provider_interface: openai
