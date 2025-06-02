@@ -145,6 +145,8 @@ pub struct EmbeddingProviver {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum LlmProviderType {
+    #[serde(rename = "arch")]
+    Arch,
     #[serde(rename = "claude")]
     Claude,
     #[serde(rename = "deepseek")]
@@ -160,11 +162,31 @@ pub enum LlmProviderType {
 impl Display for LlmProviderType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            LlmProviderType::Arch => write!(f, "arch"),
             LlmProviderType::Claude => write!(f, "claude"),
             LlmProviderType::Deepseek => write!(f, "deepseek"),
             LlmProviderType::Groq => write!(f, "groq"),
             LlmProviderType::Mistral => write!(f, "mistral"),
             LlmProviderType::OpenAI => write!(f, "openai"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LlmRoute {
+    pub name: String,
+    pub description: String,
+}
+
+impl From<&LlmProvider> for LlmRoute {
+    fn from(provider: &LlmProvider) -> Self {
+        Self {
+            name: provider.name.to_string(),
+            description: provider
+                .usage
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| "No description available".to_string()),
         }
     }
 }

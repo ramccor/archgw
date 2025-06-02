@@ -81,7 +81,7 @@ Arch's CLI allows you to manage and interact with the Arch gateway efficiently. 
 ```console
 $ python -m venv venv
 $ source venv/bin/activate   # On Windows, use: venv\Scripts\activate
-$ pip install archgw==0.3.0
+$ pip install archgw==0.3.1
 ```
 
 ### Build AI Agent with Arch Gateway
@@ -93,7 +93,7 @@ In following quickstart we will show you how easy it is to build AI agent with A
 Create `arch_config.yaml` file with following content,
 
 ```yaml
-version: v0.1
+version: v0.1.0
 
 listeners:
   ingress_traffic:
@@ -195,7 +195,7 @@ Arch operates based on a configuration file where you can define LLM providers, 
 Create `arch_config.yaml` file with following content:
 
 ```yaml
-version: v0.1
+version: v0.1.0
 
 listeners:
   egress_traffic:
