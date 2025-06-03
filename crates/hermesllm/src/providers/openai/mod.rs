@@ -2,7 +2,7 @@ pub mod types;
 
 use thiserror::Error;
 
-use crate::providers::openai::types::{OpenAIRequest, OpenAIResponse};
+use crate::providers::openai::types::{ChatCompletionsRequest, ChatCompletionsResponse};
 
 #[derive(Debug, Error)]
 pub enum OpenAIError {
@@ -12,14 +12,14 @@ pub enum OpenAIError {
 
 type Result<T> = std::result::Result<T, OpenAIError>;
 
-impl TryFrom<&[u8]> for OpenAIRequest {
+impl TryFrom<&[u8]> for ChatCompletionsRequest {
     type Error = OpenAIError;
     fn try_from(bytes: &[u8]) -> Result<Self> {
         serde_json::from_slice(bytes).map_err(OpenAIError::from)
     }
 }
 
-impl TryFrom<&[u8]> for OpenAIResponse {
+impl TryFrom<&[u8]> for ChatCompletionsResponse {
     type Error = OpenAIError;
     fn try_from(bytes: &[u8]) -> Result<Self> {
         serde_json::from_slice(bytes).map_err(OpenAIError::from)
