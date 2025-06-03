@@ -64,6 +64,8 @@ def docker_start_archgw_detached(
         item for volume in volume_mappings for item in ("-v", volume)
     ]
 
+    print("using custom release path")
+
     options = [
         "docker",
         "run",
@@ -76,6 +78,7 @@ def docker_start_archgw_detached(
         "--add-host",
         "host.docker.internal:host-gateway",
         ARCHGW_DOCKER_IMAGE,
+        "/Users/adilhafeez/src/intelligent-prompt-gateway/crates/target/wasm32-wasip1/release:/etc/envoy/proxy-wasm-plugins:ro",
     ]
 
     result = subprocess.run(options, capture_output=True, text=True, check=False)

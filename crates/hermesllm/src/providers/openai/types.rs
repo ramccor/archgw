@@ -57,6 +57,12 @@ pub struct Message {
     pub content: Option<ContentType>,
 }
 
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StreamOptions {
+  pub include_usage: bool,
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatCompletionsRequest {
@@ -70,6 +76,7 @@ pub struct ChatCompletionsRequest {
     pub stop: Option<Vec<String>>,
     pub presence_penalty: Option<f32>,
     pub frequency_penalty: Option<f32>,
+    pub stream_options: Option<StreamOptions>,
 }
 
 impl Default for ChatCompletionsRequest {
@@ -85,6 +92,7 @@ impl Default for ChatCompletionsRequest {
             stop: None,
             presence_penalty: None,
             frequency_penalty: None,
+            stream_options: None,
         }
     }
 }
@@ -110,9 +118,9 @@ pub struct Choice {
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Usage {
-    pub prompt_tokens: u32,
-    pub completion_tokens: u32,
-    pub total_tokens: u32,
+    pub prompt_tokens: usize,
+    pub completion_tokens: usize,
+    pub total_tokens: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -127,6 +135,7 @@ pub struct OpenAIRequestBuilder {
     stop: Option<Vec<String>>,
     presence_penalty: Option<f32>,
     frequency_penalty: Option<f32>,
+    stream_options: Option<StreamOptions>,
 }
 
 impl OpenAIRequestBuilder {
@@ -142,6 +151,7 @@ impl OpenAIRequestBuilder {
             stop: None,
             presence_penalty: None,
             frequency_penalty: None,
+            stream_options: None,
         }
     }
 
@@ -185,6 +195,12 @@ impl OpenAIRequestBuilder {
         self
     }
 
+    pub fn stream_options(mut self, include_usage: bool) -> Self {
+        self.stream = Some(true);
+        self.stream_options = Some(StreamOptions { include_usage });
+        self
+    }
+
     pub fn build(self) -> Result<ChatCompletionsRequest, &'static str> {
         let request = ChatCompletionsRequest {
             model: self.model,
@@ -197,6 +213,7 @@ impl OpenAIRequestBuilder {
             stop: self.stop,
             presence_penalty: self.presence_penalty,
             frequency_penalty: self.frequency_penalty,
+            stream_options: self.stream_options,
         };
         Ok(request)
     }

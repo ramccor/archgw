@@ -1,8 +1,5 @@
 use crate::metrics::Metrics;
-use common::api::open_ai::{
-    ChatCompletionStreamResponseServerEvents, ChatCompletionsRequest, ChatCompletionsResponse,
-    ContentType, Message, StreamOptions,
-};
+use common::api::open_ai::ChatCompletionStreamResponseServerEvents;
 use common::configuration::{LlmProvider, LlmProviderType, Overrides};
 use common::consts::{
     ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
@@ -14,6 +11,10 @@ use common::ratelimit::Header;
 use common::stats::{IncrementingMetric, RecordingMetric};
 use common::tracing::{Event, Span, TraceData, Traceparent};
 use common::{ratelimit, routing, tokenizer};
+use hermesllm::providers::openai::types::ChatCompletionsRequest;
+use hermesllm::providers::openai::types::{
+    ChatCompletionsResponse, ContentType, Message, StreamOptions,
+};
 use http::StatusCode;
 use log::{debug, info, warn};
 use proxy_wasm::hostcalls::get_current_time;
@@ -302,10 +303,6 @@ impl HttpContext for StreamContext {
                 }
             };
 
-        for message in deserialized_body.messages.iter_mut() {
-            message.model = None;
-        }
-
         self.user_message = deserialized_body
             .messages
             .iter()
@@ -355,10 +352,12 @@ impl HttpContext for StreamContext {
             chat_completion_request_str
         );
 
-        if deserialized_body.stream {
+        if deserialized_body.stream.unwrap_or_default() {
             self.streaming_response = true;
         }
-        if deserialized_body.stream && deserialized_body.stream_options.is_none() {
+        if deserialized_body.stream.unwrap_or_default()
+            && deserialized_body.stream_options.is_none()
+        {
             deserialized_body.stream_options = Some(StreamOptions {
                 include_usage: true,
             });

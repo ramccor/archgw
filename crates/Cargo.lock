@@ -1615,6 +1615,7 @@ dependencies = [
  "common",
  "derivative",
  "governor",
+ "hermesllm",
  "http 1.1.0",
  "log",
  "md5",
