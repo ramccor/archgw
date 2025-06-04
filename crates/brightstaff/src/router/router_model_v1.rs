@@ -143,7 +143,6 @@ impl RouterModel for RouterModelV1 {
             messages: vec![Message {
                 content: Some(ContentType::Text(messages_content)),
                 role: USER_ROLE.to_string(),
-
             }],
             ..Default::default()
         }

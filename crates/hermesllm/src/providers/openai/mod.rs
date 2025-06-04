@@ -1,8 +1,11 @@
 pub mod types;
+pub mod builder;
 
 use thiserror::Error;
 
 use crate::providers::openai::types::{ChatCompletionsRequest, ChatCompletionsResponse};
+
+pub type OpenAIRequestBuilder = builder::OpenAIRequestBuilder;
 
 #[derive(Debug, Error)]
 pub enum OpenAIError {

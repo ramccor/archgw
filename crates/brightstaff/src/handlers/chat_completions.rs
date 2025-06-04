@@ -34,7 +34,10 @@ pub async fn chat_completions(
         match ChatCompletionsRequest::try_from(chat_request_bytes.as_ref()) {
             Ok(request) => request,
             Err(err) => {
-                warn!("arch-router request body string: {}", String::from_utf8_lossy(&chat_request_bytes));
+                warn!(
+                    "arch-router request body string: {}",
+                    String::from_utf8_lossy(&chat_request_bytes)
+                );
                 let err_msg = format!("Failed to parse request body: {}", err);
                 warn!("{}", err_msg);
                 let mut bad_request = Response::new(full(err_msg));
