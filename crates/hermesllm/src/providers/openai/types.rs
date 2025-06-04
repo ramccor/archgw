@@ -202,6 +202,26 @@ impl<'a> TryFrom<&'a [u8]> for SseChatCompletionIter<str::Lines<'a>> {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelDetail {
+    pub id: String,
+    pub object: String,
+    pub created: usize,
+    pub owned_by: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ModelObject {
+    #[serde(rename = "list")]
+    List,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Models {
+    pub object: ModelObject,
+    pub data: Vec<ModelDetail>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,3 +1,4 @@
+use hermesllm::providers::openai::types::{ModelDetail, ModelObject, Models};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -205,6 +206,30 @@ pub struct LlmProvider {
     pub rate_limits: Option<LlmRatelimit>,
     pub usage: Option<String>,
 }
+
+pub trait IntoModels {
+    fn into_models(self) -> Models;
+}
+
+impl IntoModels for Vec<LlmProvider> {
+    fn into_models(self) -> Models {
+        let data = self
+            .iter()
+            .map(|provider| ModelDetail {
+                id: provider.name.clone(),
+                object: "model".to_string(),
+                created: 0,
+                owned_by: "system".to_string(),
+            })
+            .collect();
+
+        Models {
+            object: ModelObject::List,
+            data,
+        }
+    }
+}
+
 
 impl Default for LlmProvider {
     fn default() -> Self {
