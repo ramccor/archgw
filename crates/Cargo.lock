@@ -327,6 +327,7 @@ dependencies = [
  "derivative",
  "duration-string",
  "governor",
+ "hermesllm",
  "hex",
  "log",
  "pretty_assertions",
@@ -1075,7 +1076,6 @@ checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
 name = "hermesllm"
 version = "0.1.0"
 dependencies = [
- "common",
  "serde",
  "serde_json",
  "serde_with",

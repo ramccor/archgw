@@ -1,5 +1,4 @@
 use crate::metrics::Metrics;
-use common::api::open_ai::ChatCompletionStreamResponseServerEvents;
 use common::configuration::{LlmProvider, LlmProviderType, Overrides};
 use common::consts::{
     ARCH_PROVIDER_HINT_HEADER, ARCH_ROUTING_HEADER, CHAT_COMPLETIONS_PATH, HEALTHZ_PATH,
@@ -11,7 +10,7 @@ use common::ratelimit::Header;
 use common::stats::{IncrementingMetric, RecordingMetric};
 use common::tracing::{Event, Span, TraceData, Traceparent};
 use common::{ratelimit, routing, tokenizer};
-use hermesllm::providers::openai::types::ChatCompletionsRequest;
+use hermesllm::providers::openai::types::{ChatCompletionsRequest, SseChatCompletionIter};
 use hermesllm::providers::openai::types::{
     ChatCompletionsResponse, ContentType, Message, StreamOptions,
 };
@@ -285,23 +284,17 @@ impl HttpContext for StreamContext {
             }
         };
 
-        // Deserialize body into spec.
-        // Currently OpenAI API.
-        let mut deserialized_body: ChatCompletionsRequest =
-            match serde_json::from_slice(&body_bytes) {
-                Ok(deserialized) => deserialized,
-                Err(e) => {
-                    debug!(
-                        "on_http_request_body: request body: {}",
-                        String::from_utf8_lossy(&body_bytes)
-                    );
-                    self.send_server_error(
-                        ServerError::Deserialization(e),
-                        Some(StatusCode::BAD_REQUEST),
-                    );
-                    return Action::Pause;
-                }
-            };
+        let mut deserialized_body = match ChatCompletionsRequest::try_from(body_bytes.as_slice()) {
+            Ok(deserialized) => deserialized,
+            Err(e) => {
+                debug!(
+                    "on_http_request_body: request body: {}",
+                    String::from_utf8_lossy(&body_bytes)
+                );
+                self.send_server_error(ServerError::OpenAIPError(e), Some(StatusCode::BAD_REQUEST));
+                return Action::Pause;
+            }
+        };
 
         self.user_message = deserialized_body
             .messages
@@ -541,57 +534,29 @@ impl HttpContext for StreamContext {
             }
         };
 
-        let body_utf8 = match String::from_utf8(body) {
-            Ok(body_utf8) => body_utf8,
-            Err(e) => {
-                warn!("could not convert to utf8: {}", e);
-                return Action::Continue;
-            }
-        };
-
         if self.streaming_response {
-            if body_utf8 == "data: [DONE]\n" {
-                return Action::Continue;
-            }
-
             let chat_completions_chunk_response_events =
-                match ChatCompletionStreamResponseServerEvents::try_from(body_utf8.as_str()) {
-                    Ok(response) => response,
+                match SseChatCompletionIter::try_from(body.as_slice()) {
+                    Ok(events) => events,
                     Err(e) => {
-                        warn!(
-                            "invalid streaming response: body str: {}, {:?}",
-                            body_utf8, e
-                        );
+                        warn!("could not parse response: {}", e);
                         return Action::Continue;
                     }
                 };
 
-            if chat_completions_chunk_response_events.events.is_empty() {
-                warn!(
-                    "couldn't parse any streaming events: body str: {}",
-                    body_utf8
-                );
-                return Action::Continue;
+            for event in chat_completions_chunk_response_events {
+                match event {
+                    Ok(event) => {
+                        if let Some(usage) = event.usage.as_ref() {
+                            self.response_tokens += usage.completion_tokens;
+                        }
+                    }
+                    Err(e) => {
+                        warn!("error in response event: {}", e);
+                        continue;
+                    }
+                }
             }
-
-            let model = chat_completions_chunk_response_events
-                .events
-                .first()
-                .unwrap()
-                .model
-                .clone();
-            let tokens_str = chat_completions_chunk_response_events.to_string();
-
-            let token_count =
-                match tokenizer::token_count(model.as_ref().unwrap().as_str(), tokens_str.as_str())
-                {
-                    Ok(token_count) => token_count,
-                    Err(e) => {
-                        warn!("could not get token count: {:?}", e);
-                        return Action::Continue;
-                    }
-                };
-            self.response_tokens += token_count;
 
             // Compute TTFT if not already recorded
             if self.ttft_duration.is_none() {
@@ -616,23 +581,20 @@ impl HttpContext for StreamContext {
         } else {
             debug!("non streaming response");
             let chat_completions_response: ChatCompletionsResponse =
-                match serde_json::from_str(body_utf8.as_str()) {
+                match serde_json::from_slice(body.as_slice()) {
                     Ok(de) => de,
                     Err(err) => {
                         info!(
-                            "non chat-completion compliant response received err: {}, body: {}",
-                            err, body_utf8
+                            "non chat-completion compliant response received err: {}, body: {:?}",
+                            err,
+                            String::from_utf8(body)
                         );
                         return Action::Continue;
                     }
                 };
 
-            if chat_completions_response.usage.is_some() {
-                self.response_tokens += chat_completions_response
-                    .usage
-                    .as_ref()
-                    .unwrap()
-                    .completion_tokens;
+            if let Some(usage) = chat_completions_response.usage {
+                self.response_tokens += usage.completion_tokens;
             }
         }
 

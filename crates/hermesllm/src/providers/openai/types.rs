@@ -1,7 +1,21 @@
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use serde_with::skip_serializing_none;
+use std::convert::TryFrom;
+use std::str;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum OpenAIError {
+    #[error("json error: {0}")]
+    JsonParseError(#[from] serde_json::Error),
+    #[error("utf8 parsing error: {0}")]
+    Utf8Error(#[from] std::str::Utf8Error),
+}
+
+type Result<T> = std::result::Result<T, OpenAIError>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum MultiPartContentType {
@@ -57,10 +71,9 @@ pub struct Message {
     pub content: Option<ContentType>,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StreamOptions {
-  pub include_usage: bool,
+    pub include_usage: bool,
 }
 
 #[skip_serializing_none]
@@ -77,8 +90,15 @@ pub struct ChatCompletionsRequest {
     pub presence_penalty: Option<f32>,
     pub frequency_penalty: Option<f32>,
     pub stream_options: Option<StreamOptions>,
+    pub tools: Option<Vec<Value>>,
 }
 
+impl TryFrom<&[u8]> for ChatCompletionsRequest {
+    type Error = OpenAIError;
+    fn try_from(bytes: &[u8]) -> Result<Self> {
+        serde_json::from_slice(bytes).map_err(OpenAIError::from)
+    }
+}
 
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -88,6 +108,13 @@ pub struct ChatCompletionsResponse {
     pub created: u64,
     pub choices: Vec<Choice>,
     pub usage: Option<Usage>,
+}
+
+impl TryFrom<&[u8]> for ChatCompletionsResponse {
+    type Error = OpenAIError;
+    fn try_from(bytes: &[u8]) -> Result<Self> {
+        serde_json::from_slice(bytes).map_err(OpenAIError::from)
+    }
 }
 
 #[skip_serializing_none]
@@ -120,6 +147,59 @@ pub struct ChatCompletionStreamResponse {
     pub created: u64,
     pub model: String,
     pub choices: Vec<StreamChoice>,
+    pub usage: Option<Usage>,
+}
+
+pub struct SseChatCompletionIter<I>
+where
+    I: Iterator,
+    I::Item: AsRef<str>,
+{
+    lines: I,
+}
+
+impl<I> SseChatCompletionIter<I>
+where
+    I: Iterator,
+    I::Item: AsRef<str>,
+{
+    pub fn new(lines: I) -> Self {
+        Self { lines }
+    }
+}
+
+impl<I> Iterator for SseChatCompletionIter<I>
+where
+    I: Iterator,
+    I::Item: AsRef<str>,
+{
+    type Item = Result<ChatCompletionStreamResponse>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        for line in &mut self.lines {
+            let line = line.as_ref();
+            if let Some(data) = line.strip_prefix("data: ") {
+                let data = data.trim();
+                if data == "[DONE]" {
+                    return None;
+                }
+                return Some(
+                    serde_json::from_str::<ChatCompletionStreamResponse>(data)
+                        .map_err(OpenAIError::from),
+                );
+            }
+        }
+        None
+    }
+}
+
+impl<'a> TryFrom<&'a [u8]> for SseChatCompletionIter<str::Lines<'a>> {
+    type Error = OpenAIError;
+
+    fn try_from(bytes: &'a [u8]) -> Result<Self> {
+        let s = std::str::from_utf8(bytes)?;
+        Ok(SseChatCompletionIter::new(s.lines()))
+    }
 }
 
 #[cfg(test)]
@@ -190,5 +270,84 @@ mod tests {
         } else {
             panic!("Expected MultiPartContent");
         }
+    }
+
+    #[test]
+    fn test_sse_streaming() {
+        let json_data = r#"data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1700000000,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1700000000,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"Hello, how can I help you today?"},"finish_reason":null}]}
+data: [DONE]"#;
+
+        let iter = SseChatCompletionIter::new(json_data.lines());
+
+        println!("Testing SSE Streaming");
+        for item in iter {
+            match item {
+                Ok(response) => {
+                    println!("Received response: {:?}", response);
+                    if response.choices.is_empty() {
+                        continue;
+                    }
+                    for choice in response.choices {
+                        if let Some(content) = choice.delta.content {
+                            println!("Content: {}", content);
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("Error parsing JSON: {}", e);
+                    return;
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_sse_streaming_try_from_bytes() {
+        let json_data = r#"data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1700000000,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}
+data: {"id":"chatcmpl-123","object":"chat.completion.chunk","created":1700000000,"model":"gpt-3.5-turbo","choices":[{"index":0,"delta":{"content":"Hello, how can I help you today?"},"finish_reason":null}]}
+data: [DONE]"#;
+
+        let iter = SseChatCompletionIter::try_from(json_data.as_bytes())
+            .expect("Failed to create SSE iterator");
+
+        println!("Testing SSE Streaming");
+        for item in iter {
+            match item {
+                Ok(response) => {
+                    println!("Received response: {:?}", response);
+                    if response.choices.is_empty() {
+                        continue;
+                    }
+                    for choice in response.choices {
+                        if let Some(content) = choice.delta.content {
+                            println!("Content: {}", content);
+                        }
+                    }
+                }
+                Err(e) => {
+                    println!("Error parsing JSON: {}", e);
+                    return;
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn parse_chat_completions_request() {
+        const CHAT_COMPLETIONS_REQUEST: &str = r#"
+{
+  "model": "None",
+  "messages": [
+    {
+      "role": "user",
+      "content": "how is the weather in seattle"
+    }
+  ],
+  "stream": true
+}        "#;
+
+        let chat_completions_request: ChatCompletionsRequest = ChatCompletionsRequest::try_from(CHAT_COMPLETIONS_REQUEST.as_bytes())
+            .expect("Failed to parse ChatCompletionsRequest");
     }
 }
