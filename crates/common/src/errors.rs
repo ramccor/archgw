@@ -1,7 +1,7 @@
 use proxy_wasm::types::Status;
 
 use crate::{api::open_ai::ChatCompletionChunkResponseError, ratelimit};
-use hermesllm::providers::openai::types::{OpenAIError};
+use hermesllm::providers::openai::types::OpenAIError;
 
 #[derive(thiserror::Error, Debug)]
 pub enum ClientError {

@@ -230,7 +230,6 @@ impl IntoModels for Vec<LlmProvider> {
     }
 }
 
-
 impl Default for LlmProvider {
     fn default() -> Self {
         Self {

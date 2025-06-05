@@ -7,8 +7,6 @@ pub mod providers;
 mod tests {
     use crate::providers::openai::types::ChatCompletionsRequest;
 
-
-
     #[test]
     fn openai_builder() {
         let request = ChatCompletionsRequest::builder("gpt-3.5-turbo", vec![])

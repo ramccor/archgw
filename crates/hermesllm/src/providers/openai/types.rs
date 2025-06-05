@@ -367,7 +367,8 @@ data: [DONE]"#;
   "stream": true
 }        "#;
 
-        let chat_completions_request: ChatCompletionsRequest = ChatCompletionsRequest::try_from(CHAT_COMPLETIONS_REQUEST.as_bytes())
-            .expect("Failed to parse ChatCompletionsRequest");
+        let chat_completions_request: ChatCompletionsRequest =
+            ChatCompletionsRequest::try_from(CHAT_COMPLETIONS_REQUEST.as_bytes())
+                .expect("Failed to parse ChatCompletionsRequest");
     }
 }
