@@ -1,11 +1,13 @@
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Value};
 use serde_with::skip_serializing_none;
 use std::convert::TryFrom;
 use std::str;
 use thiserror::Error;
+
+use crate::Provider;
 
 #[derive(Debug, Error)]
 pub enum OpenAIError {
@@ -13,6 +15,8 @@ pub enum OpenAIError {
     JsonParseError(#[from] serde_json::Error),
     #[error("utf8 parsing error: {0}")]
     Utf8Error(#[from] std::str::Utf8Error),
+    #[error("unsupported provider: {provider}")]
+    UnsupportedProvider { provider: String },
 }
 
 type Result<T> = std::result::Result<T, OpenAIError>;
@@ -117,6 +121,30 @@ impl TryFrom<&[u8]> for ChatCompletionsResponse {
     }
 }
 
+impl<'a> TryFrom<(&'a [u8], &'a Provider)> for ChatCompletionsResponse {
+    type Error = OpenAIError;
+
+    fn try_from(input: (&'a [u8], &'a Provider)) -> Result<Self> {
+        // Use input.provider as needed, if necessary
+        serde_json::from_slice(input.0).map_err(OpenAIError::from)
+    }
+}
+
+impl ChatCompletionsRequest {
+    pub fn to_bytes(&self, provider: Provider) -> Result<Vec<u8>> {
+        match provider {
+            Provider::OpenAI
+            | Provider::Mistral
+            | Provider::Groq
+            | Provider::Gemini
+            | Provider::Claude => serde_json::to_vec(self).map_err(OpenAIError::from),
+            _ => Err(OpenAIError::UnsupportedProvider {
+                provider: provider.to_string(),
+            }),
+        }
+    }
+}
+
 #[skip_serializing_none]
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Choice {
@@ -133,10 +161,17 @@ pub struct Usage {
     pub total_tokens: usize,
 }
 
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeltaMessage {
+    pub role: Option<String>,
+    pub content: Option<ContentType>,
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct StreamChoice {
     pub index: u32,
-    pub delta: Message,
+    pub delta: DeltaMessage,
     pub finish_reason: Option<String>,
 }
 
@@ -190,6 +225,16 @@ where
             }
         }
         None
+    }
+}
+
+impl<'a> TryFrom<(&'a [u8], &'a Provider)> for SseChatCompletionIter<str::Lines<'a>> {
+    type Error = OpenAIError;
+
+    fn try_from(input: (&'a [u8], &'a Provider)) -> Result<Self> {
+        let s = std::str::from_utf8(input.0)?;
+        // Use input.provider as needed
+        Ok(SseChatCompletionIter::new(s.lines()))
     }
 }
 

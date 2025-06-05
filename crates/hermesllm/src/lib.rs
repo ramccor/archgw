@@ -1,7 +1,45 @@
 //! hermesllm: A library for translating LLM API requests and responses
 //! between Mistral, Grok, Gemini, and OpenAI-compliant formats.
 
+use std::fmt::Display;
+
 pub mod providers;
+
+pub enum Provider {
+    Mistral,
+    Groq,
+    Gemini,
+    OpenAI,
+    Claude,
+    Github
+}
+
+impl From<&str> for Provider {
+    fn from(value: &str) -> Self {
+        match value.to_lowercase().as_str() {
+            "mistral" => Provider::Mistral,
+            "groq" => Provider::Groq,
+            "gemini" => Provider::Gemini,
+            "openai" => Provider::OpenAI,
+            "claude" => Provider::Claude,
+            "github" => Provider::Github,
+            _ => panic!("Unknown provider: {}", value),
+        }
+    }
+}
+
+impl Display for Provider {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Provider::Mistral => write!(f, "Mistral"),
+            Provider::Groq => write!(f, "Groq"),
+            Provider::Gemini => write!(f, "Gemini"),
+            Provider::OpenAI => write!(f, "OpenAI"),
+            Provider::Claude => write!(f, "Claude"),
+            Provider::Github => write!(f, "Github"),
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

@@ -14,6 +14,7 @@ use hermesllm::providers::openai::types::{ChatCompletionsRequest, SseChatComplet
 use hermesllm::providers::openai::types::{
     ChatCompletionsResponse, ContentType, Message, StreamOptions,
 };
+use hermesllm::Provider;
 use http::StatusCode;
 use log::{debug, info, warn};
 use proxy_wasm::hostcalls::get_current_time;
@@ -338,13 +339,6 @@ impl HttpContext for StreamContext {
             model_name.unwrap_or(&"None".to_string()),
         );
 
-        let chat_completion_request_str = serde_json::to_string(&deserialized_body).unwrap();
-
-        debug!(
-            "on_http_request_body: request body: {}",
-            chat_completion_request_str
-        );
-
         if deserialized_body.stream.unwrap_or_default() {
             self.streaming_response = true;
         }
@@ -379,7 +373,23 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
-        self.set_http_request_body(0, body_size, chat_completion_request_str.as_bytes());
+        // convert chat completion request to llm provider specific request
+        let deserialized_body_bytes = match deserialized_body.to_bytes(hermesllm::Provider::OpenAI)
+        {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                warn!("Failed to serialize request body: {}", e);
+                self.send_server_error(ServerError::OpenAIPError(e), Some(StatusCode::BAD_REQUEST));
+                return Action::Pause;
+            }
+        };
+
+        debug!(
+            "on_http_request_body: request body string: {}",
+            String::from_utf8_lossy(&deserialized_body_bytes)
+        );
+
+        self.set_http_request_body(0, body_size, &deserialized_body_bytes);
 
         Action::Continue
     }
@@ -534,9 +544,12 @@ impl HttpContext for StreamContext {
             }
         };
 
+        let llm_provider_str = self.llm_provider().provider_interface.to_string();
+        let hermes_llm_provider = Provider::from(llm_provider_str.as_str());
+
         if self.streaming_response {
             let chat_completions_chunk_response_events =
-                match SseChatCompletionIter::try_from(body.as_slice()) {
+                match SseChatCompletionIter::try_from((body.as_slice(), &hermes_llm_provider)) {
                     Ok(events) => events,
                     Err(e) => {
                         warn!("could not parse response: {}", e);
@@ -580,14 +593,18 @@ impl HttpContext for StreamContext {
             }
         } else {
             debug!("non streaming response");
-            let chat_completions_response: ChatCompletionsResponse =
-                match serde_json::from_slice(body.as_slice()) {
+            let chat_completions_response =
+                match ChatCompletionsResponse::try_from((body.as_slice(), &hermes_llm_provider)) {
                     Ok(de) => de,
-                    Err(err) => {
-                        info!(
-                            "non chat-completion compliant response received err: {}, body: {:?}",
-                            err,
-                            String::from_utf8(body)
+                    Err(e) => {
+                        warn!("could not parse response: {}", e);
+                        debug!(
+                            "on_http_response_body: response body: {}",
+                            String::from_utf8_lossy(&body)
+                        );
+                        self.send_server_error(
+                            ServerError::OpenAIPError(e),
+                            Some(StatusCode::BAD_REQUEST),
                         );
                         return Action::Continue;
                     }
