@@ -599,7 +599,8 @@ impl HttpContext for StreamContext {
                     Err(e) => {
                         warn!("could not parse response: {}", e);
                         debug!(
-                            "on_http_response_body: response body: {}",
+                            "on_http_response_body: S[{}], response body: {}",
+                            self.context_id,
                             String::from_utf8_lossy(&body)
                         );
                         self.send_server_error(
