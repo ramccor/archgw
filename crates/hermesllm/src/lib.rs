@@ -7,17 +7,19 @@ pub mod providers;
 
 pub enum Provider {
     Mistral,
+    Deepseek,
     Groq,
     Gemini,
     OpenAI,
     Claude,
-    Github
+    Github,
 }
 
 impl From<&str> for Provider {
     fn from(value: &str) -> Self {
         match value.to_lowercase().as_str() {
             "mistral" => Provider::Mistral,
+            "deepseek" => Provider::Deepseek,
             "groq" => Provider::Groq,
             "gemini" => Provider::Gemini,
             "openai" => Provider::OpenAI,
@@ -32,6 +34,7 @@ impl Display for Provider {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Provider::Mistral => write!(f, "Mistral"),
+            Provider::Deepseek => write!(f, "Deepseek"),
             Provider::Groq => write!(f, "Groq"),
             Provider::Gemini => write!(f, "Gemini"),
             Provider::OpenAI => write!(f, "OpenAI"),

@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use serde::{Deserialize, Serialize};
-use serde_json::{Value};
+use serde_json::Value;
 use serde_with::skip_serializing_none;
 use std::convert::TryFrom;
 use std::str;
@@ -15,6 +15,11 @@ pub enum OpenAIError {
     JsonParseError(#[from] serde_json::Error),
     #[error("utf8 parsing error: {0}")]
     Utf8Error(#[from] std::str::Utf8Error),
+    #[error("invalid streaming data err {source}, data: {data}")]
+    InvalidStreamingData {
+        source: serde_json::Error,
+        data: String,
+    },
     #[error("unsupported provider: {provider}")]
     UnsupportedProvider { provider: String },
 }
@@ -134,6 +139,7 @@ impl ChatCompletionsRequest {
     pub fn to_bytes(&self, provider: Provider) -> Result<Vec<u8>> {
         match provider {
             Provider::OpenAI
+            | Provider::Deepseek
             | Provider::Mistral
             | Provider::Groq
             | Provider::Gemini
@@ -218,9 +224,18 @@ where
                 if data == "[DONE]" {
                     return None;
                 }
+
+                if data == r#"{"type": "ping"}"# {
+                    continue; // Skip ping messages - that is usually from anthropic
+                }
+
                 return Some(
-                    serde_json::from_str::<ChatCompletionStreamResponse>(data)
-                        .map_err(OpenAIError::from),
+                    serde_json::from_str::<ChatCompletionStreamResponse>(data).map_err(|e| {
+                        OpenAIError::InvalidStreamingData {
+                            source: e,
+                            data: data.to_string(),
+                        }
+                    }),
                 );
             }
         }

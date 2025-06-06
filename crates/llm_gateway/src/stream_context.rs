@@ -373,9 +373,11 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
+        let llm_provider_str = self.llm_provider().provider_interface.to_string();
+        let hermes_llm_provider = Provider::from(llm_provider_str.as_str());
+
         // convert chat completion request to llm provider specific request
-        let deserialized_body_bytes = match deserialized_body.to_bytes(hermesllm::Provider::OpenAI)
-        {
+        let deserialized_body_bytes = match deserialized_body.to_bytes(hermes_llm_provider) {
             Ok(bytes) => bytes,
             Err(e) => {
                 warn!("Failed to serialize request body: {}", e);
