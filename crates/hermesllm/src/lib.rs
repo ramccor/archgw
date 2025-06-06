@@ -6,6 +6,7 @@ use std::fmt::Display;
 pub mod providers;
 
 pub enum Provider {
+    Arch,
     Mistral,
     Deepseek,
     Groq,
@@ -18,6 +19,7 @@ pub enum Provider {
 impl From<&str> for Provider {
     fn from(value: &str) -> Self {
         match value.to_lowercase().as_str() {
+            "arch" => Provider::Arch,
             "mistral" => Provider::Mistral,
             "deepseek" => Provider::Deepseek,
             "groq" => Provider::Groq,
@@ -33,6 +35,7 @@ impl From<&str> for Provider {
 impl Display for Provider {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Provider::Arch => write!(f, "Arch"),
             Provider::Mistral => write!(f, "Mistral"),
             Provider::Deepseek => write!(f, "Deepseek"),
             Provider::Groq => write!(f, "Groq"),

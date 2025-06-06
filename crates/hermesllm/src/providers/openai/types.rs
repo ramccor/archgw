@@ -139,6 +139,7 @@ impl ChatCompletionsRequest {
     pub fn to_bytes(&self, provider: Provider) -> Result<Vec<u8>> {
         match provider {
             Provider::OpenAI
+            | Provider::Arch
             | Provider::Deepseek
             | Provider::Mistral
             | Provider::Groq
