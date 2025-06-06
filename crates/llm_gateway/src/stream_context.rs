@@ -386,11 +386,6 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!(
-            "on_http_request_body: request body string: {}",
-            String::from_utf8_lossy(&deserialized_body_bytes)
-        );
-
         self.set_http_request_body(0, body_size, &deserialized_body_bytes);
 
         Action::Continue
