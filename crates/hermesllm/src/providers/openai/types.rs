@@ -428,8 +428,61 @@ data: [DONE]"#;
   "stream": true
 }        "#;
 
-        let chat_completions_request: ChatCompletionsRequest =
+        let _chat_completions_request: ChatCompletionsRequest =
             ChatCompletionsRequest::try_from(CHAT_COMPLETIONS_REQUEST.as_bytes())
                 .expect("Failed to parse ChatCompletionsRequest");
+    }
+
+    #[test]
+    fn stream_chunk_parse_claude() {
+        const CHUNK_RESPONSE: &str = r#"data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"role":"assistant"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"type": "ping"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":"Hello!"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":" How can I assist you today? Whether"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":" you have a question, need information"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":", or just want to chat about"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":" something, I'm here to help. What woul"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{"content":"d you like to talk about?"}}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: {"id":"msg_01DZDMxYSgq8aPQxMQoBv6Kb","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"created":1747685264,"model":"claude-3-7-sonnet-latest","object":"chat.completion.chunk"}
+
+data: [DONE]
+"#;
+
+        let iter = SseChatCompletionIter::try_from(CHUNK_RESPONSE.as_bytes());
+
+        assert!(iter.is_ok(), "Failed to create SSE iterator");
+        let iter: SseChatCompletionIter<str::Lines<'_>> = iter.unwrap();
+
+        let all_text: Vec<String> = iter
+            .map(|item| {
+                let response = item.expect("Failed to parse response");
+                response
+                    .choices
+                    .into_iter()
+                    .filter_map(|choice| choice.delta.content)
+                    .map(|content| content.to_string())
+                    .collect::<String>()
+            })
+            .collect();
+
+        assert_eq!(
+            all_text.len(),
+            8,
+            "Expected 8 chunks of text, but got {}",
+            all_text.len()
+        );
+
+        assert_eq!(
+            all_text.join(""),
+            "Hello! How can I assist you today? Whether you have a question, need information, or just want to chat about something, I'm here to help. What would you like to talk about?"
+        );
     }
 }
