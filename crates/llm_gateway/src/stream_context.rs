@@ -196,20 +196,22 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
+        // debug!("headers: {:?}", self.get_http_request_headers());
         let request_path = self.get_http_request_header(":path").unwrap_or_default();
         if request_path == HEALTHZ_PATH {
             self.send_http_response(200, vec![], None);
             return Action::Continue;
         }
 
-        let routing_header_value = self.get_http_request_header(ARCH_ROUTING_HEADER);
-
         let use_agent_orchestrator = match self.overrides.as_ref() {
             Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
             None => false,
         };
 
-        if let Some(routing_header_value) = routing_header_value.as_ref() {
+        let routing_header_value = self.get_http_request_header(ARCH_ROUTING_HEADER);
+
+        if routing_header_value.is_some() && !routing_header_value.as_ref().unwrap().is_empty() {
+            let routing_header_value = routing_header_value.as_ref().unwrap();
             info!("routing header already set: {}", routing_header_value);
             self.llm_provider = Some(Rc::new(LlmProvider {
                 name: routing_header_value.to_string(),
@@ -385,6 +387,8 @@ impl HttpContext for StreamContext {
                 return Action::Pause;
             }
         };
+
+        // trace!("on_http_request_body: update request body to: {}, len: {}", String::from_utf8_lossy(&deserialized_body_bytes), deserialized_body_bytes.len());
 
         self.set_http_request_body(0, body_size, &deserialized_body_bytes);
 
