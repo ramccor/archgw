@@ -684,7 +684,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: 0.0.0.0
+                      address: host.docker.internal
                       port_value: $MODEL_SERVER_PORT
                   hostname: {{ internal_cluster }}
     {% endfor %}
