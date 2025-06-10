@@ -33,7 +33,7 @@ pub struct StreamContext {
     streaming_response: bool,
     streaming_buffer: Option<Vec<u8>>,
     response_tokens: usize,
-    // is_chat_completions_request: bool,
+    is_chat_completions_request: bool,
     llm_providers: Rc<LlmProviders>,
     llm_provider: Option<Rc<LlmProvider>>,
     request_id: Option<String>,
@@ -62,7 +62,7 @@ impl StreamContext {
             ratelimit_selector: None,
             streaming_response: false,
             response_tokens: 0,
-            // is_chat_completions_request: false,
+            is_chat_completions_request: false,
             llm_providers,
             llm_provider: None,
             request_id: None,
@@ -226,6 +226,9 @@ impl HttpContext for StreamContext {
 
         let routing_header_value = self.get_http_request_header(ARCH_ROUTING_HEADER);
 
+        let request_path = self.get_http_request_header(":path").unwrap_or_default();
+        self.is_chat_completions_request = CHAT_COMPLETIONS_PATH.contains(&request_path.as_str());
+
         if routing_header_value.is_some() && !routing_header_value.as_ref().unwrap().is_empty() {
             let routing_header_value = routing_header_value.as_ref().unwrap();
             info!("routing header already set: {}", routing_header_value);
@@ -258,9 +261,6 @@ impl HttpContext for StreamContext {
 
         self.delete_content_length_header();
         self.save_ratelimit_header();
-
-        // let request_path = self.get_http_request_header(":path").unwrap_or_default();
-        // self.is_chat_completions_request = CHAT_COMPLETIONS_PATH.contains(&request_path.as_str());
 
         self.request_id = self.get_http_request_header(REQUEST_ID_HEADER);
         self.traceparent = self.get_http_request_header(TRACE_PARENT_HEADER);
@@ -434,10 +434,10 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
-        // if !self.is_chat_completions_request {
-        //     info!("on_http_response_body: non-chatcompletion request");
-        //     return Action::Continue;
-        // }
+        if !self.is_chat_completions_request {
+            info!("on_http_response_body: non-chatcompletion request");
+            return Action::Continue;
+        }
 
         let current_time = get_current_time().unwrap();
         if end_of_stream && body_size == 0 {
@@ -559,8 +559,8 @@ impl HttpContext for StreamContext {
             }
         };
 
-        if log::log_enabled!(log::Level::Trace) {
-            trace!(
+        if log::log_enabled!(log::Level::Debug) {
+            debug!(
                 "response data (converted to utf8): {}",
                 String::from_utf8_lossy(&body)
             );
@@ -596,29 +596,27 @@ impl HttpContext for StreamContext {
             // if streaming_buffer is Some, it means we have buffered data from previous chunks
             // otherwise we can process the body directly
 
-            let sse_event_buffer = match self.streaming_buffer.take() {
-                Some(buffer) => {
-                    debug!("streaming response body has buffered data, prepending it to the current chunk");
-                    let mut complete_body = buffer;
-                    complete_body.extend_from_slice(&body);
-                    complete_body
-                }
-                None => {
-                    debug!("no buffered data, processing the current chunk directly");
-                    body
-                }
-            };
+            // let sse_event_buffer = match self.streaming_buffer.take() {
+            //     Some(buffer) => {
+            //         debug!("streaming response body has buffered data, prepending it to the current chunk");
+            //         let mut complete_body = buffer;
+            //         complete_body.extend_from_slice(&body);
+            //         complete_body
+            //     }
+            //     None => {
+            //         debug!("no buffered data, processing the current chunk directly");
+            //         body
+            //     }
+            // };
 
-            let chat_completions_chunk_response_events = match SseChatCompletionIter::try_from((
-                sse_event_buffer.as_slice(),
-                &hermes_llm_provider,
-            )) {
-                Ok(events) => events,
-                Err(e) => {
-                    warn!("could not parse response: {}", e);
-                    return Action::Continue;
-                }
-            };
+            let chat_completions_chunk_response_events =
+                match SseChatCompletionIter::try_from((body.as_slice(), &hermes_llm_provider)) {
+                    Ok(events) => events,
+                    Err(e) => {
+                        warn!("could not parse response: {}", e);
+                        return Action::Continue;
+                    }
+                };
 
             for event in chat_completions_chunk_response_events {
                 match event {
