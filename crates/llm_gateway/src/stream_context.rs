@@ -196,7 +196,6 @@ impl HttpContext for StreamContext {
     // Envoy's HTTP model is event driven. The WASM ABI has given implementors events to hook onto
     // the lifecycle of the http request and response.
     fn on_http_request_headers(&mut self, _num_headers: usize, _end_of_stream: bool) -> Action {
-        // debug!("headers: {:?}", self.get_http_request_headers());
         let request_path = self.get_http_request_header(":path").unwrap_or_default();
         if request_path == HEALTHZ_PATH {
             self.send_http_response(200, vec![], None);
@@ -387,8 +386,6 @@ impl HttpContext for StreamContext {
                 return Action::Pause;
             }
         };
-
-        // trace!("on_http_request_body: update request body to: {}, len: {}", String::from_utf8_lossy(&deserialized_body_bytes), deserialized_body_bytes.len());
 
         self.set_http_request_body(0, body_size, &deserialized_body_bytes);
 
