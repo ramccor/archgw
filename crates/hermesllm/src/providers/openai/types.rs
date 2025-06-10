@@ -494,4 +494,38 @@ data: [DONE]
             "Hello! How can I assist you today? Whether you have a question, need information, or just want to chat about something, I'm here to help. What would you like to talk about?"
         );
     }
+
+    #[test]
+    fn stream_chunk_parse_gemini() {
+        const CHUNK_RESPONSE: &str = r#"data: {"choices":[{"delta":{"content":":**\n\n* **Chief Executive:**  T"#;
+
+        let iter = SseChatCompletionIter::try_from(CHUNK_RESPONSE.as_bytes());
+
+        assert!(iter.is_ok(), "Failed to create SSE iterator");
+        let iter: SseChatCompletionIter<str::Lines<'_>> = iter.unwrap();
+
+        let all_text: Vec<String> = iter
+            .map(|item| {
+                let response = item.expect("Failed to parse response");
+                response
+                    .choices
+                    .into_iter()
+                    .filter_map(|choice| choice.delta.content)
+                    .map(|content| content.to_string())
+                    .collect::<String>()
+            })
+            .collect();
+
+        assert_eq!(
+            all_text.len(),
+            1,
+            "Expected 8 chunks of text, but got {}",
+            all_text.len()
+        );
+
+        assert_eq!(
+            all_text.join(""),
+            "Hello! How can I assist you today? Whether you have a question, need information, or just want to chat about something, I'm here to help. What would you like to talk about?"
+        );
+    }
 }
