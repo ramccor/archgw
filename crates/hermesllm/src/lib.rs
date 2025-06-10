@@ -49,21 +49,22 @@ impl Display for Provider {
 
 #[cfg(test)]
 mod tests {
-    use crate::providers::openai::types::ChatCompletionsRequest;
+    use crate::providers::openai::types::{ChatCompletionsRequest, Message};
 
     #[test]
     fn openai_builder() {
-        let request = ChatCompletionsRequest::builder("gpt-3.5-turbo", vec![])
-            .temperature(0.7)
-            .top_p(0.9)
-            .n(1)
-            .max_tokens(100)
-            .stream(false)
-            .stop(vec!["\n".to_string()])
-            .presence_penalty(0.0)
-            .frequency_penalty(0.0)
-            .build()
-            .expect("Failed to build OpenAIRequest");
+        let request =
+            ChatCompletionsRequest::builder("gpt-3.5-turbo", vec![Message::new("Hi".to_string())])
+                .temperature(0.7)
+                .top_p(0.9)
+                .n(1)
+                .max_tokens(100)
+                .stream(false)
+                .stop(vec!["\n".to_string()])
+                .presence_penalty(0.0)
+                .frequency_penalty(0.0)
+                .build()
+                .expect("Failed to build OpenAIRequest");
 
         assert_eq!(request.model, "gpt-3.5-turbo");
         assert_eq!(request.temperature, Some(0.7));

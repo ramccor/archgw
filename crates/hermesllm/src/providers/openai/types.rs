@@ -80,6 +80,15 @@ pub struct Message {
     pub content: Option<ContentType>,
 }
 
+impl Message {
+    pub fn new(content: String) -> Self {
+        Self {
+            role: "user".to_string(),
+            content: Some(ContentType::Text(content)),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StreamOptions {
     pub include_usage: bool,
