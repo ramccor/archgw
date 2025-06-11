@@ -215,15 +215,14 @@ impl HttpContext for StreamContext {
             return Action::Continue;
         }
 
+        self.is_chat_completions_request = CHAT_COMPLETIONS_PATH == request_path;
+
         let use_agent_orchestrator = match self.overrides.as_ref() {
             Some(overrides) => overrides.use_agent_orchestrator.unwrap_or_default(),
             None => false,
         };
 
         let routing_header_value = self.get_http_request_header(ARCH_ROUTING_HEADER);
-
-        let request_path = self.get_http_request_header(":path").unwrap_or_default();
-        self.is_chat_completions_request = CHAT_COMPLETIONS_PATH.contains(&request_path.as_str());
 
         if routing_header_value.is_some() && !routing_header_value.as_ref().unwrap().is_empty() {
             let routing_header_value = routing_header_value.as_ref().unwrap();
