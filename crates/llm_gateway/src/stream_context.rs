@@ -16,7 +16,7 @@ use hermesllm::providers::openai::types::{
 };
 use hermesllm::Provider;
 use http::StatusCode;
-use log::{debug, info, trace, warn};
+use log::{debug, info, warn};
 use proxy_wasm::hostcalls::get_current_time;
 use proxy_wasm::traits::*;
 use proxy_wasm::types::*;
@@ -31,7 +31,6 @@ pub struct StreamContext {
     metrics: Rc<Metrics>,
     ratelimit_selector: Option<Header>,
     streaming_response: bool,
-    streaming_buffer: Option<Vec<u8>>,
     response_tokens: usize,
     is_chat_completions_request: bool,
     llm_providers: Rc<LlmProviders>,
@@ -73,7 +72,6 @@ impl StreamContext {
             user_message: None,
             traces_queue,
             request_body_sent_time: None,
-            streaming_buffer: None,
         }
     }
     fn llm_provider(&self) -> &LlmProvider {
@@ -113,8 +111,6 @@ impl StreamContext {
             }
             _ => {}
         }
-
-        if self.llm_provider.as_ref().unwrap().provider_interface == LlmProviderType::Groq {}
 
         debug!(
             "request received: llm provider hint: {}, selected llm: {}, model: {}",
