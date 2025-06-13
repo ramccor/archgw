@@ -29,9 +29,9 @@ llm_providers:
     default: true
 
   - name: code_generation
-    access_key: $ANTHROPY_API_KEY
+    access_key: $OPENAI_API_KEY
     provider_interface: claude
-    model: claude-3-7-sonnet-latest
+    model: gpt-4.1
     usage: generating new code snippets, functions, or boilerplate based on user prompts or requirements
 
   - name: code_understanding
