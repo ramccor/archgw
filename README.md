@@ -5,7 +5,7 @@
 
 
 _The AI-native proxy server and the universal data plane for AI agents._<br><br>
-Arch implements **pesky**, low-level work in building AI agents like clarifying vague user inputs, routing prompts to the right agents, calling specific tools for common tasks, and providing unified access and observability to large language models (LLMs) - all without locking you into a framework. <br>With Arch, you shup faster by focusing on the high-level logic of your agents.
+Arch implements the *pesky, low-level work* in building AI agents like clarifying vague user inputs, routing prompts to the right agents, calling specific tools for common tasks, and providing unified access and observability to large language models (LLMs) - all without locking you into a framework. With Arch, you ship faster by focusing on the high-level logic of your agents.
 
 
 [Quickstart](#Quickstart) •
