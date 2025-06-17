@@ -9,7 +9,7 @@ Welcome to Arch!
 
    <div style="text-align: center; font-size: 1.25rem;">
    <br>
-   <p>Build <strong>fast</strong>, <strong>secure</strong>, and <strong>highly personalized</strong> AI.</p>
+   <p>Build <strong>faster</strong>, <strong>multi-LLM</strong> agents for the enterprise.</p>
    </div>
 
    <a href="https://www.producthunt.com/posts/arch-3?embed=true&utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-arch&#0045;3" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=565761&theme=dark&period=daily&t=1742433071161" alt="Arch - Build&#0032;fast&#0044;&#0032;hyper&#0045;personalized&#0032;agents&#0032;with&#0032;intelligent&#0032;infra | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
