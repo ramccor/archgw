@@ -157,16 +157,16 @@
 <div id="content" role="main">
 <section id="intro-to-arch">
 <span id="id1"></span><h1>Intro to Arch<a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#intro-to-arch"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></h1>
-<p>Arch is an intelligent proxy server designed agentic applications. <strong>Move faster</strong> by letting Arch handle the <strong>pesky heavy lifting</strong> in building agents:
-fast input clarification, agent routing, seamless integration of prompts with tools for common tasks, and unified access and observability of LLMs.</p>
-<p>Past the thrill of an AI demo, have you found yourself hitting these walls? You know, the all too familiar ones:</p>
+<p>AI demos are easy to build. But past the thrill of a quick hack, you are left building, maintaining and scaling low-level plumbing code for agents that slows down AI innovation.
+For example:</p>
 <ul class="simple">
-<li><p>You break a prompt into specialized ones, but <strong>get stuck writing routing</strong> and handoff logic?</p></li>
-<li><p>You want use new LLMs, but <strong>struggle to quickly add LLMs</strong> without writing integration logic?</p></li>
-<li><p>You’re <strong>trapped in tedious prompting work</strong> to clarify inputs and user intents?</p></li>
-<li><p>You’re <strong>wasting cycles</strong> choosing and integrating <strong>code for observability</strong> instead of it just happening transparently?</p></li>
+<li><p>You want to build specialized agents, but get stuck writing <strong>routing and handoff</strong> code.</p></li>
+<li><p>You bogged down with prompt engineering work to <strong>clarify user intent and validate inputs</strong>.</p></li>
+<li><p>You want to <strong>quickly and safely use new LLMs</strong> but get stuck writing integration code.</p></li>
+<li><p>You waste cycles writing and maintaining <strong>observability</strong> code, when it can be transparent.</p></li>
+<li><p>You want to <strong>apply guardrails</strong>, but have to write custom code for each prompt and LLM.</p></li>
 </ul>
-<p>And you think to yourself, can’t I move faster by focusing on higher-level objectives in a language and framework agnostic way? Well, you can!</p>
+<p>Arch is designed to solve these problems by providing a unified, out-of-process architecture that integrates with your existing application stack, enabling you to focus on building high-level features rather than plumbing — all without locking you into a framework.</p>
 <figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/arch_network_diagram_high_level.png"><img alt="../_images/arch_network_diagram_high_level.png" src="../_images/arch_network_diagram_high_level.png" style="width: 100%;"/>
 </a>
@@ -174,7 +174,7 @@ fast input clarification, agent routing, seamless integration of prompts with to
 <p><span class="caption-text">High-level network flow of where Arch Gateway sits in your agentic stack. Designed for both ingress and egress prompt traffic.</span><a @click.prevent="window.navigator.clipboard.writeText($el.href); $el.setAttribute('data-tooltip', 'Copied!'); setTimeout(() =&gt; $el.setAttribute('data-tooltip', 'Copy link to this element'), 2000)" aria-label="Copy link to this element" class="headerlink" data-tooltip="Copy link to this element" href="#id2"><svg height="1em" viewbox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg></a></p>
 </figcaption>
 </figure>
-<p><strong>Arch Gateway was built by the contributors of Envoy Proxy with the belief that:</strong></p>
+<p>Arch is an AI-native proxy server and the universal data plane for AI built by the contributors of Envoy Proxy with the belief that:</p>
 <blockquote>
 <div><p><em>Prompts are nuanced and opaque user requests, which require the same capabilities as traditional HTTP requests
 including secure handling, intelligent routing, robust observability, and integration with backend (API)
@@ -190,8 +190,8 @@ This gives Arch several advantages:</p>
 <li><p>Arch works with any application language. A single Arch deployment can act as gateway for AI applications written in Python, Java, C++, Go, Php, etc.</p></li>
 <li><p>Arch can be deployed and upgraded quickly across your infrastructure transparently without the horrid pain of deploying library upgrades in your applications.</p></li>
 </ul>
-<p><strong>Engineered with Fast LLMs:</strong> Arch is engineered with specialized small LLMs that are designed for fast, cost-effective and accurate handling of prompts.
-These LLMs are designed to be best-in-class for critical prompt-related tasks like:</p>
+<p><strong>Engineered with Fast Task-Specific LLMs (TLMs):</strong> Arch is engineered with specialized LLMs that are designed for the fast, cost-effective and accurate handling of prompts.
+These LLMs are designed to be best-in-class for critical tasks like:</p>
 <ul class="simple">
 <li><p><strong>Function Calling:</strong> Arch helps you easily personalize your applications by enabling calls to application-specific (API) operations via user prompts.
 This involves any predefined functions or APIs you want to expose to users to perform tasks, gather information, or manipulate data.
@@ -239,7 +239,7 @@ For more details, read <a class="reference internal" href="../guides/observabili
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Jun 14, 2025. </p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2025, Katanemo Labs, Inc Last updated: Jun 17, 2025. </p>
 </div>
 </div>
 </footer>
