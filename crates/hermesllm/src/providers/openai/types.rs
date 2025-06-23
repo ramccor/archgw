@@ -102,7 +102,7 @@ pub struct ChatCompletionsRequest {
     pub temperature: Option<f32>,
     pub top_p: Option<f32>,
     pub n: Option<u32>,
-    pub max_tokens: Option<u32>,
+    pub max_tokens: Option<i32>,
     pub stream: Option<bool>,
     pub stop: Option<Vec<String>>,
     pub presence_penalty: Option<f32>,

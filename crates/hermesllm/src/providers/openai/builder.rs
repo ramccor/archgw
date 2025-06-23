@@ -9,7 +9,7 @@ pub struct OpenAIRequestBuilder {
     temperature: Option<f32>,
     top_p: Option<f32>,
     n: Option<u32>,
-    max_tokens: Option<u32>,
+    max_tokens: Option<i32>,
     stream: Option<bool>,
     stop: Option<Vec<String>>,
     presence_penalty: Option<f32>,
@@ -51,7 +51,7 @@ impl OpenAIRequestBuilder {
         self
     }
 
-    pub fn max_tokens(mut self, max_tokens: u32) -> Self {
+    pub fn max_tokens(mut self, max_tokens: i32) -> Self {
         self.max_tokens = Some(max_tokens);
         self
     }
