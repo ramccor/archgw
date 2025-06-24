@@ -6,24 +6,25 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use tracing::{info, warn};
 use std::{collections::HashMap, sync::Arc};
+use serde_with::skip_serializing_none;
 
+#[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
 struct UsageBasedProvider {
     model: String,
-    usage: String,
+    usage: Option<String>,
 }
 
 pub async fn list_preferences(
     llm_providers: Arc<tokio::sync::RwLock<Vec<LlmProvider>>>,
 ) -> Response<BoxBody<Bytes, hyper::Error>> {
     let prov = llm_providers.read().await;
-    // select providers that have usage information
+    // convert the LlmProvider to UsageBasedProvider
     let providers_with_usage = prov
         .iter()
-        .filter(|provider| provider.usage.is_some())
         .map(|provider| UsageBasedProvider {
             model: provider.name.clone(),
-            usage: provider.usage.as_ref().unwrap().clone(),
+            usage: provider.usage.clone(),
         })
         .collect::<Vec<UsageBasedProvider>>();
 
@@ -104,10 +105,10 @@ pub async fn update_preferences(
     let mut updated_models_list = Vec::new();
     for provider in llm_providers.iter_mut() {
         if let Some(usage_provider) = usage_model_map.get(&provider.name) {
-            provider.usage = Some(usage_provider.usage.clone());
+            provider.usage = usage_provider.usage.clone();
             updated_models_list.push(UsageBasedProvider {
                 model: provider.name.clone(),
-                usage: provider.usage.clone().unwrap_or_default(),
+                usage: provider.usage.clone(),
             });
         }
     }
