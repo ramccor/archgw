@@ -17,6 +17,7 @@ use opentelemetry_http::HeaderExtractor;
 use std::sync::Arc;
 use std::{env, fs};
 use tokio::net::TcpListener;
+use tokio::sync::RwLock;
 use tracing::{debug, info, warn};
 
 pub mod router;
@@ -54,7 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let arch_config = Arc::new(config);
 
-    let llm_providers = Arc::new(arch_config.llm_providers.clone());
+    let llm_providers = Arc::new(RwLock::new(arch_config.llm_providers.clone()));
 
     debug!(
         "arch_config: {:?}",
