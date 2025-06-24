@@ -17,6 +17,7 @@ pub async fn list_preferences(
     llm_providers: Arc<tokio::sync::RwLock<Vec<LlmProvider>>>,
 ) -> Response<BoxBody<Bytes, hyper::Error>> {
     let prov = llm_providers.read().await;
+    // select providers that have usage information
     let providers_with_usage = prov
         .iter()
         .filter(|provider| provider.usage.is_some())
@@ -56,7 +57,6 @@ pub async fn update_preferences(
     request: Request<hyper::body::Incoming>,
     llm_providers: Arc<tokio::sync::RwLock<Vec<LlmProvider>>>,
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
-    info!("Updating preferences...");
     let request_body = request.collect().await?.to_bytes();
 
     let usage: Vec<UsageBasedProvider> = match serde_json::from_slice(&request_body) {
@@ -75,6 +75,8 @@ pub async fn update_preferences(
 
     let usage_model_map: HashMap<String, UsageBasedProvider> =
         usage.into_iter().map(|u| (u.model.clone(), u)).collect();
+
+    info!("Updating usage preferences for models: {:?}", usage_model_map.keys());
 
     let mut llm_providers = llm_providers.write().await;
 
