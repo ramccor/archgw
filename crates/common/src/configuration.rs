@@ -2,6 +2,7 @@ use hermesllm::providers::openai::types::{ModelDetail, ModelObject, Models};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Display;
+use serde_with::skip_serializing_none;
 
 use crate::api::open_ai::{
     ChatCompletionTool, FunctionDefinition, FunctionParameter, FunctionParameters, ParameterType,
@@ -174,6 +175,13 @@ impl Display for LlmProviderType {
             LlmProviderType::OpenAI => write!(f, "openai"),
         }
     }
+}
+
+#[skip_serializing_none]
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ModelUsagePreference {
+    pub model: String,
+    pub usage: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

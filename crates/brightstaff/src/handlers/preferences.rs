@@ -1,19 +1,10 @@
 use bytes::Bytes;
-use common::configuration::LlmProvider;
+use common::configuration::{LlmProvider, ModelUsagePreference};
 use http_body_util::{combinators::BoxBody, BodyExt, Full};
 use hyper::{Request, Response, StatusCode};
-use serde::{Deserialize, Serialize};
 use serde_json;
-use tracing::{info, warn};
 use std::{collections::HashMap, sync::Arc};
-use serde_with::skip_serializing_none;
-
-#[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
-struct UsageBasedProvider {
-    model: String,
-    usage: Option<String>,
-}
+use tracing::{info, warn};
 
 pub async fn list_preferences(
     llm_providers: Arc<tokio::sync::RwLock<Vec<LlmProvider>>>,
@@ -22,11 +13,11 @@ pub async fn list_preferences(
     // convert the LlmProvider to UsageBasedProvider
     let providers_with_usage = prov
         .iter()
-        .map(|provider| UsageBasedProvider {
+        .map(|provider| ModelUsagePreference {
             model: provider.name.clone(),
             usage: provider.usage.clone(),
         })
-        .collect::<Vec<UsageBasedProvider>>();
+        .collect::<Vec<ModelUsagePreference>>();
 
     match serde_json::to_string(&providers_with_usage) {
         Ok(json) => {
@@ -60,7 +51,7 @@ pub async fn update_preferences(
 ) -> Result<Response<BoxBody<Bytes, hyper::Error>>, hyper::Error> {
     let request_body = request.collect().await?.to_bytes();
 
-    let usage: Vec<UsageBasedProvider> = match serde_json::from_slice(&request_body) {
+    let usage: Vec<ModelUsagePreference> = match serde_json::from_slice(&request_body) {
         Ok(usage) => usage,
         Err(_) => {
             let response_body = Full::new(Bytes::from_static(b"Invalid request body: "))
@@ -74,10 +65,13 @@ pub async fn update_preferences(
         }
     };
 
-    let usage_model_map: HashMap<String, UsageBasedProvider> =
+    let usage_model_map: HashMap<String, ModelUsagePreference> =
         usage.into_iter().map(|u| (u.model.clone(), u)).collect();
 
-    info!("Updating usage preferences for models: {:?}", usage_model_map.keys());
+    info!(
+        "Updating usage preferences for models: {:?}",
+        usage_model_map.keys()
+    );
 
     let mut llm_providers = llm_providers.write().await;
 
@@ -106,7 +100,7 @@ pub async fn update_preferences(
     for provider in llm_providers.iter_mut() {
         if let Some(usage_provider) = usage_model_map.get(&provider.name) {
             provider.usage = usage_provider.usage.clone();
-            updated_models_list.push(UsageBasedProvider {
+            updated_models_list.push(ModelUsagePreference {
                 model: provider.name.clone(),
                 usage: provider.usage.clone(),
             });
@@ -121,11 +115,11 @@ pub async fn update_preferences(
         )))
         .map_err(|never| match never {})
         .boxed();
-        return Ok(Response::builder()
+        Ok(Response::builder()
             .status(StatusCode::OK)
             .header("Content-Type", "application/json")
             .body(response_body)
-            .unwrap());
+            .unwrap())
     } else {
         let response_body = Full::new(Bytes::from_static(b"Provider not found"))
             .map_err(|never| match never {})

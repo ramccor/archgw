@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use common::{
-    configuration::{LlmProvider, LlmRoute},
+    configuration::{LlmProvider, LlmRoute, ModelUsagePreference},
     consts::ARCH_PROVIDER_HINT_HEADER,
 };
 use hermesllm::providers::openai::types::{ChatCompletionsResponse, ContentType, Message};
@@ -68,12 +68,15 @@ impl RouterService {
         &self,
         messages: &[Message],
         trace_parent: Option<String>,
+        usage_preferences: Option<Vec<ModelUsagePreference>>,
     ) -> Result<Option<String>> {
         if !self.llm_usage_defined {
             return Ok(None);
         }
 
-        let router_request = self.router_model.generate_request(messages);
+        let router_request = self
+            .router_model
+            .generate_request(messages, usage_preferences);
 
         info!(
             "sending request to arch-router model: {}, endpoint: {}",

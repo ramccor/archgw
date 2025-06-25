@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use bytes::Bytes;
+use common::configuration::ModelUsagePreference;
 use common::consts::ARCH_PROVIDER_HINT_HEADER;
 use hermesllm::providers::openai::types::ChatCompletionsRequest;
 use http_body_util::combinators::BoxBody;
@@ -56,8 +57,25 @@ pub async fn chat_completions(
         .find(|(ty, _)| ty.as_str() == "traceparent")
         .map(|(_, value)| value.to_str().unwrap_or_default().to_string());
 
+    let usage_preferences_str: Option<String> =
+        chat_completion_request.metadata.and_then(|metadata| {
+            metadata
+                .get("archgw_preference_config")
+                .and_then(|value| value.as_str().map(String::from))
+        });
+
+    let usage_preferences: Option<Vec<ModelUsagePreference>> = usage_preferences_str
+        .as_ref()
+        .and_then(|s| serde_yaml::from_str(s).ok());
+
+    debug!("usage preferences: {:?}", usage_preferences);
+
     let mut selected_llm = match router_service
-        .determine_route(&chat_completion_request.messages, trace_parent.clone())
+        .determine_route(
+            &chat_completion_request.messages,
+            trace_parent.clone(),
+            usage_preferences,
+        )
         .await
     {
         Ok(route) => route,

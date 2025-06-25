@@ -1,5 +1,5 @@
 use common::{
-    configuration::LlmRoute,
+    configuration::{LlmRoute, ModelUsagePreference},
     consts::{SYSTEM_ROLE, TOOL_ROLE, USER_ROLE},
 };
 use hermesllm::providers::openai::types::{ChatCompletionsRequest, ContentType, Message};
@@ -55,7 +55,11 @@ struct LlmRouterResponse {
 const TOKEN_LENGTH_DIVISOR: usize = 4; // Approximate token length divisor for UTF-8 characters
 
 impl RouterModel for RouterModelV1 {
-    fn generate_request(&self, messages: &[Message]) -> ChatCompletionsRequest {
+    fn generate_request(
+        &self,
+        messages: &[Message],
+        usage_preferences: Option<Vec<ModelUsagePreference>>,
+    ) -> ChatCompletionsRequest {
         // remove system prompt, tool calls, tool call response and messages without content
         // if content is empty its likely a tool call
         // when role == tool its tool call response
@@ -131,8 +135,13 @@ impl RouterModel for RouterModelV1 {
             })
             .collect::<Vec<Message>>();
 
+        let llm_route_json = usage_preferences
+            .as_ref()
+            .map(|prefs| serde_json::to_string(prefs).unwrap_or_default())
+            .unwrap_or_else(|| self.llm_route_json_str.clone());
+
         let messages_content = ARCH_ROUTER_V1_SYSTEM_PROMPT
-            .replace("{routes}", &self.llm_route_json_str)
+            .replace("{routes}", &llm_route_json)
             .replace(
                 "{conversation}",
                 &serde_json::to_string(&selected_conversation_list).unwrap_or_default(),
@@ -204,8 +213,6 @@ impl std::fmt::Debug for dyn RouterModel {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::tracing::init_tracer;
-
     use super::*;
     use pretty_assertions::assert_eq;
 
@@ -261,7 +268,7 @@ Based on your analysis, provide your response in the following JSON formats if y
         "#;
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -270,7 +277,6 @@ Based on your analysis, provide your response in the following JSON formats if y
 
     #[test]
     fn test_conversation_exceed_token_count() {
-        let _tracer = init_tracer();
         let expected_prompt = r#"
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
@@ -323,7 +329,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -332,7 +338,6 @@ Based on your analysis, provide your response in the following JSON formats if y
 
     #[test]
     fn test_conversation_exceed_token_count_large_single_message() {
-        let _tracer = init_tracer();
         let expected_prompt = r#"
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
@@ -385,7 +390,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -394,7 +399,6 @@ Based on your analysis, provide your response in the following JSON formats if y
 
     #[test]
     fn test_conversation_trim_upto_user_message() {
-        let _tracer = init_tracer();
         let expected_prompt = r#"
 You are a helpful assistant designed to find the best suited route.
 You are provided with route description within <routes></routes> XML tags:
@@ -455,7 +459,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -525,7 +529,7 @@ Based on your analysis, provide your response in the following JSON formats if y
         "#;
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -621,7 +625,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation);
+        let req = router.generate_request(&conversation, None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
