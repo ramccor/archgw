@@ -180,6 +180,7 @@ impl Display for LlmProviderType {
 #[skip_serializing_none]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ModelUsagePreference {
+    pub name: String,
     pub model: String,
     pub usage: Option<String>,
 }

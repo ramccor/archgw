@@ -14,7 +14,8 @@ pub async fn list_preferences(
     let providers_with_usage = prov
         .iter()
         .map(|provider| ModelUsagePreference {
-            model: provider.name.clone(),
+            name: provider.name.clone(),
+            model: provider.model.clone().unwrap_or_default(),
             usage: provider.usage.clone(),
         })
         .collect::<Vec<ModelUsagePreference>>();
@@ -101,7 +102,8 @@ pub async fn update_preferences(
         if let Some(usage_provider) = usage_model_map.get(&provider.name) {
             provider.usage = usage_provider.usage.clone();
             updated_models_list.push(ModelUsagePreference {
-                model: provider.name.clone(),
+                name: provider.name.clone(),
+                model: provider.model.clone().unwrap_or_default(),
                 usage: provider.usage.clone(),
             });
         }

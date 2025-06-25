@@ -12,7 +12,7 @@ use hyper::{Request, Response, StatusCode};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
-use tracing::{debug, info, warn};
+use tracing::{debug, info, trace, warn};
 
 use crate::router::llm_router::RouterService;
 
@@ -47,7 +47,7 @@ pub async fn chat_completions(
             }
         };
 
-    debug!(
+    trace!(
         "arch-router request body: {}",
         &serde_json::to_string(&chat_completion_request).unwrap()
     );

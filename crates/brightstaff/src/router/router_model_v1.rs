@@ -58,7 +58,7 @@ impl RouterModel for RouterModelV1 {
     fn generate_request(
         &self,
         messages: &[Message],
-        usage_preferences: Option<Vec<ModelUsagePreference>>,
+        usage_preferences: &Option<Vec<ModelUsagePreference>>,
     ) -> ChatCompletionsRequest {
         // remove system prompt, tool calls, tool call response and messages without content
         // if content is empty its likely a tool call
@@ -137,7 +137,16 @@ impl RouterModel for RouterModelV1 {
 
         let llm_route_json = usage_preferences
             .as_ref()
-            .map(|prefs| serde_json::to_string(prefs).unwrap_or_default())
+            .map(|prefs| {
+                let llm_route: Vec<LlmRoute> = prefs
+                    .iter()
+                    .map(|pref| LlmRoute {
+                        name: pref.name.clone(),
+                        description: pref.usage.clone().unwrap_or_default(),
+                    })
+                    .collect();
+                serde_json::to_string(&llm_route).unwrap_or_default()
+            })
             .unwrap_or_else(|| self.llm_route_json_str.clone());
 
         let messages_content = ARCH_ROUTER_V1_SYSTEM_PROMPT
@@ -268,7 +277,71 @@ Based on your analysis, provide your response in the following JSON formats if y
         "#;
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
+
+        let prompt = req.messages[0].content.as_ref().unwrap();
+
+        assert_eq!(expected_prompt, prompt.to_string());
+    }
+
+    #[test]
+    fn test_system_prompt_format_usage_preferences() {
+        let expected_prompt = r#"
+You are a helpful assistant designed to find the best suited route.
+You are provided with route description within <routes></routes> XML tags:
+<routes>
+[{"name":"code-generation","description":"generating new code snippets, functions, or boilerplate based on user prompts or requirements"}]
+</routes>
+
+<conversation>
+[{"role":"user","content":"hi"},{"role":"assistant","content":"Hello! How can I assist you today?"},{"role":"user","content":"given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"}]
+</conversation>
+
+Your task is to decide which route is best suit with user intent on the conversation in <conversation></conversation> XML tags.  Follow the instruction:
+1. If the latest intent from user is irrelevant or user intent is full filled, response with other route {"route": "other"}.
+2. You must analyze the route descriptions and find the best match route for user latest intent.
+3. You only response the name of the route that best matches the user's request, use the exact name in the <routes></routes>.
+
+Based on your analysis, provide your response in the following JSON formats if you decide to match any route:
+{"route": "route_name"}
+"#;
+        let routes_str = r#"
+          [
+              {"name": "Image generation", "description": "generating image"},
+              {"name": "image conversion", "description": "convert images to provided format"},
+              {"name": "image search", "description": "search image"},
+              {"name": "Audio Processing", "description": "Analyzing and interpreting audio input including speech, music, and environmental sounds"},
+              {"name": "Speech Recognition", "description": "Converting spoken language into written text"}
+          ]
+        "#;
+        let llm_routes = serde_json::from_str::<Vec<LlmRoute>>(routes_str).unwrap();
+        let routing_model = "test-model".to_string();
+        let router = RouterModelV1::new(llm_routes, routing_model.clone(), usize::MAX);
+
+        let conversation_str = r#"
+                    [
+                        {
+                            "role": "user",
+                            "content": "hi"
+                        },
+                        {
+                            "role": "assistant",
+                            "content": "Hello! How can I assist you today?"
+                        },
+                        {
+                            "role": "user",
+                            "content": "given the image In style of Andy Warhol, portrait of Bart and Lisa Simpson"
+                        }
+                    ]
+        "#;
+        let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
+
+        let usage_preferences = Some(vec![ModelUsagePreference {
+            name: "code-generation".to_string(),
+            model: "claude/claude-3-7-sonnet".to_string(),
+            usage: Some("generating new code snippets, functions, or boilerplate based on user prompts or requirements".to_string()),
+        }]);
+        let req = router.generate_request(&conversation, &usage_preferences);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -329,7 +402,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -390,7 +463,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -459,7 +532,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -529,7 +602,7 @@ Based on your analysis, provide your response in the following JSON formats if y
         "#;
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
@@ -625,7 +698,7 @@ Based on your analysis, provide your response in the following JSON formats if y
 
         let conversation: Vec<Message> = serde_json::from_str(conversation_str).unwrap();
 
-        let req = router.generate_request(&conversation, None);
+        let req = router.generate_request(&conversation, &None);
 
         let prompt = req.messages[0].content.as_ref().unwrap();
 
