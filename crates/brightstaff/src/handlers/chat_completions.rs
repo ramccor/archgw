@@ -31,6 +31,48 @@ pub async fn chat_completions(
 
     let chat_request_bytes = request.collect().await?.to_bytes();
 
+    let chat_request_parsed = serde_json::from_slice::<serde_json::Value>(&chat_request_bytes)
+        .map_err(|err| {
+            warn!(
+                "Failed to parse request body as JSON: {}",
+                String::from_utf8_lossy(&chat_request_bytes)
+            );
+            err
+        })
+        .unwrap_or_else(|_| {
+            warn!(
+                "Failed to parse request body as JSON: {}",
+                String::from_utf8_lossy(&chat_request_bytes)
+            );
+            serde_json::Value::Null
+        });
+
+    if chat_request_parsed == serde_json::Value::Null {
+        warn!("Request body is not valid JSON");
+        let err_msg = "Request body is not valid JSON".to_string();
+        let mut bad_request = Response::new(full(err_msg));
+        *bad_request.status_mut() = StatusCode::BAD_REQUEST;
+        return Ok(bad_request);
+    }
+
+    // remove metadata from the request
+    let mut chat_request_parsed = chat_request_parsed;
+    if let Some(metadata) = chat_request_parsed.get_mut("metadata") {
+        info!("Removing metadata from request");
+        metadata.as_object_mut().map(|m| {
+            m.remove("archgw_preference_config");
+            info!("Removed archgw_preference_config from metadata");
+        });
+
+        // if metadata is empty, remove it
+        if metadata.as_object().map_or(false, |m| m.is_empty()) {
+            info!("Removing empty metadata from request");
+            chat_request_parsed
+                .as_object_mut()
+                .map(|m| m.remove("metadata"));
+        }
+    }
+
     let chat_completion_request: ChatCompletionsRequest =
         match ChatCompletionsRequest::try_from(chat_request_bytes.as_ref()) {
             Ok(request) => request,
@@ -111,10 +153,15 @@ pub async fn chat_completions(
         );
     }
 
+    let chat_request_parsed_bytes = serde_json::to_string(&chat_request_parsed).unwrap();
+
+    // remove content-length header if it exists
+    request_headers.remove(header::CONTENT_LENGTH);
+
     let llm_response = match reqwest::Client::new()
         .post(llm_provider_endpoint)
         .headers(request_headers)
-        .body(chat_request_bytes)
+        .body(chat_request_parsed_bytes)
         .send()
         .await
     {
