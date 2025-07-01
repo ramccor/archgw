@@ -219,9 +219,29 @@ llm_providers:
 #### Preference-based Routing
 Preference-based routing is designed for more dynamic and intelligent selection of models. Instead of static model names, you write plain-language routing policies that describe the type of task or preference — for example:
 
-    "contract clauses → GPT-4o"
+```yaml
+version: v0.1.0
 
-    "quick travel tips → Gemini Flash"
+listeners:
+  egress_traffic:
+    address: 0.0.0.0
+    port: 12000
+    message_format: openai
+    timeout: 30s
+
+llm_providers:
+  - name: code_generation
+    access_key: $OPENAI_API_KEY
+    provider_interface: openai
+    model: gpt-4.1
+    usage: generating new code snippets, functions, or boilerplate based on user prompts or requirements
+
+  - name: code_understanding
+    provider_interface: openai
+    access_key: $OPENAI_API_KEY
+    model: gpt-4o-mini
+    usage: understand and explain existing code snippets, functions, or libraries
+```
 
 Arch uses a lightweight 1.5B autoregressive model to map prompts (and conversation context) to these policies. This approach adapts to intent drift, supports multi-turn conversations, and avoids the brittleness of embedding-based classifiers or manual if/else chains. No retraining is required when adding new models or updating policies — routing is governed entirely by human-readable rules. You can learn more about the design, benchmarks, and methodology behind preference-based routing in our paper:
 
