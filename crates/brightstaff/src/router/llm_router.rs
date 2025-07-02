@@ -56,7 +56,7 @@ impl RouterService {
             router_model_v1::MAX_TOKEN_LEN,
         ));
 
-          let llm_provider_map: HashMap<String, LlmProvider> = providers
+        let llm_provider_map: HashMap<String, LlmProvider> = providers
             .into_iter()
             .map(|provider| (provider.name.clone(), provider))
             .collect();

@@ -32,12 +32,12 @@ pub async fn chat_completions(
     let chat_request_bytes = request.collect().await?.to_bytes();
 
     let chat_request_parsed = serde_json::from_slice::<serde_json::Value>(&chat_request_bytes)
-        .map_err(|err| {
+        .inspect_err(|err| {
             warn!(
-                "Failed to parse request body as JSON: {}",
+                "Failed to parse request body as JSON: err: {}, str: {}",
+                err,
                 String::from_utf8_lossy(&chat_request_bytes)
-            );
-            err
+            )
         })
         .unwrap_or_else(|_| {
             warn!(
@@ -55,39 +55,31 @@ pub async fn chat_completions(
         return Ok(bad_request);
     }
 
+    let chat_completion_request: ChatCompletionsRequest =
+        serde_json::from_value(chat_request_parsed.clone()).unwrap();
+
     // remove metadata from the request
-    let mut chat_request_parsed = chat_request_parsed;
-    if let Some(metadata) = chat_request_parsed.get_mut("metadata") {
+    let mut chat_request_user_preferences_removed = chat_request_parsed;
+    if let Some(metadata) = chat_request_user_preferences_removed.get_mut("metadata") {
         info!("Removing metadata from request");
-        metadata.as_object_mut().map(|m| {
+        if let Some(m) = metadata.as_object_mut() {
             m.remove("archgw_preference_config");
             info!("Removed archgw_preference_config from metadata");
-        });
+        }
+
+        // metadata.as_object_mut().map(|m| {
+        //     m.remove("archgw_preference_config");
+        //     info!("Removed archgw_preference_config from metadata");
+        // });
 
         // if metadata is empty, remove it
         if metadata.as_object().map_or(false, |m| m.is_empty()) {
             info!("Removing empty metadata from request");
-            chat_request_parsed
+            chat_request_user_preferences_removed
                 .as_object_mut()
                 .map(|m| m.remove("metadata"));
         }
     }
-
-    let chat_completion_request: ChatCompletionsRequest =
-        match ChatCompletionsRequest::try_from(chat_request_bytes.as_ref()) {
-            Ok(request) => request,
-            Err(err) => {
-                warn!(
-                    "arch-router request body string: {}",
-                    String::from_utf8_lossy(&chat_request_bytes)
-                );
-                let err_msg = format!("Failed to parse request body: {}", err);
-                warn!("{}", err_msg);
-                let mut bad_request = Response::new(full(err_msg));
-                *bad_request.status_mut() = StatusCode::BAD_REQUEST;
-                return Ok(bad_request);
-            }
-        };
 
     trace!(
         "arch-router request body: {}",
@@ -153,7 +145,8 @@ pub async fn chat_completions(
         );
     }
 
-    let chat_request_parsed_bytes = serde_json::to_string(&chat_request_parsed).unwrap();
+    let chat_request_parsed_bytes =
+        serde_json::to_string(&chat_request_user_preferences_removed).unwrap();
 
     // remove content-length header if it exists
     request_headers.remove(header::CONTENT_LENGTH);

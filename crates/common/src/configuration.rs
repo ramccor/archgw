@@ -1,8 +1,8 @@
 use hermesllm::providers::openai::types::{ModelDetail, ModelObject, Models};
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 use std::fmt::Display;
-use serde_with::skip_serializing_none;
 
 use crate::api::open_ai::{
     ChatCompletionTool, FunctionDefinition, FunctionParameter, FunctionParameters, ParameterType,
