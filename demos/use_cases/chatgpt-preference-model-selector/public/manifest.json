@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "RouteGPT (beta)",
   "version": "0.1.0",
-  "description": " Dynamically route to GPT models based on usage preferences. Powered by Arch-Router.",
+  "description": "RouteGPT: Smart Model Routing for ChatGPT.",
   "permissions": [
     "storage",
     "tabs",
