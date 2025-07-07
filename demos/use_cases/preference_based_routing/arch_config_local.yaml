@@ -13,7 +13,7 @@ listeners:
 llm_providers:
 
   - name: arch-router
-    access_key: $ARCH_API_KEY
+    access_key: ${ARCH_API_KEY:-none}
     provider_interface: arch
     model: hf.co/katanemo/Arch-Router-1.5B.gguf:Q4_K_M
     endpoint: host.docker.internal:11434
