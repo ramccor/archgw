@@ -9,13 +9,11 @@ listeners:
 
 llm_providers:
 
-  - name: openai/gpt-4o-mini
-    provider_interface: openai
+  - provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: gpt-4o-mini
 
-  - name: openai/gpt-4.1
-    provider_interface: openai
+  - provider_interface: openai
     access_key: $OPENAI_API_KEY
     model: gpt-4.1
     default: true

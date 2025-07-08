@@ -45,8 +45,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let bind_address = env::var("BIND_ADDRESS").unwrap_or_else(|_| BIND_ADDRESS.to_string());
 
     // loading arch_config.yaml file
-    let arch_config_path =
-        env::var("ARCH_CONFIG_PATH").unwrap_or_else(|_| "./arch_config.yaml".to_string());
+    let arch_config_path = env::var("ARCH_CONFIG_PATH_RENDERED")
+        .unwrap_or_else(|_| "./arch_config_rendered.yaml".to_string());
     info!("Loading arch_config.yaml from {}", arch_config_path);
 
     let config_contents =

@@ -103,7 +103,8 @@ properties:
           type: string
       additionalProperties: false
       required:
-        - name
+        - model
+        - provider_interface
   overrides:
     type: object
     properties:

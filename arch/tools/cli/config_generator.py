@@ -9,6 +9,9 @@ ENVOY_CONFIG_TEMPLATE_FILE = os.getenv(
     "ENVOY_CONFIG_TEMPLATE_FILE", "envoy.template.yaml"
 )
 ARCH_CONFIG_FILE = os.getenv("ARCH_CONFIG_FILE", "/app/arch_config.yaml")
+ARCH_CONFIG_FILE_RENDERED = os.getenv(
+    "ARCH_CONFIG_FILE_RENDERED", "/app/arch_config_rendered.yaml"
+)
 ENVOY_CONFIG_FILE_RENDERED = os.getenv(
     "ENVOY_CONFIG_FILE_RENDERED", "/etc/envoy/envoy.yaml"
 )
@@ -90,9 +93,9 @@ def validate_and_render_schema():
                 f"Duplicate llm_provider name {llm_provider.get('name')}, please provide unique name for each llm_provider"
             )
         if llm_provider.get("name") is None:
-            raise Exception(
-                f"llm_provider name is required, please provide name for llm_provider"
-            )
+            provider_interface = llm_provider.get("provider_interface", "unknown")
+            model_name = llm_provider.get("model", "unknown")
+            llm_provider["name"] = f"{provider_interface}/{model_name}"
         llm_provider_name_set.add(llm_provider.get("name"))
         provider = None
         if llm_provider.get("provider") and llm_provider.get("provider_interface"):
@@ -215,6 +218,9 @@ def validate_and_render_schema():
     print(rendered)
     with open(ENVOY_CONFIG_FILE_RENDERED, "w") as file:
         file.write(rendered)
+
+    with open(ARCH_CONFIG_FILE_RENDERED, "w") as file:
+        file.write(arch_config_string)
 
 
 def validate_prompt_config(arch_config_file, arch_config_schema_file):
