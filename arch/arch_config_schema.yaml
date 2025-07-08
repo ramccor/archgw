@@ -66,21 +66,6 @@ properties:
       properties:
         name:
           type: string
-        # provider field is deprecated, use provider_interface instead
-        provider:
-          type: string
-          enum:
-            - openai
-        provider_interface:
-          type: string
-          enum:
-            - arch
-            - claude
-            - deepseek
-            - groq
-            - mistral
-            - openai
-            - gemini
         access_key:
           type: string
         model:
@@ -104,7 +89,6 @@ properties:
       additionalProperties: false
       required:
         - model
-        - provider_interface
   overrides:
     type: object
     properties:

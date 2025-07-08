@@ -10,37 +10,29 @@ listeners:
 llm_providers:
 
   - access_key: $OPENAI_API_KEY
-    provider_interface: openai
-    model: gpt-4o-mini
+    model: openai/gpt-4o-mini
 
   - access_key: $OPENAI_API_KEY
-    provider_interface: openai
-    model: gpt-4o
+    model: openai/gpt-4o
     default: true
 
   - access_key: $MISTRAL_API_KEY
-    provider_interface: mistral
-    model: ministral-3b-latest
+    model: mistral/ministral-3b-latest
 
   - access_key: $ANTHROPIC_API_KEY
-    provider_interface: claude
-    model: claude-3-7-sonnet-latest
+    model: claude/claude-3-7-sonnet-latest
 
   - access_key: $ANTHROPIC_API_KEY
-    provider_interface: claude
-    model: claude-sonnet-4-0
+    model: claude/claude-sonnet-4-0
 
   - access_key: $DEEPSEEK_API_KEY
-    provider_interface: deepseek
-    model: deepseek-reasoner
+    model: deepseek/deepseek-reasoner
 
   - access_key: $GROQ_API_KEY
-    provider_interface: groq
-    model: llama-3.1-8b-instant
+    model: groq/llama-3.1-8b-instant
 
   - access_key: $GEMINI_API_KEY
-    provider_interface: gemini
-    model: gemini-1.5-pro-latest
+    model: gemini/gemini-1.5-pro-latest
 
 tracing:
   random_sampling: 100

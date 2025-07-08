@@ -19,6 +19,16 @@ ARCH_CONFIG_SCHEMA_FILE = os.getenv(
     "ARCH_CONFIG_SCHEMA_FILE", "arch_config_schema.yaml"
 )
 
+SUPPORTED_PROVIDERS = [
+    "arch",
+    "claude",
+    "deepseek",
+    "groq",
+    "mistral",
+    "openai",
+    "gemini",
+]
+
 
 def get_endpoint_and_port(endpoint, protocol):
     endpoint_tokens = endpoint.split(":")
@@ -92,10 +102,24 @@ def validate_and_render_schema():
             raise Exception(
                 f"Duplicate llm_provider name {llm_provider.get('name')}, please provide unique name for each llm_provider"
             )
+
+        model_name = llm_provider.get("model")
         if llm_provider.get("name") is None:
-            provider_interface = llm_provider.get("provider_interface", "unknown")
-            model_name = llm_provider.get("model", "unknown")
-            llm_provider["name"] = f"{provider_interface}/{model_name}"
+            llm_provider["name"] = model_name
+
+        model_name_tokens = model_name.split("/")
+        if len(model_name_tokens) < 2:
+            raise Exception(
+                f"Invalid model name {model_name}. Please provide model name in the format <provider>/<model_id>."
+            )
+        provider = model_name_tokens[0]
+        model_id = "/".join(model_name_tokens[1:])
+        if provider not in SUPPORTED_PROVIDERS:
+            raise Exception(
+                f"Unsupported provider {provider} for model {model_name}. Supported providers are: {', '.join(SUPPORTED_PROVIDERS)}"
+            )
+
+        llm_provider["provider_interface"] = provider
         llm_provider_name_set.add(llm_provider.get("name"))
         provider = None
         if llm_provider.get("provider") and llm_provider.get("provider_interface"):
