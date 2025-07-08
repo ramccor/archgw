@@ -4,9 +4,7 @@
   "version": "0.1.0",
   "description": "RouteGPT: Smart Model Routing for ChatGPT.",
   "permissions": [
-    "storage",
-    "tabs",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://chatgpt.com/*",
