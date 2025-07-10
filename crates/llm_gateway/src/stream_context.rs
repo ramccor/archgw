@@ -307,11 +307,6 @@ impl HttpContext for StreamContext {
             }
         };
 
-        debug!(
-            "on_http_request_body: deserialized body: {}",
-            serde_json::to_string(&deserialized_body).unwrap_or_default()
-        );
-
         self.user_message = deserialized_body
             .messages
             .iter()
