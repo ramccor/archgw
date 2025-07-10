@@ -15,14 +15,14 @@ llm_providers:
   name: openai/gpt-4o
   provider_interface: openai
   routing_preferences:
-  - description: b
-    name: code understanding
+  - description: generating new code snippets, functions, or boilerplate based on user prompts or requirements
+    name: code generation
 - access_key: $OPENAI_API_KEY
   model: gpt-4.1
   name: openai/gpt-4.1
   provider_interface: openai
   routing_preferences:
-  - description: a
+  - description: understand and explain existing code snippets, functions, or libraries
     name: code understanding
 tracing:
   random_sampling: 100

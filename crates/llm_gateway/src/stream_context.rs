@@ -344,7 +344,7 @@ impl HttpContext for StreamContext {
 
         info!(
             "on_http_request_body: provider: {}, model requested (in body): {}, model selected: {}",
-            self.llm_provider().provider_interface,
+            self.llm_provider().name,
             model_requested,
             model_name.unwrap_or(&"None".to_string()),
         );
