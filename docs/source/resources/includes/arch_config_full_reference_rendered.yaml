@@ -31,14 +31,19 @@ endpoints:
 # Centralized way to manage LLMs, manage keys, retry logic, failover and limits in a central way
 llm_providers:
   - name: openai/gpt-4o
+    provider_interface: openai
     access_key: $OPENAI_API_KEY
-    model: openai/gpt-4o
+    model: gpt-4o
     default: true
 
-  - access_key: $MISTRAL_API_KEY
-    model: mistral/mistral-8x7b
+  - name: mistral/mistral-8x7b
+    provider_interface: mistral
+    access_key: $MISTRAL_API_KEY
+    model: mistral-8x7b
 
-  - model: mistral/mistral-7b-instruct
+  - name: mistral/mistral-7b-instruct
+    provider_interface: mistral
+    model: mistral-7b-instruct
     base_url: http://mistral_local
 
 # provides a way to override default settings for the arch system

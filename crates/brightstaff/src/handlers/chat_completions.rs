@@ -12,7 +12,7 @@ use hyper::{Request, Response, StatusCode};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_stream::StreamExt;
-use tracing::{debug, info, trace, warn};
+use tracing::{debug, info, warn};
 
 use crate::router::llm_router::RouterService;
 
@@ -81,8 +81,8 @@ pub async fn chat_completions(
         }
     }
 
-    trace!(
-        "arch-router request body: {}",
+    debug!(
+        "arch-router request received: {}",
         &serde_json::to_string(&chat_completion_request).unwrap()
     );
 
@@ -102,7 +102,7 @@ pub async fn chat_completions(
         .as_ref()
         .and_then(|s| serde_yaml::from_str(s).ok());
 
-    debug!("usage preferences: {:?}", usage_preferences);
+    debug!("usage preferences from request: {:?}", usage_preferences);
 
     let mut determined_route = match router_service
         .determine_route(

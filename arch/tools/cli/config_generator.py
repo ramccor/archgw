@@ -95,6 +95,8 @@ def validate_and_render_schema():
     updated_llm_providers = []
     llm_provider_name_set = set()
     llms_with_usage = []
+    model_name_keys = set()
+    model_usage_name_keys = set()
     for llm_provider in config_yaml["llm_providers"]:
         if llm_provider.get("usage", None):
             llms_with_usage.append(llm_provider["name"])
@@ -104,6 +106,11 @@ def validate_and_render_schema():
             )
 
         model_name = llm_provider.get("model")
+        if model_name in model_name_keys:
+            raise Exception(
+                f"Duplicate model name {model_name}, please provide unique model name for each llm_provider"
+            )
+        model_name_keys.add(model_name)
         if llm_provider.get("name") is None:
             llm_provider["name"] = model_name
 
@@ -119,6 +126,20 @@ def validate_and_render_schema():
                 f"Unsupported provider {provider} for model {model_name}. Supported providers are: {', '.join(SUPPORTED_PROVIDERS)}"
             )
 
+        if model_id in model_name_keys:
+            raise Exception(
+                f"Duplicate model_id {model_id}, please provide unique model_id for each llm_provider"
+            )
+        model_name_keys.add(model_id)
+
+        for routing_preference in llm_provider.get("routing_preferences", []):
+            if routing_preference.get("name") in model_usage_name_keys:
+                raise Exception(
+                    f"Duplicate routing preference name \"{routing_preference.get('name')}\", please provide unique name for each routing preference"
+                )
+            model_usage_name_keys.add(routing_preference.get("name"))
+
+        llm_provider["model"] = model_id
         llm_provider["provider_interface"] = provider
         llm_provider_name_set.add(llm_provider.get("name"))
         provider = None
@@ -132,21 +153,14 @@ def validate_and_render_schema():
             del llm_provider["provider"]
         updated_llm_providers.append(llm_provider)
 
-        if llm_provider.get("endpoint") and llm_provider.get("base_url"):
-            raise Exception("Please provide either endpoint or base_url, not both")
-
-        if llm_provider.get("endpoint", None):
-            endpoint = llm_provider["endpoint"]
-            protocol = llm_provider.get("protocol", "http")
-            llm_provider["endpoint"], llm_provider["port"] = get_endpoint_and_port(
-                endpoint, protocol
-            )
-            llms_with_endpoint.append(llm_provider)
-        elif llm_provider.get("base_url", None):
+        if llm_provider.get("base_url", None):
             base_url = llm_provider["base_url"]
             urlparse_result = urlparse(base_url)
-            if llm_provider.get("port"):
-                raise Exception("Please provider port in base_url")
+            url_path = urlparse_result.path
+            if url_path and url_path != "/":
+                raise Exception(
+                    f"Please provide base_url without path, got {base_url}. Use base_url like 'http://example.com' instead of 'http://example.com/path'."
+                )
             if urlparse_result.scheme == "" or urlparse_result.scheme not in [
                 "http",
                 "https",

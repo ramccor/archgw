@@ -101,9 +101,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# VSCode stuff:
-.vscode/
-
 # MacOS Metadata
 *.DS_Store
 

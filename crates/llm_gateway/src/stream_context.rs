@@ -113,16 +113,10 @@ impl StreamContext {
         }
 
         debug!(
-            "request received: llm provider hint: {}, selected llm: {}, model: {}",
+            "request received: llm provider hint: {}, selected provider: {}",
             self.get_http_request_header(ARCH_PROVIDER_HINT_HEADER)
                 .unwrap_or_default(),
-            self.llm_provider.as_ref().unwrap().name,
-            self.llm_provider
-                .as_ref()
-                .unwrap()
-                .model
-                .as_ref()
-                .unwrap_or(&String::new())
+            self.llm_provider.as_ref().unwrap().name
         );
     }
 
@@ -313,6 +307,11 @@ impl HttpContext for StreamContext {
             }
         };
 
+        debug!(
+            "on_http_request_body: deserialized body: {}",
+            serde_json::to_string(&deserialized_body).unwrap_or_default()
+        );
+
         self.user_message = deserialized_body
             .messages
             .iter()
@@ -349,8 +348,8 @@ impl HttpContext for StreamContext {
         };
 
         info!(
-            "on_http_request_body: provider: {}, model requested: {}, model selected: {}",
-            self.llm_provider().name,
+            "on_http_request_body: provider: {}, model requested (in body): {}, model selected: {}",
+            self.llm_provider().provider_interface,
             model_requested,
             model_name.unwrap_or(&"None".to_string()),
         );

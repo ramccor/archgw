@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use common::{
-    configuration::{LlmProvider, LlmRoute, ModelUsagePreference},
+    configuration::{LlmProvider, ModelUsagePreference, RoutingPreference},
     consts::ARCH_PROVIDER_HINT_HEADER,
 };
 use hermesllm::providers::openai::types::{ChatCompletionsResponse, ContentType, Message};
@@ -44,11 +44,14 @@ impl RouterService {
     ) -> Self {
         let providers_with_usage = providers
             .iter()
-            .filter(|provider| provider.usage.is_some())
+            .filter(|provider| provider.routing_preferences.is_some())
             .cloned()
             .collect::<Vec<LlmProvider>>();
 
-        let llm_routes: Vec<LlmRoute> = providers_with_usage.iter().map(LlmRoute::from).collect();
+        let llm_routes: Vec<RoutingPreference> = providers_with_usage
+            .iter()
+            .flat_map(|provider| provider.routing_preferences.clone().unwrap_or_default())
+            .collect();
 
         let router_model = Arc::new(router_model_v1::RouterModelV1::new(
             llm_routes,
@@ -155,6 +158,12 @@ impl RouterService {
                 route_name,
                 router_response_time.as_millis()
             );
+
+            if let Some(ref route) = route_name {
+                if route == "other" {
+                    return Ok(None);
+                }
+            }
 
             Ok(route_name)
         } else {
