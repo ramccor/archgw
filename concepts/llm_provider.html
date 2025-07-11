@@ -177,14 +177,15 @@ across applications.</p>
 </span><span id="line-9"><span class="linenos"> 9</span>
 </span><span id="line-10"><mark><span class="linenos">10</span><span class="c1"># Centralized way to manage LLMs, manage keys, retry logic, failover and limits in a central way</span>
 </mark></span><span id="line-11"><mark><span class="linenos">11</span><span class="nt">llm_providers</span><span class="p">:</span>
-</mark></span><span id="line-12"><mark><span class="linenos">12</span><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenAI</span>
-</mark></span><span id="line-13"><mark><span class="linenos">13</span><span class="w">    </span><span class="nt">provider_interface</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openai</span>
-</mark></span><span id="line-14"><mark><span class="linenos">14</span><span class="w">    </span><span class="nt">access_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$OPENAI_API_KEY</span>
-</mark></span><span id="line-15"><mark><span class="linenos">15</span><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-4o</span>
-</mark></span><span id="line-16"><mark><span class="linenos">16</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</mark></span><span id="line-17"><span class="linenos">17</span>
-</span><span id="line-18"><span class="linenos">18</span><span class="c1"># default system prompt used by all prompt targets</span>
-</span><span id="line-19"><span class="linenos">19</span><span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">You are a network assistant that just offers facts; not advice on manufacturers or purchasing decisions.</span>
+</mark></span><span id="line-12"><mark><span class="linenos">12</span><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">access_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$OPENAI_API_KEY</span>
+</mark></span><span id="line-13"><mark><span class="linenos">13</span><span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openai/gpt-4o</span>
+</mark></span><span id="line-14"><mark><span class="linenos">14</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</mark></span><span id="line-15"><mark><span class="linenos">15</span>
+</mark></span><span id="line-16"><mark><span class="linenos">16</span><span class="c1"># default system prompt used by all prompt targets</span>
+</mark></span><span id="line-17"><span class="linenos">17</span><span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">You are a network assistant that just offers facts; not advice on manufacturers or purchasing decisions.</span>
+</span><span id="line-18"><span class="linenos">18</span>
+</span><span id="line-19"><span class="linenos">19</span><span class="nt">prompt_guards</span><span class="p">:</span>
+</span><span id="line-20"><span class="linenos">20</span><span class="w">  </span><span class="nt">input_guards</span><span class="p">:</span>
 </span></code></pre></div>
 </div>
 </div>
