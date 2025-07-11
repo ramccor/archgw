@@ -104,7 +104,7 @@ venv.bak/
 # MacOS Metadata
 *.DS_Store
 
-
+*.yaml_rendered
 
 # =========================================
 

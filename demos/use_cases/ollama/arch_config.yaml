@@ -9,7 +9,8 @@ listeners:
 
 llm_providers:
 
-  - model: openai/llama3.2
+  - model: my_llm_provider/llama3.2
+    provider_interface: openai
     base_url: http://host.docker.internal:11434
     default: true
 
