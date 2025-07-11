@@ -122,8 +122,17 @@ def validate_and_render_schema():
         provider = model_name_tokens[0]
         model_id = "/".join(model_name_tokens[1:])
         if provider not in SUPPORTED_PROVIDERS:
+            if (
+                llm_provider.get("base_url", None) is None
+                or llm_provider.get("provider_interface", None) is None
+            ):
+                raise Exception(
+                    f"Must provide base_url and provider_interface for unsupported provider {provider} for model {model_name}. Supported providers are: {', '.join(SUPPORTED_PROVIDERS)}"
+                )
+            provider = llm_provider.get("provider_interface", None)
+        elif llm_provider.get("provider_interface", None) is not None:
             raise Exception(
-                f"Unsupported provider {provider} for model {model_name}. Supported providers are: {', '.join(SUPPORTED_PROVIDERS)}"
+                f"Please provide provider interface as part of model name {model_name} using the format <provider>/<model_id>. For example, use 'openai/gpt-3.5-turbo' instead of 'gpt-3.5-turbo' "
             )
 
         if model_id in model_name_keys:
@@ -181,7 +190,7 @@ def validate_and_render_schema():
             llm_provider["protocol"] = protocol
             llms_with_endpoint.append(llm_provider)
 
-    if len(llms_with_usage) > 0:
+    if len(model_usage_name_keys) > 0:
         routing_llm_provider = config_yaml.get("routing", {}).get("llm_provider", None)
         if routing_llm_provider and routing_llm_provider not in llm_provider_name_set:
             raise Exception(

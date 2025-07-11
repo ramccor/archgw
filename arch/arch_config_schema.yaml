@@ -76,6 +76,16 @@ properties:
           type: string
         http_host:
           type: string
+        provider_interface:
+          type: string
+          enum:
+            - arch
+            - claude
+            - deepseek
+            - groq
+            - mistral
+            - openai
+            - gemini
         routing_preferences:
           type: array
           items:
