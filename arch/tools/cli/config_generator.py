@@ -5,19 +5,6 @@ import yaml
 from jsonschema import validate
 from urllib.parse import urlparse
 
-ENVOY_CONFIG_TEMPLATE_FILE = os.getenv(
-    "ENVOY_CONFIG_TEMPLATE_FILE", "envoy.template.yaml"
-)
-ARCH_CONFIG_FILE = os.getenv("ARCH_CONFIG_FILE", "/app/arch_config.yaml")
-ARCH_CONFIG_FILE_RENDERED = os.getenv(
-    "ARCH_CONFIG_FILE_RENDERED", "/app/arch_config_rendered.yaml"
-)
-ENVOY_CONFIG_FILE_RENDERED = os.getenv(
-    "ENVOY_CONFIG_FILE_RENDERED", "/etc/envoy/envoy.yaml"
-)
-ARCH_CONFIG_SCHEMA_FILE = os.getenv(
-    "ARCH_CONFIG_SCHEMA_FILE", "arch_config_schema.yaml"
-)
 
 SUPPORTED_PROVIDERS = [
     "arch",
@@ -45,8 +32,22 @@ def get_endpoint_and_port(endpoint, protocol):
 
 
 def validate_and_render_schema():
-    env = Environment(loader=FileSystemLoader("./"))
-    template = env.get_template("envoy.template.yaml")
+    ENVOY_CONFIG_TEMPLATE_FILE = os.getenv(
+        "ENVOY_CONFIG_TEMPLATE_FILE", "envoy.template.yaml"
+    )
+    ARCH_CONFIG_FILE = os.getenv("ARCH_CONFIG_FILE", "/app/arch_config.yaml")
+    ARCH_CONFIG_FILE_RENDERED = os.getenv(
+        "ARCH_CONFIG_FILE_RENDERED", "/app/arch_config_rendered.yaml"
+    )
+    ENVOY_CONFIG_FILE_RENDERED = os.getenv(
+        "ENVOY_CONFIG_FILE_RENDERED", "/etc/envoy/envoy.yaml"
+    )
+    ARCH_CONFIG_SCHEMA_FILE = os.getenv(
+        "ARCH_CONFIG_SCHEMA_FILE", "arch_config_schema.yaml"
+    )
+
+    env = Environment(loader=FileSystemLoader(os.getenv("TEMPLATE_ROOT", "./")))
+    template = env.get_template(ENVOY_CONFIG_TEMPLATE_FILE)
 
     try:
         validate_prompt_config(ARCH_CONFIG_FILE, ARCH_CONFIG_SCHEMA_FILE)
@@ -248,6 +249,7 @@ def validate_and_render_schema():
             agent_orchestrator = list(endpoints.keys())[0]
 
     print("agent_orchestrator: ", agent_orchestrator)
+
     data = {
         "prompt_gateway_listener": prompt_gateway_listener,
         "llm_gateway_listener": llm_gateway_listener,
@@ -284,7 +286,7 @@ def validate_prompt_config(arch_config_file, arch_config_schema_file):
         validate(config_yaml, config_schema_yaml)
     except Exception as e:
         print(
-            f"Error validating arch_config file: {arch_config_file}, schema file: {arch_config_schema_file}, error: {e.message}"
+            f"Error validating arch_config file: {arch_config_file}, schema file: {arch_config_schema_file}, error: {e}"
         )
         raise e
 
