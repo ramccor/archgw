@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  e2e_model_server_tests:
+  arch_tools_tests:
     runs-on: ubuntu-latest-m
     defaults:
       run:
