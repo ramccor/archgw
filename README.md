@@ -5,7 +5,7 @@
 
 
 _Arch is a proxy server designed as a modular edge and AI gateway for agentic apps_<br><br>
- Arch handles the *pesky low-level work* in building agentic apps like applying guadrails, routing prompts to the right agents, clarifying vague user input, and unifying access to large language models (LLMs). It plays well with any language or programming framework and helps you build production-grade agents faster.
+ Arch handles the *pesky low-level work* in building agentic apps —like applying guardrails, clarifying vague user input,routing prompts to the right agent, and unifying access to any LLM. It’s a polyglot, out-of-process infrastructure layer designed to help you build and ship agentic apps faster.
 
 
 [Quickstart](#Quickstart) •
